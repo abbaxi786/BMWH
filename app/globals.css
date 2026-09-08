@@ -1,26 +1,53 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@plugin "daisyui" {
+  themes: light --default;
+} /* <-- Ensure this closing brace is present! */
+
+@keyframes sprite-3x3 {
+  0% { background-position: 0% 0%; }
+  12.5% { background-position: 50% 0%; }
+  25% { background-position: 100% 0%; }
+  37.5% { background-position: 0% 50%; }
+  50% { background-position: 50% 50%; }
+  62.5% { background-position: 100% 50%; }
+  75% { background-position: 0% 100%; }
+  87.5% { background-position: 50% 100%; }
+  100% { background-position: 100% 100%; }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.animate-sprite-3x3 {
+  animation: sprite-3x3 0.9s steps(1) infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out both;
+}
+
+.animate-fade-in-down {
+    animation: fadeInDown 0.8s ease-out both;
 }

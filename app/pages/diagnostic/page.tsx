@@ -24,6 +24,46 @@ interface DiagnosticApiResponse {
     message?: string;
 }
 
+/**
+ * Convert category names into URL-safe IDs.
+ *
+ * Example:
+ * "Pathology" -> "pathology"
+ * "Radiology & Imaging" -> "radiology-and-imaging"
+ * "Cardiac" -> "cardiac"
+ */
+function createCategoryId(category: string) {
+    return category
+        .toLowerCase()
+        .trim()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Group diagnostic services by category.
+ */
+function groupDiagnosticsByCategory(
+    diagnostics: DiagnosticService[]
+) {
+    return diagnostics.reduce(
+        (
+            groups: Record<string, DiagnosticService[]>,
+            service
+        ) => {
+            if (!groups[service.category]) {
+                groups[service.category] = [];
+            }
+
+            groups[service.category].push(service);
+
+            return groups;
+        },
+        {}
+    );
+}
+
 async function Diagnostic() {
     let diagnostics: DiagnosticService[] = [];
 
@@ -38,17 +78,28 @@ async function Diagnostic() {
             );
         }
     } catch (error) {
-        console.error("Error fetching diagnostic services:", error);
+        console.error(
+            "Error fetching diagnostic services:",
+            error
+        );
     }
 
+    const groupedDiagnostics =
+        groupDiagnosticsByCategory(diagnostics);
+
     return (
-        <main className="min-h-screen bg-white animate-fade-in-up">
+        <main
+            id="diagnostic-page"
+            className="min-h-screen bg-white animate-fade-in-up"
+        >
 
             {/* =====================================================
                 HERO SECTION
             ===================================================== */}
+
             <section
-                className="relative min-h-105 overflow-hidden text-black"
+                id="diagnostic-overview"
+                className="relative min-h-105 scroll-mt-28 overflow-hidden text-black"
                 style={{
                     backgroundImage:
                         "url('https://media.istockphoto.com/id/2198730527/photo/medical-brain-scans-on-multiple-computer-screens-advanced-neuroimaging-technology-reveals.webp?a=1&b=1&s=612x612&w=0&k=20&c=rp61Iif9S7YzELKowpW9TDhp3ZX3LlB_717FKm36lys=')",
@@ -56,23 +107,30 @@ async function Diagnostic() {
                     backgroundPosition: "center right",
                 }}
             >
+
                 {/* Light blue gradient */}
+
                 <div className="absolute inset-0 bg-linear-to-r from-blue-50 via-blue-50/90 to-blue-100/30" />
 
-                {/* Soft white layer for text readability */}
+                {/* Soft white layer */}
+
                 <div className="absolute inset-0 bg-linear-to-r from-white/80 via-white/30 to-transparent" />
 
                 {/* Bottom fade */}
+
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-blue-50/50 to-transparent" />
 
                 {/* Hero Content */}
+
                 <div className="relative z-10 mx-auto flex min-h-105 max-w-7xl items-center px-6 py-16 md:px-8 md:py-20">
 
                     <div className="max-w-3xl">
 
                         {/* Breadcrumb */}
+
                         <div className="breadcrumbs mb-8 text-sm">
                             <ul>
+
                                 <li>
                                     <Link
                                         href="/"
@@ -87,10 +145,13 @@ async function Diagnostic() {
                                         Diagnostics
                                     </span>
                                 </li>
+
                             </ul>
                         </div>
 
+
                         {/* Label */}
+
                         <div className="mb-5 flex items-center gap-3">
 
                             <span className="h-0.5 w-10 bg-[#86000D]" />
@@ -101,12 +162,16 @@ async function Diagnostic() {
 
                         </div>
 
+
                         {/* Heading */}
+
                         <h1 className="text-4xl font-bold tracking-tight text-[#86000D] md:text-5xl lg:text-6xl">
                             Diagnostics & Imaging
                         </h1>
 
+
                         {/* Description */}
+
                         <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5B403D]">
                             Access reliable diagnostic and imaging services
                             supported by modern technology and professional
@@ -116,19 +181,25 @@ async function Diagnostic() {
                     </div>
 
                 </div>
+
             </section>
 
 
             {/* =====================================================
                 INTRODUCTION
             ===================================================== */}
-            <section className="py-16 md:py-20">
+
+            <section
+                id="diagnostic-introduction"
+                className="scroll-mt-28 py-16 md:py-20"
+            >
 
                 <div className="mx-auto max-w-7xl px-6">
 
                     <div className="grid items-center gap-12 lg:grid-cols-2">
 
                         {/* Left */}
+
                         <div>
 
                             <div className="flex items-center gap-3">
@@ -163,7 +234,10 @@ async function Diagnostic() {
 
 
                         {/* Right Feature Cards */}
+
                         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 lg:grid-cols-1">
+
+                            {/* Modern Diagnostics */}
 
                             <div className="flex items-center gap-5 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
 
@@ -172,6 +246,7 @@ async function Diagnostic() {
                                 </div>
 
                                 <div>
+
                                     <h3 className="font-bold text-gray-900">
                                         Modern Diagnostics
                                     </h3>
@@ -179,10 +254,13 @@ async function Diagnostic() {
                                     <p className="mt-1 text-sm text-gray-600">
                                         Supporting accurate clinical evaluation.
                                     </p>
+
                                 </div>
 
                             </div>
 
+
+                            {/* Patient Focused */}
 
                             <div className="flex items-center gap-5 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
 
@@ -191,6 +269,7 @@ async function Diagnostic() {
                                 </div>
 
                                 <div>
+
                                     <h3 className="font-bold text-gray-900">
                                         Patient Focused
                                     </h3>
@@ -198,10 +277,13 @@ async function Diagnostic() {
                                     <p className="mt-1 text-sm text-gray-600">
                                         Comfortable and accessible diagnostic care.
                                     </p>
+
                                 </div>
 
                             </div>
 
+
+                            {/* Clinical Support */}
 
                             <div className="flex items-center gap-5 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
 
@@ -210,6 +292,7 @@ async function Diagnostic() {
                                 </div>
 
                                 <div>
+
                                     <h3 className="font-bold text-gray-900">
                                         Clinical Support
                                     </h3>
@@ -217,6 +300,7 @@ async function Diagnostic() {
                                     <p className="mt-1 text-sm text-gray-600">
                                         Helping doctors make informed decisions.
                                     </p>
+
                                 </div>
 
                             </div>
@@ -233,11 +317,16 @@ async function Diagnostic() {
             {/* =====================================================
                 DIAGNOSTIC SERVICES
             ===================================================== */}
-            <section className="bg-gray-50 py-16 md:py-20">
+
+            <section
+                id="diagnostic-services"
+                className="scroll-mt-28 bg-gray-50 py-16 md:py-20"
+            >
 
                 <div className="mx-auto max-w-7xl px-6">
 
                     {/* Section Heading */}
+
                     <div className="mb-12">
 
                         <div className="flex items-center gap-3">
@@ -262,10 +351,14 @@ async function Diagnostic() {
                     </div>
 
 
-                    {/* Services */}
+                    {/* No Services */}
+
                     {diagnostics.length === 0 ? (
 
-                        <div className="rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center shadow-sm">
+                        <div
+                            id="no-diagnostic-services"
+                            className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center shadow-sm"
+                        >
 
                             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
 
@@ -287,73 +380,119 @@ async function Diagnostic() {
 
                     ) : (
 
-                        <div className="grid grid-cols-1 gap-7 md:grid-cols-2">
+                        <div className="flex flex-col gap-12">
 
-                            {diagnostics.map((service) => (
+                            {Object.entries(groupedDiagnostics).map(
+                                ([category, services]) => {
 
-                                <article
-                                    key={service.id}
-                                    className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                                >
+                                    const categoryId =
+                                        createCategoryId(category);
 
-                                    <Link href={`/pages/diagnostic/${service.id}`}>
+                                    return (
+                                        <section
+                                            key={category}
+                                            id={categoryId}
+                                            className="scroll-mt-28"
+                                        >
 
+                                            {/* Category Heading */}
 
-                                        {/* Image */}
-                                        <div className="relative h-64 overflow-hidden bg-gray-100">
+                                            <div className="mb-6 flex items-center gap-3 border-b border-gray-200 pb-3">
 
-                                            <Image
-                                                src={service.image_url}
-                                                alt={service.name}
-                                                fill
-                                                sizes="(max-width: 768px) 100vw, 50vw"
-                                                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                            />
+                                                <span className="h-0.5 w-8 bg-[#86000D]" />
 
-                                            {/* Image Overlay */}
-                                            <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
-
-                                            {/* Category */}
-                                            <div className="absolute left-5 top-5">
-
-                                                <span className="badge border-none bg-[#86000D] px-4 py-3 text-white">
-                                                    {service.category}
-                                                </span>
+                                                <h3 className="text-2xl font-bold text-gray-900 md:text-3xl">
+                                                    {category}
+                                                </h3>
 
                                             </div>
 
-                                        </div>
+
+                                            {/* Services */}
+
+                                            <div className="grid grid-cols-1 gap-7 md:grid-cols-2">
+
+                                                {services.map(
+                                                    (service) => (
+
+                                                        <article
+                                                            key={service.id}
+                                                            className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                                                        >
+
+                                                            <Link
+                                                                href={`/pages/diagnostic/${service.id}`}
+                                                            >
+
+                                                                {/* Image */}
+
+                                                                <div className="relative h-64 overflow-hidden bg-gray-100">
+
+                                                                    <Image
+                                                                        src={service.image_url}
+                                                                        alt={service.name}
+                                                                        fill
+                                                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                                                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                                    />
+
+                                                                    {/* Image Overlay */}
+
+                                                                    <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
 
 
-                                        {/* Content */}
-                                        <div className="p-6">
+                                                                    {/* Category */}
 
-                                            <h3 className="text-2xl font-bold text-gray-900">
-                                                {service.name}
-                                            </h3>
+                                                                    <div className="absolute left-5 top-5">
 
-                                            <p className="mt-3 leading-7 text-gray-600">
-                                                {service.description}
-                                            </p>
+                                                                        <span className="badge border-none bg-[#86000D] px-4 py-3 text-white">
+                                                                            {service.category}
+                                                                        </span>
 
-                                            <div className="mt-6 flex items-center justify-between">
+                                                                    </div>
 
-                                                <span className="text-sm font-semibold text-[#86000D]">
-                                                    Diagnostic Service
-                                                </span>
+                                                                </div>
 
-                                                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-[#86000D] transition-colors group-hover:bg-[#86000D] group-hover:text-white">
-                                                    <FaArrowRight />
-                                                </span>
+
+                                                                {/* Content */}
+
+                                                                <div className="p-6">
+
+                                                                    <h3 className="text-2xl font-bold text-gray-900">
+                                                                        {service.name}
+                                                                    </h3>
+
+                                                                    <p className="mt-3 leading-7 text-gray-600">
+                                                                        {service.description}
+                                                                    </p>
+
+                                                                    <div className="mt-6 flex items-center justify-between">
+
+                                                                        <span className="text-sm font-semibold text-[#86000D]">
+                                                                            Diagnostic Service
+                                                                        </span>
+
+                                                                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-[#86000D] transition-colors group-hover:bg-[#86000D] group-hover:text-white">
+                                                                            <FaArrowRight />
+                                                                        </span>
+
+                                                                    </div>
+
+                                                                </div>
+
+                                                            </Link>
+
+                                                        </article>
+
+                                                    )
+                                                )}
 
                                             </div>
 
-                                        </div>
-
-                                    </Link>
-                                </article>
-
-                            ))}
+                                        </section>
+                                    );
+                                }
+                            )}
 
                         </div>
 
@@ -367,13 +506,23 @@ async function Diagnostic() {
             {/* =====================================================
                 CONTACT INFORMATION
             ===================================================== */}
-            <ContactUsCard />
+
+            <section
+                id="diagnostic-contact"
+                className="scroll-mt-28"
+            >
+                <ContactUsCard />
+            </section>
 
 
             {/* =====================================================
                 CTA
             ===================================================== */}
-            <section className="bg-linear-to-r from-[#86000D] to-[#a90012] py-16">
+
+            <section
+                id="diagnostic-cta"
+                className="scroll-mt-28 bg-linear-to-r from-[#86000D] to-[#a90012] py-16"
+            >
 
                 <div className="mx-auto max-w-5xl px-6 text-center">
 

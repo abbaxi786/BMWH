@@ -29,10 +29,18 @@ export default async function AllNewsUpdates() {
   }
 
   return (
-    <main className="w-full bg-white">
+    <main
+      id="news-updates"
+      className="w-full bg-white"
+    >
 
-      {/* Header */}
-      <section className="w-full bg-[#FBF9F9] px-5 py-10 sm:px-10 lg:py-14">
+      {/* =====================================================
+          Header / Overview
+      ====================================================== */}
+      <section
+        id="news-updates-overview"
+        className="w-full scroll-mt-28 bg-[#FBF9F9] px-5 py-10 sm:px-10 lg:py-14"
+      >
         <div className="mx-auto w-full max-w-300">
 
           {/* Breadcrumbs - Top Left */}
@@ -97,14 +105,22 @@ export default async function AllNewsUpdates() {
         </div>
       </section>
 
-      {/* News Listing */}
-      <section className="w-full px-5 py-16 sm:px-10 lg:py-24">
+
+      {/* =====================================================
+          News Listing
+      ====================================================== */}
+      <section
+        id="all-news-updates"
+        className="w-full scroll-mt-28 px-5 py-16 sm:px-10 lg:py-24"
+      >
         <div className="mx-auto w-full max-w-300">
 
           {newsAndUpdates.length > 0 ? (
+
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 
               {newsAndUpdates.map((update) => (
+
                 <article
                   key={update.id}
                   className="group flex min-h-100 flex-col overflow-hidden rounded-lg bg-[#FBF9F9] shadow-[0_1px_2px_rgba(0,0,0,0.05)] transition-shadow duration-300 hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-4px_rgba(0,0,0,0.1)]"
@@ -136,6 +152,7 @@ export default async function AllNewsUpdates() {
 
                   </div>
 
+
                   {/* Content */}
                   <div className="flex flex-1 flex-col gap-2 p-4">
 
@@ -154,15 +171,18 @@ export default async function AllNewsUpdates() {
                       </time>
                     </div>
 
+
                     {/* Title */}
                     <h2 className="line-clamp-2 text-2xl font-semibold leading-8.25 text-[#1B1C1C]">
                       {update.title}
                     </h2>
 
+
                     {/* Excerpt */}
                     <p className="line-clamp-2 text-base leading-6 text-[#5B403D]">
                       {update.excerpt}
                     </p>
+
 
                     {/* Read More */}
                     <div className="mt-auto pt-4">
@@ -178,15 +198,22 @@ export default async function AllNewsUpdates() {
                   </div>
 
                 </article>
+
               ))}
 
             </div>
+
           ) : (
-            <div className="flex min-h-60 items-center justify-center rounded-lg bg-[#FBF9F9]">
+
+            <div
+              id="no-news-updates"
+              className="flex min-h-60 scroll-mt-28 items-center justify-center rounded-lg bg-[#FBF9F9]"
+            >
               <p className="text-base text-[#5B403D]">
                 No news and updates available at the moment.
               </p>
             </div>
+
           )}
 
         </div>
@@ -195,4 +222,3 @@ export default async function AllNewsUpdates() {
     </main>
   );
 }
-

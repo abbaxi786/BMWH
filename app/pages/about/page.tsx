@@ -3,11 +3,8 @@ import Image from "next/image";
 import {
     FaArrowRight,
     FaCheckCircle,
-    FaChevronRight,
     FaHeartbeat,
     FaHandHoldingHeart,
-    FaHospital,
-    FaMedal,
     FaPeopleCarry,
     FaShieldAlt,
     FaStethoscope,
@@ -16,19 +13,17 @@ import {
 import {
     MdHealthAndSafety,
     MdLocalHospital,
-    MdOutlineEmojiEvents,
     MdOutlineMedicalServices,
 } from "react-icons/md";
+
 import Supporters from "@/app/components/AboutContent/supporters";
 import HealthPartners from "@/app/components/AboutContent/health_partners";
 import SuccessStories from "@/app/components/AboutContent/success_stories";
 import DepartmentsSection from "@/app/components/departmentPageComponents/countedDepartment";
 import EventsSection from "@/app/components/landingPageComponents/events_section";
 
-
 // ============================================================
 // DUMMY DATA
-// Replace these objects with backend/API data later.
 // ============================================================
 
 const aboutData = {
@@ -51,7 +46,6 @@ const aboutData = {
         "To become a trusted healthcare institution known for quality medical care, patient welfare, professional excellence, and meaningful service to the community.",
 };
 
-
 // ============================================================
 // FOUNDER
 // ============================================================
@@ -65,7 +59,6 @@ const founder = {
     biography:
         "The founder has envisioned BMWH as a growing healthcare institution dedicated to serving the community through quality medical services and patient-centered care.",
 };
-
 
 // ============================================================
 // PATIENT WELFARE
@@ -97,7 +90,6 @@ const welfareItems = [
             "We are committed to protecting the privacy, dignity, safety, and rights of every patient.",
     },
 ];
-
 
 // ============================================================
 // DEPARTMENTS
@@ -134,7 +126,6 @@ const departments = [
     },
 ];
 
-
 // ============================================================
 // ACHIEVEMENTS / JOURNEY
 // ============================================================
@@ -160,7 +151,9 @@ const journey = [
     },
 ];
 
-
+// ============================================================
+// RECENT EVENTS
+// ============================================================
 
 const recentEvents = [
     {
@@ -192,23 +185,25 @@ const recentEvents = [
     },
 ];
 
-
 // ============================================================
 // PAGE
 // ============================================================
 
 export default function AboutPage() {
     return (
-        <main className="bg-[#FBF9F9] text-gray-800 animate-fade-in-up">
-
+        <main
+            id="about"
+            className="bg-[#FBF9F9] text-gray-800 animate-fade-in-up"
+        >
             {/* ==================================================
                 HERO
             ================================================== */}
 
-            <section className="relative overflow-hidden bg-white">
-
+            <section
+                id="about-overview"
+                className="relative scroll-mt-28 overflow-hidden bg-white"
+            >
                 <div className="mx-auto flex min-h-140 max-w-7xl items-center px-6 py-20 lg:px-10">
-
                     <div className="grid w-full items-center gap-14 lg:grid-cols-2">
 
                         {/* Content */}
@@ -231,7 +226,6 @@ export default function AboutPage() {
                             </p>
 
                             <div className="mt-8 flex flex-wrap gap-4">
-
                                 <Link
                                     href="/pages/contact"
                                     className="btn border-none bg-[#911824] px-7 text-white hover:bg-[#7d1420]"
@@ -246,24 +240,21 @@ export default function AboutPage() {
                                 >
                                     Our Departments
                                 </Link>
-
                             </div>
                         </div>
 
+                        {/* Image */}
 
-                        {/* Image Placeholder */}
-
-
-                            <div className="relative">
-                                <div className="relative aspect-4/3 w-full overflow-hidden rounded-3xl bg-gray-100">
-                                    <Image
-                                        src="/images/buildingImage.jpeg"
-                                        alt="Bashir Memorial Welfare Hospital"
-                                        fill
-                                        sizes="(max-width: 768px) 100vw, 50vw"
-                                        className="object-cover"
-                                    />
-                                </div>
+                        <div className="relative">
+                            <div className="relative aspect-4/3 w-full overflow-hidden rounded-3xl bg-gray-100">
+                                <Image
+                                    src="/images/buildingImage.jpeg"
+                                    alt="Bashir Memorial Welfare Hospital"
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    className="object-cover"
+                                />
+                            </div>
 
                             <div className="absolute -bottom-6 -left-6 hidden rounded-2xl bg-white p-5 shadow-xl sm:block">
                                 <div className="flex items-center gap-4">
@@ -275,30 +266,28 @@ export default function AboutPage() {
                                         <p className="text-sm font-semibold text-gray-900">
                                             Patient-Centered
                                         </p>
+
                                         <p className="text-xs text-gray-500">
                                             Healthcare & Welfare
                                         </p>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
 
                     </div>
-
                 </div>
-
             </section>
-
 
             {/* ==================================================
                 WHO WE ARE
             ================================================== */}
 
-            <section className="py-20 lg:py-28">
-
+            <section
+                id="who-we-are"
+                className="scroll-mt-28 py-20 lg:py-28"
+            >
                 <div className="mx-auto max-w-275 px-6 lg:px-10">
-
                     <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
 
                         <div>
@@ -322,22 +311,20 @@ export default function AboutPage() {
                         </div>
 
                     </div>
-
                 </div>
-
             </section>
-
 
             {/* ==================================================
                 MISSION & VISION
             ================================================== */}
 
-            <section className="bg-white py-20 lg:py-24">
-
+            <section
+                id="mission-vision"
+                className="scroll-mt-28 bg-white py-20 lg:py-24"
+            >
                 <div className="mx-auto max-w-275 px-6 lg:px-10">
 
                     <div className="mb-12 text-center">
-
                         <p className="mb-3 text-sm font-bold uppercase tracking-wider text-[#911824]">
                             What Guides Us
                         </p>
@@ -345,16 +332,16 @@ export default function AboutPage() {
                         <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
                             Our Mission & Vision
                         </h2>
-
                     </div>
-
 
                     <div className="grid gap-7 md:grid-cols-2">
 
                         {/* Mission */}
 
-                        <div className="rounded-3xl bg-[#FBF9F9] p-8 md:p-10">
-
+                        <div
+                            id="mission"
+                            className="scroll-mt-28 rounded-3xl bg-[#FBF9F9] p-8 md:p-10"
+                        >
                             <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#911824] text-2xl text-white">
                                 <FaHeartbeat />
                             </div>
@@ -366,14 +353,14 @@ export default function AboutPage() {
                             <p className="leading-8 text-gray-600">
                                 {aboutData.mission}
                             </p>
-
                         </div>
-
 
                         {/* Vision */}
 
-                        <div className="rounded-3xl bg-[#911824] p-8 text-white md:p-10">
-
+                        <div
+                            id="vision"
+                            className="scroll-mt-28 rounded-3xl bg-[#911824] p-8 text-white md:p-10"
+                        >
                             <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-2xl">
                                 <MdHealthAndSafety />
                             </div>
@@ -385,22 +372,20 @@ export default function AboutPage() {
                             <p className="leading-8 text-white/80">
                                 {aboutData.vision}
                             </p>
-
                         </div>
 
                     </div>
-
                 </div>
-
             </section>
-
 
             {/* ==================================================
                 FOUNDER MESSAGE
             ================================================== */}
 
-            <section className="py-20 lg:py-28">
-
+            <section
+                id="founder"
+                className="scroll-mt-28 py-20 lg:py-28"
+            >
                 <div className="mx-auto max-w-275 px-6 lg:px-10">
 
                     <div className="grid items-center gap-12 lg:grid-cols-[0.75fr_1.25fr]">
@@ -408,20 +393,7 @@ export default function AboutPage() {
                         {/* Founder Image */}
 
                         <div className="relative mx-auto w-full max-w-95">
-
                             <div className="aspect-4/5 overflow-hidden rounded-3xl bg-gray-100">
-
-                                {/*
-                                  Replace later with:
-
-                                  <Image
-                                      src={founder.image}
-                                      alt={founder.name}
-                                      fill
-                                      className="object-cover"
-                                  />
-                                */}
-
                                 <div className="flex h-full items-center justify-center text-center text-gray-400">
                                     <div>
                                         <FaUserMd className="mx-auto mb-4 text-5xl" />
@@ -430,16 +402,12 @@ export default function AboutPage() {
                                         </p>
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
-
 
                         {/* Message */}
 
                         <div>
-
                             <p className="mb-3 text-sm font-bold uppercase tracking-wider text-[#911824]">
                                 From Our Founder
                             </p>
@@ -469,26 +437,23 @@ export default function AboutPage() {
                                 Read More About Our Founder
                                 <FaArrowRight />
                             </Link>
-
                         </div>
 
                     </div>
-
                 </div>
-
             </section>
-
 
             {/* ==================================================
                 PATIENT WELFARE
             ================================================== */}
 
-            <section className="bg-[#911824] py-20 text-white lg:py-24">
-
+            <section
+                id="patient-welfare"
+                className="scroll-mt-28 bg-[#911824] py-20 text-white lg:py-24"
+            >
                 <div className="mx-auto max-w-275 px-6 lg:px-10">
 
                     <div className="mb-14 max-w-3xl">
-
                         <p className="mb-3 text-sm font-bold uppercase tracking-wider text-white/70">
                             Our Commitment
                         </p>
@@ -503,9 +468,7 @@ export default function AboutPage() {
                             dignity, compassion, respect, and support throughout
                             their healthcare journey.
                         </p>
-
                     </div>
-
 
                     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
 
@@ -514,7 +477,6 @@ export default function AboutPage() {
                                 key={item.title}
                                 className="rounded-2xl border border-white/10 bg-white/10 p-6"
                             >
-
                                 <div className="mb-5 text-3xl">
                                     {item.icon}
                                 </div>
@@ -526,105 +488,35 @@ export default function AboutPage() {
                                 <p className="text-sm leading-7 text-white/70">
                                     {item.description}
                                 </p>
-
                             </div>
                         ))}
 
                     </div>
-
                 </div>
-
             </section>
-
 
             {/* ==================================================
                 DEPARTMENTS
             ================================================== */}
 
-
-
-            {/* <section className="bg-white py-20 lg:py-24">
-
-                <div className="mx-auto max-w-275 px-6 lg:px-10">
-
-                    <div className="mb-12 flex flex-col justify-between gap-5 md:flex-row md:items-end">
-
-                        <div>
-
-                            <p className="mb-3 text-sm font-bold uppercase tracking-wider text-[#911824]">
-                                Healthcare Services
-                            </p>
-
-                            <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
-                                Our Departments
-                            </h2>
-
-                            <p className="mt-4 max-w-2xl leading-7 text-gray-600">
-                                Explore the healthcare departments currently
-                                available at Bashir Memorial Welfare Hospital.
-                            </p>
-
-                        </div>
-
-                        <Link
-                            href="/departments"
-                            className="inline-flex items-center gap-2 font-semibold text-[#911824]"
-                        >
-                            View All Departments
-                            <FaArrowRight />
-                        </Link>
-
-                    </div>
-
-
-                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-
-                        {departments.map((department) => (
-                            <Link
-                                href={`/departments/${department.id}`}
-                                key={department.id}
-                                className="group rounded-2xl border border-gray-100 bg-[#FBF9F9] p-6 transition hover:-translate-y-1 hover:shadow-lg"
-                            >
-
-                                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-[#911824]/10 text-xl text-[#911824]">
-                                    {department.icon}
-                                </div>
-
-                                <h3 className="mb-3 font-bold text-gray-900">
-                                    {department.name}
-                                </h3>
-
-                                <p className="text-sm leading-6 text-gray-500">
-                                    {department.description}
-                                </p>
-
-                                <div className="mt-5 flex items-center gap-2 text-sm font-semibold text-[#911824]">
-                                    Explore
-                                    <FaArrowRight className="transition group-hover:translate-x-1" />
-                                </div>
-
-                            </Link>
-                        ))}
-
-                    </div>
-
-                </div>
-
-            </section> */}
-
-            <DepartmentsSection/>
-
+            <section
+                id="departments"
+                className="scroll-mt-28"
+            >
+                <DepartmentsSection />
+            </section>
 
             {/* ==================================================
                 OUR JOURNEY
             ================================================== */}
 
-            <section className="py-20 lg:py-24">
-
+            <section
+                id="our-journey"
+                className="scroll-mt-28 py-20 lg:py-24"
+            >
                 <div className="mx-auto max-w-275 px-6 lg:px-10">
 
                     <div className="mb-14 text-center">
-
                         <p className="mb-3 text-sm font-bold uppercase tracking-wider text-[#911824]">
                             Our Journey
                         </p>
@@ -638,9 +530,7 @@ export default function AboutPage() {
                             the beginning of our journey toward serving the
                             community better.
                         </p>
-
                     </div>
-
 
                     <div className="relative">
 
@@ -651,19 +541,19 @@ export default function AboutPage() {
                             {journey.map((item, index) => (
                                 <div
                                     key={`${item.year}-${index}`}
-                                    className={`relative grid items-center gap-8 md:grid-cols-2 ${index % 2 === 0
+                                    className={`relative grid items-center gap-8 md:grid-cols-2 ${
+                                        index % 2 === 0
                                             ? ""
                                             : "md:[&>div:first-child]:order-2"
-                                        }`}
+                                    }`}
                                 >
-
                                     <div
-                                        className={`${index % 2 === 0
+                                        className={
+                                            index % 2 === 0
                                                 ? "md:text-right"
                                                 : "md:text-left"
-                                            }`}
+                                        }
                                     >
-
                                         <span className="text-sm font-bold text-[#911824]">
                                             {item.year}
                                         </span>
@@ -675,72 +565,79 @@ export default function AboutPage() {
                                         <p className="mt-3 leading-7 text-gray-600">
                                             {item.description}
                                         </p>
-
                                     </div>
 
-
                                     <div
-                                        className={`hidden md:flex ${index % 2 === 0
+                                        className={`hidden md:flex ${
+                                            index % 2 === 0
                                                 ? "justify-start"
                                                 : "justify-end"
-                                            }`}
+                                        }`}
                                     >
-
                                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#911824] text-white shadow-lg">
                                             <FaCheckCircle />
                                         </div>
-
                                     </div>
-
                                 </div>
                             ))}
 
                         </div>
-
                     </div>
-
                 </div>
-
             </section>
-
 
             {/* ==================================================
                 SUCCESS STORIES
             ================================================== */}
 
-        
-            <SuccessStories />
+            <section
+                id="success-stories"
+                className="scroll-mt-28"
+            >
+                <SuccessStories />
+            </section>
 
             {/* ==================================================
                 SUPPORTERS
             ================================================== */}
 
-            <Supporters />
-
-
-           
+            <section
+                id="supporters"
+                className="scroll-mt-28"
+            >
+                <Supporters />
+            </section>
 
             {/* ==================================================
                 HEALTH PARTNERS
             ================================================== */}
 
-            
-            <HealthPartners />
-
+            <section
+                id="health-partners"
+                className="scroll-mt-28"
+            >
+                <HealthPartners />
+            </section>
 
             {/* ==================================================
                 RECENT EVENTS
             ================================================== */}
 
-           <EventsSection/>
-
+            <section
+                id="events"
+                className="scroll-mt-28"
+            >
+                <EventsSection />
+            </section>
 
             {/* ==================================================
                 COMPLIANCE
             ================================================== */}
 
-            <section className="bg-white py-16">
-
+            <section
+                id="compliance"
+                className="scroll-mt-28 bg-white py-16"
+            >
                 <div className="mx-auto max-w-225 px-6 lg:px-10">
 
                     <div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-[#FBF9F9] p-8 md:flex-row md:items-center md:p-10">
@@ -752,7 +649,6 @@ export default function AboutPage() {
                             </div>
 
                             <div>
-
                                 <p className="text-sm font-bold uppercase tracking-wider text-[#911824]">
                                     Our Standards
                                 </p>
@@ -767,11 +663,9 @@ export default function AboutPage() {
                                     privacy, ethical practice, and quality
                                     healthcare.
                                 </p>
-
                             </div>
 
                         </div>
-
 
                         <Link
                             href="/compliance"
@@ -782,18 +676,17 @@ export default function AboutPage() {
                         </Link>
 
                     </div>
-
                 </div>
-
             </section>
-
 
             {/* ==================================================
                 FINAL CTA
             ================================================== */}
 
-            <section className="bg-[#911824] py-20 text-white">
-
+            <section
+                id="about-cta"
+                className="scroll-mt-28 bg-[#911824] py-20 text-white"
+            >
                 <div className="mx-auto max-w-225 px-6 text-center">
 
                     <h2 className="text-3xl font-bold md:text-4xl">
@@ -826,7 +719,6 @@ export default function AboutPage() {
                     </div>
 
                 </div>
-
             </section>
 
         </main>

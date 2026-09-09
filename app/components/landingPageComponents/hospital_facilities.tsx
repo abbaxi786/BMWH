@@ -183,7 +183,7 @@ export default function TopFacilities() {
                 {/* Mobile View All */}
                 <div className="mt-8 flex justify-center md:hidden">
                     <Link
-                        href="/pages/hospital-facilities"
+                        href="/pages/facilities"
                         className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-[#911824] text-white font-semibold hover:bg-[#7c141f] transition-all"
                     >
                         View All Facilities

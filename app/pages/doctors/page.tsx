@@ -1,7 +1,5 @@
-import React from "react";
 import axios from "axios";
 import DoctorCard from "@/app/components/departmentPageComponents/DoctorCard";
-import DoctorSchedule from "@/app/components/doctors/schedule";
 import Link from "next/link";
 
 interface Doctor {
@@ -28,6 +26,15 @@ interface ApiResponse {
     message?: string;
 }
 
+function createDepartmentId(department: string) {
+    return department
+        .toLowerCase()
+        .trim()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
 async function Doctors() {
     let doctors: Doctor[] = [];
 
@@ -43,14 +50,9 @@ async function Doctors() {
         console.error("Error fetching doctors:", error);
     }
 
-    // Only display active doctors
     const activeDoctors = doctors.filter(
         (doctor) => doctor.is_active
     );
-
-    // =========================================================
-    // GROUP DOCTORS BY DEPARTMENT
-    // =========================================================
 
     const doctorsByDepartment = activeDoctors.reduce(
         (groups, doctor) => {
@@ -68,27 +70,34 @@ async function Doctors() {
     );
 
     return (
-        <main className="min-h-screen bg-white animate-fade-in-up">
+        <main
+            id="doctors-page"
+            className="min-h-screen animate-fade-in-up bg-white"
+        >
 
             {/* =====================================================
-    PAGE HERO
-===================================================== */}
+                PAGE HERO
+            ====================================================== */}
+
             <section
-                className="relative min-h-[420px] overflow-hidden bg-white text-black"
+                id="doctors-overview"
+                className="relative min-h-105 scroll-mt-28 overflow-hidden bg-white text-black"
                 style={{
                     backgroundImage: "url('/images/ourDoctor.png')",
                     backgroundSize: "cover",
                     backgroundPosition: "center right",
                 }}
             >
+
                 {/* White gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-white via-white/95 to-white/10" />
+                <div className="absolute inset-0 bg-linear-to-r from-white via-white/95 to-white/10" />
 
                 {/* Bottom subtle fade */}
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/30 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-white/30 to-transparent" />
 
                 {/* Content */}
-                <div className="relative z-10 mx-auto flex min-h-[420px] max-w-7xl items-center px-6 py-16 md:px-8 md:py-20">
+                <div className="relative z-10 mx-auto flex min-h-105 max-w-7xl items-center px-6 py-16 md:px-8 md:py-20">
+
                     <div className="max-w-3xl">
 
                         {/* Breadcrumbs */}
@@ -136,18 +145,23 @@ async function Doctors() {
                 </div>
             </section>
 
+
             {/* =====================================================
                 DOCTORS
-            ===================================================== */}
-            <section className="py-16 md:py-20">
+            ====================================================== */}
 
-                <div className="max-w-7xl mx-auto px-6">
+            <section
+                id="all-doctors"
+                className="scroll-mt-28 py-16 md:py-20"
+            >
+
+                <div className="mx-auto max-w-7xl px-6">
 
                     {activeDoctors.length === 0 ? (
 
-                        <div className="text-center py-16">
+                        <div className="py-16 text-center">
 
-                            <div className="w-16 h-16 mx-auto rounded-full bg-[#86000D]/10 flex items-center justify-center">
+                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#86000D]/10">
 
                                 <span className="text-2xl font-bold text-[#86000D]">
                                     !
@@ -170,57 +184,63 @@ async function Doctors() {
                         <div className="space-y-20">
 
                             {Object.entries(doctorsByDepartment).map(
-                                ([departmentName, departmentDoctors]) => (
+                                ([departmentName, departmentDoctors]) => {
 
-                                    <section key={departmentName}>
+                                    const departmentId =
+                                        createDepartmentId(departmentName);
 
-                                        {/* =================================
-                                            DEPARTMENT HEADING
-                                        ================================= */}
+                                    return (
+                                        <section
+                                            key={departmentName}
+                                            id={departmentId}
+                                            className="scroll-mt-28"
+                                        >
 
-                                        <div className="mb-10">
+                                            {/* =================================
+                                                DEPARTMENT HEADING
+                                            ================================= */}
 
-                                            <div className="flex items-center gap-3">
+                                            <div className="mb-10">
 
-                                                <span className="w-10 h-0.5 bg-[#86000D]" />
+                                                <div className="flex items-center gap-3">
 
-                                                <span className="uppercase tracking-[0.15em] text-sm font-semibold text-[#86000D]">
-                                                    Medical Department
-                                                </span>
+                                                    <span className="h-0.5 w-10 bg-[#86000D]" />
+
+                                                    <span className="text-sm font-semibold uppercase tracking-[0.15em] text-[#86000D]">
+                                                        Medical Department
+                                                    </span>
+
+                                                </div>
+
+                                                <h2 className="mt-3 text-3xl font-bold text-gray-900 md:text-4xl">
+                                                    {departmentName}
+                                                </h2>
+
+                                                <div className="mt-4 h-1 w-16 bg-[#86000D]" />
 
                                             </div>
 
-                                            <h2 className="mt-3 text-3xl md:text-4xl font-bold text-gray-900">
-                                                {departmentName}
-                                            </h2>
 
-                                            <div className="mt-4 h-1 w-16 bg-[#86000D]" />
+                                            {/* =================================
+                                                DOCTOR CARDS
+                                            ================================= */}
 
-                                        </div>
+                                            <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
 
+                                                {departmentDoctors.map(
+                                                    (doctor) => (
+                                                        <DoctorCard
+                                                            key={doctor.id}
+                                                            doctor={doctor}
+                                                        />
+                                                    )
+                                                )}
 
-                                        {/* =================================
-                                            DOCTOR CARDS
-                                        ================================= */}
+                                            </div>
 
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
-
-                                            {departmentDoctors.map(
-                                                (doctor) => (
-
-                                                    <DoctorCard
-                                                        key={doctor.id}
-                                                        doctor={doctor}
-                                                    />
-
-                                                )
-                                            )}
-
-                                        </div>
-
-                                    </section>
-
-                                )
+                                        </section>
+                                    );
+                                }
                             )}
 
                         </div>
@@ -228,23 +248,25 @@ async function Doctors() {
                     )}
 
                 </div>
-
             </section>
 
 
             {/* =====================================================
                 CTA
-            ===================================================== */}
+            ====================================================== */}
 
-            <section className="bg-[#86000D] py-16">
+            <section
+                id="doctors-cta"
+                className="scroll-mt-28 bg-[#86000D] py-16"
+            >
 
-                <div className="max-w-5xl mx-auto px-6 text-center">
+                <div className="mx-auto max-w-5xl px-6 text-center">
 
-                    <h2 className="text-3xl md:text-4xl font-bold text-white">
+                    <h2 className="text-3xl font-bold text-white md:text-4xl">
                         Need Medical Assistance?
                     </h2>
 
-                    <p className="mt-4 text-white/85 text-lg">
+                    <p className="mt-4 text-lg text-white/85">
                         Our medical team is ready to provide the care
                         and support you need.
                     </p>
@@ -253,14 +275,14 @@ async function Doctors() {
 
                         <a
                             href="/contact"
-                            className="btn bg-white text-[#86000D] border-white hover:bg-gray-100 hover:border-gray-100"
+                            className="btn border-white bg-white text-[#86000D] hover:border-gray-100 hover:bg-gray-100"
                         >
                             Contact Us
                         </a>
 
                         <a
                             href="/appointments"
-                            className="btn btn-outline text-white border-white hover:bg-white hover:text-[#86000D]"
+                            className="btn btn-outline border-white text-white hover:bg-white hover:text-[#86000D]"
                         >
                             Book an Appointment
                         </a>
@@ -268,7 +290,6 @@ async function Doctors() {
                     </div>
 
                 </div>
-
             </section>
 
         </main>
@@ -276,4 +297,3 @@ async function Doctors() {
 }
 
 export default Doctors;
-

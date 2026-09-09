@@ -115,7 +115,7 @@ export default async function EventsSection() {
                         {events.map((event) => (
                             <Link
                                 key={event.id}
-                                href={`/pages/events/${event.id}`}
+                                href={`/pages/event/${event.id}`}
                                 className="group flex h-full flex-col overflow-hidden bg-white shadow-sm ring-1 ring-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                             >
                                 {/* Image */}

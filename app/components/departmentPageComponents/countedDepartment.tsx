@@ -1,7 +1,3 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -22,46 +18,45 @@ interface DepartmentsResponse {
     data: Department[];
 }
 
-export default function DepartmentsSection() {
-    const [departments, setDepartments] = useState<Department[]>([]);
-    const [loading, setLoading] = useState(true);
+async function getDepartments(): Promise<Department[]> {
+    try {
+        const baseUrl =
+            process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL;
 
-    useEffect(() => {
-        const fetchDepartments = async () => {
-            try {
-                const response = await axios.get<DepartmentsResponse>(
-                    "/api/departments"
-                );
+        if (!baseUrl) {
+            console.error("BACKEND_URL is not configured");
+            return [];
+        }
 
-                if (response.data.success) {
-                    setDepartments(response.data.data.slice(0, 4));
-                }
-            } catch (error) {
-                console.error("Error fetching departments:", error);
-            } finally {
-                setLoading(false);
+        const response = await fetch(
+            `${baseUrl}/api/departments`,
+            {
+                cache: "no-store",
             }
-        };
-
-        fetchDepartments();
-    }, []);
-
-    if (loading) {
-        return (
-            <section className="bg-[#FBF9F9] py-20">
-                <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                        {[1, 2, 3, 4].map((item) => (
-                            <div
-                                key={item}
-                                className="h-80 animate-pulse rounded-2xl bg-gray-200"
-                            />
-                        ))}
-                    </div>
-                </div>
-            </section>
         );
+
+        if (!response.ok) {
+            console.error(
+                `Failed to fetch departments: ${response.status}`
+            );
+            return [];
+        }
+
+        const data: DepartmentsResponse = await response.json();
+
+        if (!data.success) {
+            return [];
+        }
+
+        return data.data.slice(0, 4);
+    } catch (error) {
+        console.error("Error fetching departments:", error);
+        return [];
     }
+}
+
+export default async function DepartmentsSection() {
+    const departments = await getDepartments();
 
     return (
         <section className="bg-[#FBF9F9] py-20">
@@ -145,6 +140,7 @@ export default function DepartmentsSection() {
                                         View Department
 
                                         <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
+
                                     </div>
                                 </div>
                             </Link>

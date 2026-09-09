@@ -67,12 +67,18 @@ export default async function NewsUpdatePage({ params }: PageProps) {
   );
 
   return (
-    <main className="w-full bg-white my-5">
+    <main
+      id="news-update-article"
+      className="my-5 w-full bg-white"
+    >
 
       {/* =====================================================
           Header / Breadcrumbs
       ====================================================== */}
-      <section className="w-full bg-[#FBF9F9] px-5 py-8 sm:px-10 lg:py-10">
+      <section
+        id="news-update-header"
+        className="w-full scroll-mt-28 bg-[#FBF9F9] px-5 py-8 sm:px-10 lg:py-10"
+      >
         <div className="mx-auto w-full max-w-300">
 
           {/* Breadcrumbs */}
@@ -124,7 +130,9 @@ export default async function NewsUpdatePage({ params }: PageProps) {
       {/* =====================================================
           Article Header
       ====================================================== */}
-      <section className="w-full px-5 py-12 sm:px-10 lg:py-16">
+      <section
+        className="w-full scroll-mt-28 px-5 py-12 sm:px-10 lg:py-16"
+      >
         <div className="mx-auto w-full max-w-300">
 
           {/* Category */}
@@ -172,7 +180,10 @@ export default async function NewsUpdatePage({ params }: PageProps) {
       {/* =====================================================
           Featured Image
       ====================================================== */}
-      <section className="w-full px-5 sm:px-10">
+      <section
+        id="news-update-image"
+        className="w-full scroll-mt-28 px-5 sm:px-10"
+      >
         <div className="mx-auto w-full max-w-300">
 
           {news.image_url ? (
@@ -201,7 +212,10 @@ export default async function NewsUpdatePage({ params }: PageProps) {
       {/* =====================================================
           Article Content
       ====================================================== */}
-      <section className="w-full px-5 sm:px-10 mt-5">
+      <section
+        id="news-update-content"
+        className="mt-5 w-full scroll-mt-28 px-5 sm:px-10"
+      >
         <div className="mx-auto w-full max-w-300">
 
           {/* Article Content */}
@@ -220,6 +234,7 @@ export default async function NewsUpdatePage({ params }: PageProps) {
           </article>
 
 
+          {/* Back Link */}
           <div className="mt-10 border-t border-[#EFEDED] pt-8">
 
             <Link

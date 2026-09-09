@@ -51,3 +51,16 @@
 .animate-fade-in-down {
     animation: fadeInDown 0.8s ease-out both;
 }
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 1179px) {
+  html,
+  body {
+    overflow-x: hidden !important;
+  }
+}

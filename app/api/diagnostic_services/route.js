@@ -1,9 +1,22 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
+import { requireAdmin } from "../../../lib/auth";
 
 export async function POST(request) {
+    const admin = await requireAdmin();
+
+    if (!admin) {
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Unauthorized",
+            },
+            { status: 401 }
+        );
+    }
     try {
+
         const formData = await request.formData();
 
         const name = formData.get("name");

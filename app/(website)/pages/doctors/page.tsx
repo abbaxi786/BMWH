@@ -2,7 +2,7 @@ import axios from "axios";
 import DoctorCard from "@/app/components/departmentPageComponents/DoctorCard";
 import Link from "next/link";
 
-interface Doctor {
+export interface Doctor {
     id: number;
     department_id: number;
     name: string;
@@ -297,3 +297,4 @@ async function Doctors() {
 }
 
 export default Doctors;
+

@@ -11,6 +11,7 @@ interface Department {
     description?: string | null;
     image_url?: string | null;
     category?: string | null;
+    slug?: string|null;
 }
 
 interface DepartmentsResponse {
@@ -97,7 +98,7 @@ export default async function DepartmentsSection() {
                         {departments.map((department) => (
                             <Link
                                 key={department.id}
-                                href={`/pages/departments/${department.id}`}
+                                href={`/pages/departments/department/${department.slug}`}
                                 className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                             >
                                 {/* Image */}

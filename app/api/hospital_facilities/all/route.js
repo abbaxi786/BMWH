@@ -8,7 +8,7 @@ export async function GET(request) {
 
         let facilities;
 
-        if (is_active != null || is_active != undefined) {
+        if (is_active != null) {
             facilities = await sql`
                 SELECT *
                 FROM hospital_facilities

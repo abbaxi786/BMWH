@@ -12,6 +12,7 @@ import DepartmentsSection from "@/app/components/departmentPageComponents/counte
 import SuccessStories from "@/app/components/AboutContent/success_stories";
 import EventsSection from "@/app/components/landingPageComponents/events_section";
 import TopFacilities from "@/app/components/landingPageComponents/hospital_facilities";
+import AchievementsAwards from "@/app/components/landingPageComponents/achievementSection";
 
 interface NewsUpdate {
   id: number;
@@ -273,6 +274,7 @@ export default async function Home() {
       <TopFacilities />
       <EventsSection />
       <SuccessStories />
+      <AchievementsAwards/>
       <NewsUpdates updates={updates} />
       <ContactUsCard />
       <Map />

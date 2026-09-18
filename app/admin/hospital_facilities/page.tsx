@@ -75,7 +75,7 @@ function HospitalFacilities() {
     }
 
     return (
-        <div className="w-full">
+        <div className="w-full p-6">
 
             {/* Heading */}
             <div className="mb-6">

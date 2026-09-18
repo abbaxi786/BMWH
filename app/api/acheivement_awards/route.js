@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
+import { requireAdmin } from "../../../lib/auth";
 
 // GET - Get all active achievements and awards
 export async function GET() {
@@ -21,6 +22,7 @@ export async function GET() {
             FROM achievements_awards
             WHERE is_active = TRUE
             ORDER BY award_date DESC NULLS LAST, id DESC
+            LIMIT 3
         `;
 
         return NextResponse.json(
@@ -46,6 +48,17 @@ export async function GET() {
 
 // POST - Create achievement/award
 export async function POST(request) {
+
+    const admin = await requireAdmin()
+    if(!admin){
+        return new NextResponse({
+            message:"Unauthorized person",
+            success:false,
+        },{
+            status:401
+        })
+    }
+
     try {
         const formData = await request.formData();
 

@@ -66,7 +66,7 @@ function Departments() {
     }
 
     return (
-        <div className="w-full">
+        <div className="w-full p-6">
 
             {/* Page Header */}
             <div className="mb-6">

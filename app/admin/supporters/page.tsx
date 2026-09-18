@@ -11,7 +11,7 @@ function Supporters() {
         useState<Tab>("supporters");
 
     return (
-        <div className="w-full">
+        <div className="w-full p-6">
             {/* Header */}
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-[#584140]">

@@ -13,7 +13,7 @@ function SuccessStories() {
         useState<Tab>("stories");
 
     return (
-        <div className="w-full">
+        <div className="w-full p-6">
             {/* Heading */}
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-[#584140]">

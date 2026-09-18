@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { FiEye, FiEyeOff, FiMail, FiLock } from "react-icons/fi";
 import { useAuth } from "@/app/context/context";
+import Link from "next/link";
 
 
 function LogIn() {
@@ -182,6 +183,9 @@ function LogIn() {
                                         focus:ring-[#911824]/20
                                     "
                                 />
+                                <div>
+                                    <p className="float-end text-gray-400 py-2"><Link href={"/admin/forgot_password"}>Forgot password</Link></p>
+                                </div>
 
                                 <button
                                     type="button"

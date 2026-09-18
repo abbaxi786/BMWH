@@ -9,7 +9,7 @@ import {
 } from "react";
 
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 type Admin = {
     username: string;
@@ -37,6 +37,21 @@ export function AuthProvider({
     const [loading, setLoading] = useState(true);
 
     const router = useRouter();
+    const pathname = usePathname();
+
+    // =========================
+    // Public Admin Routes
+    // =========================
+   const publicRoutes = [
+    "/admin/log-in",
+    "/admin/forgot_password",
+    "/admin/verify_otp",
+    "/admin/reset_password",
+];
+
+    console.log(JSON.stringify(pathname))
+
+    const isPublicRoute = publicRoutes.includes(pathname);
 
     // =========================
     // Check Authentication
@@ -61,7 +76,6 @@ export function AuthProvider({
             return false;
 
         } catch (error) {
-            // 401 / expired JWT / invalid JWT
             setAdmin(null);
             return false;
         }
@@ -72,6 +86,13 @@ export function AuthProvider({
     // =========================
     useEffect(() => {
         const initializeAuth = async () => {
+
+            // Don't force authentication on public routes
+            if (isPublicRoute) {
+                setLoading(false);
+                return;
+            }
+
             const authenticated = await checkAuth();
 
             if (!authenticated) {
@@ -82,7 +103,7 @@ export function AuthProvider({
         };
 
         initializeAuth();
-    }, []);
+    }, [pathname]);
 
     // =========================
     // Login
@@ -102,22 +123,15 @@ export function AuthProvider({
 
             if (!response.data.success) {
                 return false;
-            }else{
-                router.push("/admin")
             }
-
-            /*
-             * JWT is stored by the server
-             * inside the httpOnly cookie.
-             *
-             * We don't access the JWT here.
-             */
 
             const authenticated = await checkAuth();
 
             if (!authenticated) {
                 return false;
             }
+
+            router.push("/admin");
 
             return true;
 
@@ -171,4 +185,3 @@ export function useAuth() {
 
     return context;
 }
-

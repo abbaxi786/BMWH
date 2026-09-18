@@ -74,7 +74,7 @@ function NewsUpdates() {
 
 
     return (
-        <div className="w-full">
+        <div className="w-full p-6">
 
             {/* ==========================================
                 HEADING

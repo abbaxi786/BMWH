@@ -8,6 +8,7 @@ import { FaChevronDown } from "react-icons/fa";
 import {
   FaCalendarCheck,
   FaFileMedical,
+  FaFlask,
   FaTimes,
   FaUserMd,
 } from "react-icons/fa";
@@ -47,6 +48,11 @@ const utilityLinks = [
     label: "Book Appointment",
     href: "/book-appointment",
     icon: FaCalendarCheck,
+  },
+  {
+    label: "Lab Tests",
+    href: "/pages/lab_test",
+    icon: FaFlask,
   },
   {
     label: "View Lab Reports",
@@ -728,8 +734,7 @@ export default function MobileMenu() {
         {/* =================================================
             SCROLLABLE CONTENT
 
-            IMPORTANT:
-            This is the ONLY element responsible for
+            This is the only element responsible for
             scrolling inside the mobile drawer.
         ================================================= */}
 

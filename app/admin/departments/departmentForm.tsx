@@ -555,7 +555,7 @@ function DepartmentForm({
                                 </option>
 
                                 <option value="surgical">
-                                    Surgical
+                                    Surgical&Alied
                                 </option>
 
                                 <option value="diagnostic">

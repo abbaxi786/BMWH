@@ -17,6 +17,7 @@ import {
 } from "react-icons/md";
 
 import Supporters from "@/app/components/AboutContent/supporters";
+import OfficeBearers from "@/app/components/AboutContent/office_bearers";
 import HealthPartners from "@/app/components/AboutContent/health_partners";
 import SuccessStories from "@/app/components/AboutContent/success_stories";
 import DepartmentsSection from "@/app/components/departmentPageComponents/countedDepartment";
@@ -444,6 +445,17 @@ export default function AboutPage() {
             </section>
 
             {/* ==================================================
+                OFFICE BEARERS
+                ================================================== */}
+
+            <section
+                id="office-bearers"
+                className="scroll-mt-28"
+            >
+                <OfficeBearers />
+            </section>
+
+            {/* ==================================================
                 PATIENT WELFARE
             ================================================== */}
 
@@ -541,11 +553,10 @@ export default function AboutPage() {
                             {journey.map((item, index) => (
                                 <div
                                     key={`${item.year}-${index}`}
-                                    className={`relative grid items-center gap-8 md:grid-cols-2 ${
-                                        index % 2 === 0
+                                    className={`relative grid items-center gap-8 md:grid-cols-2 ${index % 2 === 0
                                             ? ""
                                             : "md:[&>div:first-child]:order-2"
-                                    }`}
+                                        }`}
                                 >
                                     <div
                                         className={
@@ -568,11 +579,10 @@ export default function AboutPage() {
                                     </div>
 
                                     <div
-                                        className={`hidden md:flex ${
-                                            index % 2 === 0
+                                        className={`hidden md:flex ${index % 2 === 0
                                                 ? "justify-start"
                                                 : "justify-end"
-                                        }`}
+                                            }`}
                                     >
                                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#911824] text-white shadow-lg">
                                             <FaCheckCircle />

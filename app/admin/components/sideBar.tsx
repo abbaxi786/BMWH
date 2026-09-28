@@ -7,22 +7,8 @@ import Image from "next/image";
 import { useAuth } from "@/app/context/context";
 import { useRouter } from "next/navigation";
 
-import {
-    FiGrid,
-    FiUsers,
-    FiUser,
-    FiBriefcase,
-    FiActivity,
-    FiImage,
-    FiFileText,
-    FiCalendar,
-    FiHeart,
-    FiAward,
-    FiUserCheck,
-    FiSettings,
-    FiLogOut,
-    FiExternalLink,
-} from "react-icons/fi";
+
+import { FiGrid, FiUsers, FiUser, FiBriefcase, FiActivity, FiImage, FiFileText, FiCalendar, FiHeart, FiAward, FiUserCheck, FiSettings, FiLogOut, FiExternalLink, FiClipboard, } from "react-icons/fi";
 
 type NavItem = {
     label: string;
@@ -69,6 +55,9 @@ const sections: NavSection[] = [
                 label: "Diagnostic Services",
                 href: "/admin/diagnostic_services",
                 icon: <FiActivity size={16} />,
+            }, 
+            {
+                 label: "Lab Tests", href: "/admin/lab-test", icon: <FiClipboard size={16} />, 
             },
             {
                 label: "Hospital Facilities",

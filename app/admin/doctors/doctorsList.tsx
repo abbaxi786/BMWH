@@ -42,7 +42,7 @@ function DoctorsList({
             setDeleting(true);
 
             await axios.delete(
-                `/api/doctor?id=${deleteDoctor.id}`
+                `/api/doctors?id=${deleteDoctor.id}`
             );
 
             /*

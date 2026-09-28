@@ -8,6 +8,7 @@ import {
   FaUserMd,
   FaCalendarCheck,
   FaFileMedical,
+  FaFlask,
 } from "react-icons/fa";
 
 import { MdOutlineMessage } from "react-icons/md";
@@ -30,6 +31,11 @@ const utilityLinks = [
     label: "Book Appointment",
     href: "/book-appointment",
     icon: FaCalendarCheck,
+  },
+  {
+    label: "Lab Tests",
+    href: "/pages/lab_test",
+    icon: FaFlask,
   },
   {
     label: "View Lab Reports",
@@ -85,7 +91,7 @@ function Nav() {
             flex
             min-h-9
             w-full
-            max-w-[1440px]
+            max-w-360
             items-center
             justify-between
             gap-3
@@ -100,7 +106,11 @@ function Nav() {
           ================================================= */}
 
           <div className="min-w-0 flex-1">
-            {/* Desktop utility links */}
+            {/* =================================================
+                DESKTOP UTILITY LINKS
+
+                Visible from 1180px
+            ================================================= */}
 
             <ul
               className="
@@ -148,7 +158,11 @@ function Nav() {
               )}
             </ul>
 
-            {/* Tablet / Mobile utility links */}
+            {/* =================================================
+                TABLET / MOBILE UTILITY LINKS
+
+                Hidden from 1180px and above
+            ================================================= */}
 
             <div
               className="
@@ -160,7 +174,9 @@ function Nav() {
                 min-[1180px]:hidden
               "
             >
-              {/* Find doctor */}
+              {/* =================================================
+                  FIND DOCTOR
+              ================================================= */}
 
               <Link
                 href="/pages/doctors"
@@ -183,16 +199,22 @@ function Nav() {
                   className="shrink-0"
                 />
 
+                {/* Very small screens */}
+
                 <span className="hidden min-[321px]:inline sm:hidden">
                   Doctor
                 </span>
+
+                {/* Small screens and above */}
 
                 <span className="hidden sm:inline">
                   Find a doctor
                 </span>
               </Link>
 
-              {/* Appointment */}
+              {/* =================================================
+                  BOOK APPOINTMENT
+              ================================================= */}
 
               <Link
                 href="/book-appointment"
@@ -215,19 +237,61 @@ function Nav() {
                   className="shrink-0"
                 />
 
+                {/* Very small screens */}
+
                 <span className="hidden min-[321px]:inline sm:hidden">
                   Book
                 </span>
 
+                {/* Small screens and above */}
+
                 <span className="hidden sm:inline">
                   Book Appointment
+                </span>
+              </Link>
+
+              {/* =================================================
+                  LAB TESTS
+              ================================================= */}
+
+              <Link
+                href="/pages/lab_test"
+                aria-label="Lab Tests"
+                className="
+                  flex
+                  min-w-0
+                  shrink
+                  items-center
+                  gap-1
+                  text-xs
+                  font-medium
+                  text-[#5B403D]
+                  transition-colors
+                  hover:text-[#86000D]
+                "
+              >
+                <FaFlask
+                  size={12}
+                  className="shrink-0"
+                />
+
+                {/* Very small screens */}
+
+                <span className="hidden min-[321px]:inline sm:hidden">
+                  Lab
+                </span>
+
+                {/* Small screens and above */}
+
+                <span className="hidden sm:inline">
+                  Lab Tests
                 </span>
               </Link>
             </div>
           </div>
 
           {/* =================================================
-              DONATE
+              DONATE BUTTON
           ================================================= */}
 
           <div className="flex shrink-0 justify-center">
@@ -250,7 +314,7 @@ function Nav() {
                 transition-opacity
                 hover:opacity-90
                 min-[321px]:text-xs
-                sm:w-[135px]
+                sm:w-33.75
               "
             >
               <CiHeart
@@ -390,7 +454,7 @@ function Nav() {
           {/* =================================================
               DESKTOP NAVIGATION
 
-              Starts at 1180px.
+              Starts at 1180px
           ================================================= */}
 
           <DesktopMegaMenu />
@@ -407,7 +471,9 @@ function Nav() {
               gap-2
             "
           >
-            {/* Desktop profile */}
+            {/* =================================================
+                DESKTOP PROFILE
+            ================================================= */}
 
             <Link
               href="/profile"
@@ -431,7 +497,9 @@ function Nav() {
               <IoPersonOutline size={16} />
             </Link>
 
-            {/* Mobile / tablet menu */}
+            {/* =================================================
+                MOBILE / TABLET MENU
+            ================================================= */}
 
             <div
               className="

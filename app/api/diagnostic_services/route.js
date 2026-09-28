@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
-import { requireAdmin } from "../../../lib/auth";
+import { requireAdmin } from "@/lib/auth";
 
 export async function POST(request) {
     const admin = await requireAdmin();

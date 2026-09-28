@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { uploadFileToCloudinary, deleteFileFromCloudinary } from "@/lib/uploadToCloudinary";
-import { requireAdmin } from "../../../lib/auth";
+import { requireAdmin } from "@/lib/auth";
 
 
 // GET - Get single diagnostic service

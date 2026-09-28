@@ -86,7 +86,7 @@ function Department({ onEdit }: DepartmentListProps) {
             setDeleting(true);
 
             await axios.delete(
-                `/api/departments/departments?slug=${encodeURIComponent(
+                `/api/departments/department?slug=${encodeURIComponent(
                     deleteDepartment.slug
                 )}`
             );

@@ -1,9 +1,12 @@
 import Image from "next/image";
-import axios from "axios";
 import {
     FaArrowRight,
     FaHandshake,
 } from "react-icons/fa";
+
+import {
+    getActiveHealthPartners,
+} from "@/lib/data/healthPartners/healthPartners";
 
 interface HealthPartner {
     id: number;
@@ -18,60 +21,116 @@ interface HealthPartner {
     updated_at: string;
 }
 
-interface HealthPartnersResponse {
-    success: boolean;
-    data: HealthPartner[];
-    message?: string;
-}
-
-async function getHealthPartners(): Promise<HealthPartner[]> {
-    try {
-        const baseUrl =
-            process.env.BACKEND_URL ||
-            "http://localhost:3000";
-
-        const response = await axios.get<HealthPartnersResponse>(
-            `${baseUrl}/api/health_partners`
-        );
-
-        if (!response.data.success) {
-            console.error(
-                "Failed to fetch health partners:",
-                response.data.message
-            );
-
-            return [];
-        }
-
-        return response.data.data || [];
-    } catch (error) {
-        console.error("Error fetching health partners:", error);
-        return [];
-    }
-}
+const containerClass = `
+    mx-auto
+    w-full
+    max-w-7xl
+    px-5
+    sm:px-8
+    lg:px-10
+    xl:px-12
+    2xl:max-w-[1440px]
+    2xl:px-16
+    3xl:max-w-[1600px]
+`;
 
 export default async function HealthPartners() {
-    const partners = await getHealthPartners();
+    let partners: HealthPartner[] = [];
+
+    try {
+        const result = await getActiveHealthPartners();
+
+        partners = result as HealthPartner[];
+    } catch (error) {
+        console.error(
+            "Error fetching health partners:",
+            error
+        );
+    }
 
     return (
-        <section className="w-full bg-white py-14 sm:py-16 lg:py-20">
-            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <section
+            id="health-partners"
+            className="
+                scroll-mt-28
+                w-full
+                bg-white
+                py-12
+                sm:py-14
+                lg:py-16
+                xl:py-20
+                2xl:py-24
+            "
+        >
+            <div className={containerClass}>
 
                 {/* Header */}
-                <div className="mb-10 text-center sm:mb-12">
-                    <div className="mb-3 flex items-center justify-center gap-2 sm:mb-4">
-                        <FaHandshake className="text-sm text-[#911824] sm:text-base" />
+                <div
+                    className="
+                        mx-auto
+                        mb-8
+                        max-w-3xl
+                        text-center
+                        sm:mb-10
+                        lg:mb-12
+                    "
+                >
+                    <div
+                        className="
+                            mb-3
+                            flex
+                            items-center
+                            justify-center
+                            gap-3
+                            text-xs
+                            font-bold
+                            uppercase
+                            tracking-[0.15em]
+                            text-[#911824]
+                            sm:text-sm
+                        "
+                    >
+                        <span className="h-0.5 w-6 bg-[#911824] sm:w-8" />
 
-                        <span className="text-xs font-semibold uppercase tracking-[0.15em] text-[#911824] sm:text-sm sm:tracking-[0.2em]">
+                        <span className="flex items-center gap-2">
+                            <FaHandshake
+                                aria-hidden="true"
+                                className="text-xs"
+                            />
+
                             Our Partners
                         </span>
+
+                        <span className="h-0.5 w-6 bg-[#911824] sm:w-8" />
                     </div>
 
-                    <h2 className="text-2xl font-bold leading-tight text-gray-900 sm:text-3xl md:text-4xl">
+                    <h2
+                        className="
+                            text-2xl
+                            font-bold
+                            leading-tight
+                            text-[#1B1C1C]
+                            sm:text-3xl
+                            lg:text-4xl
+                            xl:text-[2.75rem]
+                        "
+                    >
                         Our Health Partners
                     </h2>
 
-                    <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
+                    <p
+                        className="
+                            mx-auto
+                            mt-3
+                            max-w-2xl
+                            text-sm
+                            leading-6
+                            text-[#5B403D]
+                            sm:mt-4
+                            sm:text-base
+                            sm:leading-7
+                        "
+                    >
                         We collaborate with trusted healthcare organizations
                         and institutions to strengthen healthcare services
                         and improve patient care.
@@ -80,14 +139,57 @@ export default async function HealthPartners() {
 
                 {/* Empty State */}
                 {partners.length === 0 ? (
-                    <div className="rounded-2xl bg-gray-50 px-5 py-10 text-center sm:px-6 sm:py-12">
-                        <FaHandshake className="mx-auto mb-4 text-3xl text-gray-400" />
+                    <div
+                        className="
+                            rounded-2xl
+                            border
+                            border-[#E4BEBA]/40
+                            bg-[#FBF9F9]
+                            px-5
+                            py-10
+                            text-center
+                            shadow-[0_4px_18px_rgba(134,0,13,0.04)]
+                            sm:px-6
+                            sm:py-12
+                        "
+                    >
+                        <div
+                            className="
+                                mx-auto
+                                flex
+                                h-14
+                                w-14
+                                items-center
+                                justify-center
+                                rounded-xl
+                                bg-[#911824]/10
+                                text-xl
+                                text-[#911824]/60
+                            "
+                        >
+                            <FaHandshake aria-hidden="true" />
+                        </div>
 
-                        <h3 className="text-base font-semibold text-gray-800 sm:text-lg">
+                        <h3
+                            className="
+                                mt-4
+                                text-base
+                                font-bold
+                                text-[#1B1C1C]
+                                sm:text-lg
+                            "
+                        >
                             No health partners available
                         </h3>
 
-                        <p className="mt-2 text-sm text-gray-500">
+                        <p
+                            className="
+                                mt-1
+                                text-sm
+                                leading-6
+                                text-[#8A7774]
+                            "
+                        >
                             Partner information will be displayed here once
                             available.
                         </p>
@@ -103,81 +205,143 @@ export default async function HealthPartners() {
                             sm:gap-5
                             lg:grid-cols-3
                             xl:grid-cols-4
+                            xl:gap-6
                         "
                     >
-                        {partners.map((partner) => {
+                        {partners.map((partner, index) => {
                             const content = (
                                 <div
                                     className="
                                         group
+                                        relative
                                         flex
                                         h-full
-                                        min-h-90
                                         flex-col
-                                        items-center
-                                        justify-between
+                                        overflow-hidden
                                         rounded-2xl
                                         border
-                                        border-gray-100
+                                        border-[#E4BEBA]/40
                                         bg-white
-                                        p-5
+                                        p-4
                                         text-center
-                                        shadow-sm
+                                        shadow-[0_4px_18px_rgba(134,0,13,0.04)]
                                         transition-all
                                         duration-300
                                         hover:-translate-y-1
-                                        hover:border-[#911824]/20
-                                        hover:shadow-lg
-                                        sm:min-h-95
-                                        sm:p-6
+                                        hover:border-[#911824]/30
+                                        hover:shadow-[0_10px_28px_rgba(134,0,13,0.09)]
+                                        sm:p-5
                                     "
                                 >
+                                    {/* Decorative Circle */}
+                                    <div
+                                        className="
+                                            absolute
+                                            -right-8
+                                            -top-8
+                                            h-24
+                                            w-24
+                                            rounded-full
+                                            bg-[#911824]/5
+                                            transition-transform
+                                            duration-500
+                                            group-hover:scale-125
+                                        "
+                                    />
+
+                                    {/* Number */}
+                                    <span
+                                        className="
+                                            absolute
+                                            right-4
+                                            top-4
+                                            text-[10px]
+                                            font-bold
+                                            tracking-wider
+                                            text-gray-200
+                                            transition-colors
+                                            duration-300
+                                            group-hover:text-[#911824]/20
+                                        "
+                                    >
+                                        {String(index + 1).padStart(2, "0")}
+                                    </span>
+
                                     {/* Logo */}
-                                    <div className="flex h-24 w-full items-center justify-center sm:h-28">
+                                    <div
+                                        className="
+                                            relative
+                                            flex
+                                            h-20
+                                            w-full
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-xl
+                                            bg-[#FBF9F9]
+                                            p-3
+                                            sm:h-22
+                                            sm:p-4
+                                        "
+                                    >
                                         {partner.logo_url ? (
-                                            <div className="relative h-20 w-32 sm:h-24 sm:w-40">
+                                            <div
+                                                className="
+                                                    relative
+                                                    h-full
+                                                    w-full
+                                                "
+                                            >
                                                 <Image
                                                     src={partner.logo_url}
                                                     alt={`${partner.name} logo`}
                                                     fill
-                                                    loading="eager"
                                                     className="
                                                         object-contain
                                                         transition-transform
                                                         duration-300
                                                         group-hover:scale-105
                                                     "
-                                                    sizes="(max-width: 640px) 128px, 160px"
+                                                    sizes="
+                                                        (max-width: 640px) 100vw,
+                                                        (max-width: 1024px) 50vw,
+                                                        25vw
+                                                    "
                                                 />
                                             </div>
                                         ) : (
                                             <div
                                                 className="
                                                     flex
-                                                    h-16
-                                                    w-16
+                                                    h-14
+                                                    w-14
                                                     items-center
                                                     justify-center
                                                     rounded-full
-                                                    bg-gray-100
-                                                    sm:h-20
-                                                    sm:w-20
+                                                    bg-[#911824]/10
+                                                    text-[#911824]/50
                                                 "
                                             >
-                                                <FaHandshake className="text-xl text-gray-400 sm:text-2xl" />
+                                                <FaHandshake
+                                                    aria-hidden="true"
+                                                    className="text-xl"
+                                                />
                                             </div>
                                         )}
                                     </div>
 
                                     {/* Information */}
-                                    <div className="flex w-full flex-1 flex-col justify-center">
+                                    <div className="mt-4">
                                         <h3
                                             className="
-                                                wrap-break-words
+                                                break-words
                                                 text-base
-                                                font-semibold
+                                                font-bold
                                                 leading-6
-                                                text-gray-900
+                                                text-[#1B1C1C]
+                                                transition-colors
+                                                duration-300
+                                                group-hover:text-[#911824]
                                                 sm:text-lg
                                             "
                                         >
@@ -185,13 +349,27 @@ export default async function HealthPartners() {
                                         </h3>
 
                                         {partner.type && (
-                                            <p className="mt-1 text-sm font-medium text-[#911824]">
+                                            <p
+                                                className="
+                                                    mt-1
+                                                    text-sm
+                                                    font-semibold
+                                                    text-[#911824]
+                                                "
+                                            >
                                                 {partner.type}
                                             </p>
                                         )}
 
                                         {partner.partnership_type && (
-                                            <p className="mt-2 text-xs leading-5 text-gray-500">
+                                            <p
+                                                className="
+                                                    mt-1
+                                                    text-xs
+                                                    leading-5
+                                                    text-[#8A7774]
+                                                "
+                                            >
                                                 {partner.partnership_type}
                                             </p>
                                         )}
@@ -199,11 +377,12 @@ export default async function HealthPartners() {
                                         {partner.description && (
                                             <p
                                                 className="
-                                                    mt-3
-                                                    line-clamp-3
-                                                    text-sm
-                                                    leading-6
-                                                    text-gray-600
+                                                    mt-2
+                                                    line-clamp-2
+                                                    text-xs
+                                                    leading-5
+                                                    text-[#5B403D]
+                                                    sm:text-sm
                                                 "
                                             >
                                                 {partner.description}
@@ -215,30 +394,36 @@ export default async function HealthPartners() {
                                     {partner.website_url && (
                                         <div
                                             className="
-                                                mt-5
-                                                flex
-                                                items-center
-                                                justify-center
-                                                gap-2
-                                                text-xs
-                                                font-medium
-                                                text-[#911824]
-                                                sm:text-sm
+                                                mt-4
+                                                border-t
+                                                border-[#E4BEBA]/40
+                                                pt-3
                                             "
                                         >
-                                            <span>
-                                                Visit Website
-                                            </span>
-
-                                            <FaArrowRight
+                                            <span
                                                 className="
-                                                    text-[10px]
-                                                    transition-transform
-                                                    duration-300
-                                                    group-hover:translate-x-1
-                                                    sm:text-xs
+                                                    inline-flex
+                                                    items-center
+                                                    justify-center
+                                                    gap-2
+                                                    text-xs
+                                                    font-bold
+                                                    text-[#911824]
+                                                    sm:text-sm
                                                 "
-                                            />
+                                            >
+                                                Visit Website
+
+                                                <FaArrowRight
+                                                    aria-hidden="true"
+                                                    className="
+                                                        text-[9px]
+                                                        transition-transform
+                                                        duration-300
+                                                        group-hover:translate-x-1
+                                                    "
+                                                />
+                                            </span>
                                         </div>
                                     )}
                                 </div>
@@ -251,7 +436,16 @@ export default async function HealthPartners() {
                                         href={partner.website_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="block h-full"
+                                        aria-label={`Visit ${partner.name} website`}
+                                        className="
+                                            block
+                                            h-full
+                                            rounded-2xl
+                                            focus:outline-none
+                                            focus-visible:ring-2
+                                            focus-visible:ring-[#911824]
+                                            focus-visible:ring-offset-2
+                                        "
                                     >
                                         {content}
                                     </a>

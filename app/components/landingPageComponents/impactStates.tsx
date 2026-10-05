@@ -42,19 +42,41 @@ const IMPACT_STATS = [
 
 export default function ImpactStats() {
     return (
-        <section className="relative z-20 w-full px-0 sm:px-2 lg:px-5">
+        <section
+            aria-labelledby="impact-stats-heading"
+            className="relative z-20 w-full"
+        >
+            {/* Accessible heading */}
+            <h2
+                id="impact-stats-heading"
+                className="sr-only"
+            >
+                Our Impact
+            </h2>
+
+            {/* Impact Card */}
             <div
                 className="
-                    mx-auto
                     w-full
                     overflow-hidden
-                    rounded-lg
+                    rounded-xl
+                    border
+                    border-[#E4BEBA]/40
                     bg-[#FBF9F9]
-                    shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)]
+                    shadow-[0_18px_40px_rgba(0,0,0,0.10)]
+
+                    lg:rounded-2xl
                 "
             >
-                <div className="grid w-full grid-cols-1 md:grid-cols-3">
+                <div
+                    className="
+                        grid
+                        w-full
+                        grid-cols-1
 
+                        md:grid-cols-3
+                    "
+                >
                     {IMPACT_STATS.map(
                         ({
                             value,
@@ -66,38 +88,79 @@ export default function ImpactStats() {
                             titleClassName,
                             descriptionClassName,
                         }) => (
-                            <div
+                            <article
                                 key={title}
                                 className={`
+                                    relative
                                     flex
-                                    min-h-[170px]
+                                    min-h-[175px]
                                     flex-col
-                                    gap-2
-                                    p-5
+                                    justify-between
+                                    gap-5
+                                    overflow-hidden
+                                    p-6
 
-                                    sm:min-h-[180px]
-                                    sm:p-6
+                                    sm:min-h-[185px]
+                                    sm:p-7
 
                                     md:min-h-[190px]
                                     md:p-7
 
-                                    lg:min-h-[196px]
+                                    lg:min-h-[200px]
                                     lg:p-8
+
+                                    xl:min-h-[210px]
+                                    xl:p-9
+
+                                    2xl:min-h-[220px]
+                                    2xl:p-10
 
                                     ${className}
                                 `}
                             >
-                                {/* Icon + Number */}
-                                <div className="flex w-full items-start justify-between gap-4">
+                                {/* Decorative Circle */}
+                                <div
+                                    aria-hidden="true"
+                                    className="
+                                        pointer-events-none
+                                        absolute
+                                        -right-10
+                                        -top-10
+                                        h-28
+                                        w-28
+                                        rounded-full
+                                        border
+                                        border-white/10
+                                    "
+                                />
 
+                                {/* Top Row */}
+                                <div
+                                    className="
+                                        relative
+                                        z-10
+                                        flex
+                                        w-full
+                                        items-start
+                                        justify-between
+                                        gap-4
+                                    "
+                                >
                                     <Icon
+                                        aria-hidden="true"
                                         size={28}
                                         className={`
                                             shrink-0
-                                            opacity-80
+                                            opacity-90
 
                                             sm:h-8
                                             sm:w-8
+
+                                            lg:h-9
+                                            lg:w-9
+
+                                            2xl:h-10
+                                            2xl:w-10
 
                                             ${iconClassName}
                                         `}
@@ -105,21 +168,34 @@ export default function ImpactStats() {
 
                                     <span
                                         className="
-                                            text-xl
+                                            text-2xl
                                             font-bold
-                                            leading-7
+                                            leading-8
+                                            tracking-[-0.4px]
 
-                                            sm:text-2xl
-                                            sm:leading-8
+                                            sm:text-[26px]
+                                            sm:leading-9
+
+                                            lg:text-[28px]
+
+                                            2xl:text-3xl
+                                            2xl:leading-10
                                         "
                                     >
                                         {value}
                                     </span>
-
                                 </div>
 
-                                {/* Title */}
-                                <div className="pt-2 sm:pt-3 md:pt-4">
+                                {/* Content */}
+                                <div
+                                    className="
+                                        relative
+                                        z-10
+                                        flex
+                                        flex-col
+                                        gap-1.5
+                                    "
+                                >
                                     <h3
                                         className={`
                                             text-xs
@@ -131,32 +207,41 @@ export default function ImpactStats() {
                                             sm:text-sm
                                             sm:tracking-[0.7px]
 
+                                            lg:text-[15px]
+
+                                            2xl:text-base
+                                            2xl:tracking-[0.8px]
+
                                             ${titleClassName}
                                         `}
                                     >
                                         {title}
                                     </h3>
+
+                                    <p
+                                        className={`
+                                            max-w-xl
+                                            text-sm
+                                            font-normal
+                                            leading-5
+
+                                            sm:text-[15px]
+                                            sm:leading-6
+
+                                            lg:text-base
+
+                                            2xl:text-[17px]
+                                            2xl:leading-7
+
+                                            ${descriptionClassName}
+                                        `}
+                                    >
+                                        {description}
+                                    </p>
                                 </div>
-
-                                {/* Description */}
-                                <p
-                                    className={`
-                                        text-sm
-                                        font-normal
-                                        leading-5
-
-                                        sm:text-base
-                                        sm:leading-6
-
-                                        ${descriptionClassName}
-                                    `}
-                                >
-                                    {description}
-                                </p>
-                            </div>
+                            </article>
                         )
                     )}
-
                 </div>
             </div>
         </section>

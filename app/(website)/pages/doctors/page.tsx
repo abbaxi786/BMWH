@@ -1,6 +1,7 @@
-import axios from "axios";
 import DoctorCard from "@/app/components/departmentPageComponents/DoctorCard";
 import Link from "next/link";
+
+import { getActiveDoctors } from "@/lib/data/doctors/doctors";
 
 export interface Doctor {
     id: number;
@@ -20,12 +21,6 @@ export interface Doctor {
     department_name: string;
 }
 
-interface ApiResponse {
-    success: boolean;
-    data: Doctor[];
-    message?: string;
-}
-
 function createDepartmentId(department: string) {
     return department
         .toLowerCase()
@@ -39,22 +34,23 @@ async function Doctors() {
     let doctors: Doctor[] = [];
 
     try {
-        const response = await axios.get<ApiResponse>(
-            "http://localhost:3000/api/doctors/all_doctors"
-        );
+        const result = await getActiveDoctors();
 
-        if (response.data.success) {
-            doctors = response.data.data;
-        }
+        doctors = result as Doctor[];
     } catch (error) {
         console.error("Error fetching doctors:", error);
     }
 
-    const activeDoctors = doctors.filter(
-        (doctor) => doctor.is_active
-    );
+    /*
+     * getActiveDoctors() already returns only active doctors
+     * because the SQL function contains:
+     *
+     * WHERE doctors.is_active = TRUE
+     *
+     * Therefore, no additional filter is required here.
+     */
 
-    const doctorsByDepartment = activeDoctors.reduce(
+    const doctorsByDepartment = doctors.reduce(
         (groups, doctor) => {
             const department = doctor.department_name || "Other";
 
@@ -74,7 +70,6 @@ async function Doctors() {
             id="doctors-page"
             className="min-h-screen animate-fade-in-up bg-white"
         >
-
             {/* =====================================================
                 PAGE HERO
             ====================================================== */}
@@ -88,7 +83,6 @@ async function Doctors() {
                     backgroundPosition: "center right",
                 }}
             >
-
                 {/* White gradient overlay */}
                 <div className="absolute inset-0 bg-linear-to-r from-white via-white/95 to-white/10" />
 
@@ -97,9 +91,7 @@ async function Doctors() {
 
                 {/* Content */}
                 <div className="relative z-10 mx-auto flex min-h-105 max-w-7xl items-center px-6 py-16 md:px-8 md:py-20">
-
                     <div className="max-w-3xl">
-
                         {/* Breadcrumbs */}
                         <div className="breadcrumbs mb-8 text-sm">
                             <ul>
@@ -136,15 +128,13 @@ async function Doctors() {
 
                         {/* Description */}
                         <p className="mt-6 max-w-2xl text-lg leading-8 text-[#3F4141]">
-                            Meet our experienced medical professionals dedicated
-                            to providing compassionate and quality healthcare to
-                            our patients.
+                            Meet our experienced medical professionals
+                            dedicated to providing compassionate and quality
+                            healthcare to our patients.
                         </p>
-
                     </div>
                 </div>
             </section>
-
 
             {/* =====================================================
                 DOCTORS
@@ -154,19 +144,13 @@ async function Doctors() {
                 id="all-doctors"
                 className="scroll-mt-28 py-16 md:py-20"
             >
-
                 <div className="mx-auto max-w-7xl px-6">
-
-                    {activeDoctors.length === 0 ? (
-
+                    {doctors.length === 0 ? (
                         <div className="py-16 text-center">
-
                             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#86000D]/10">
-
                                 <span className="text-2xl font-bold text-[#86000D]">
                                     !
                                 </span>
-
                             </div>
 
                             <h2 className="mt-5 text-2xl font-bold text-gray-900">
@@ -176,16 +160,11 @@ async function Doctors() {
                             <p className="mt-2 text-gray-600">
                                 There are currently no doctors available.
                             </p>
-
                         </div>
-
                     ) : (
-
                         <div className="space-y-20">
-
                             {Object.entries(doctorsByDepartment).map(
                                 ([departmentName, departmentDoctors]) => {
-
                                     const departmentId =
                                         createDepartmentId(departmentName);
 
@@ -195,21 +174,17 @@ async function Doctors() {
                                             id={departmentId}
                                             className="scroll-mt-28"
                                         >
-
                                             {/* =================================
                                                 DEPARTMENT HEADING
                                             ================================= */}
 
                                             <div className="mb-10">
-
                                                 <div className="flex items-center gap-3">
-
                                                     <span className="h-0.5 w-10 bg-[#86000D]" />
 
                                                     <span className="text-sm font-semibold uppercase tracking-[0.15em] text-[#86000D]">
                                                         Medical Department
                                                     </span>
-
                                                 </div>
 
                                                 <h2 className="mt-3 text-3xl font-bold text-gray-900 md:text-4xl">
@@ -217,16 +192,13 @@ async function Doctors() {
                                                 </h2>
 
                                                 <div className="mt-4 h-1 w-16 bg-[#86000D]" />
-
                                             </div>
-
 
                                             {/* =================================
                                                 DOCTOR CARDS
                                             ================================= */}
 
                                             <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
-
                                                 {departmentDoctors.map(
                                                     (doctor) => (
                                                         <DoctorCard
@@ -235,21 +207,15 @@ async function Doctors() {
                                                         />
                                                     )
                                                 )}
-
                                             </div>
-
                                         </section>
                                     );
                                 }
                             )}
-
                         </div>
-
                     )}
-
                 </div>
             </section>
-
 
             {/* =====================================================
                 CTA
@@ -259,20 +225,17 @@ async function Doctors() {
                 id="doctors-cta"
                 className="scroll-mt-28 bg-[#86000D] py-16"
             >
-
                 <div className="mx-auto max-w-5xl px-6 text-center">
-
                     <h2 className="text-3xl font-bold text-white md:text-4xl">
                         Need Medical Assistance?
                     </h2>
 
                     <p className="mt-4 text-lg text-white/85">
-                        Our medical team is ready to provide the care
-                        and support you need.
+                        Our medical team is ready to provide the care and
+                        support you need.
                     </p>
 
                     <div className="mt-8 flex flex-wrap justify-center gap-4">
-
                         <a
                             href="/contact"
                             className="btn border-white bg-white text-[#86000D] hover:border-gray-100 hover:bg-gray-100"
@@ -286,15 +249,11 @@ async function Doctors() {
                         >
                             Book an Appointment
                         </a>
-
                     </div>
-
                 </div>
             </section>
-
         </main>
     );
 }
 
 export default Doctors;
-

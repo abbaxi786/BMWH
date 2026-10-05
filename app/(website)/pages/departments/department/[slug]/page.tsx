@@ -480,29 +480,65 @@ async function Department({ params }: PageProps) {
                                                transition-all duration-300"
                                 >
 
-                                    {/* Service Image */}
+                                    {/* =================================================
+                                        SERVICE IMAGE
+                                    ================================================= */}
 
                                     {service.image_url ? (
+
                                         <div className="relative h-52 overflow-hidden">
+
                                             <Image
                                                 src={service.image_url}
                                                 alt={service.name}
                                                 fill
+                                                loading="eager"
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                className="object-cover
+                                                           group-hover:scale-105
+                                                           transition-transform
+                                                           duration-500"
                                             />
+
                                         </div>
+
                                     ) : (
-                                        <div className="h-52 bg-[#86000D]/5 flex items-center justify-center">
-                                            <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-sm">
-                                                <span className="text-3xl font-bold text-[#86000D]">
-                                                    {service.name.charAt(0).toUpperCase()}
+
+                                        <div
+                                            className="h-52
+                                                       bg-[#86000D]/5
+                                                       flex items-center
+                                                       justify-center"
+                                        >
+
+                                            <div
+                                                className="w-20 h-20
+                                                           rounded-full
+                                                           bg-white
+                                                           flex items-center
+                                                           justify-center
+                                                           shadow-sm"
+                                            >
+
+                                                <span
+                                                    className="text-3xl
+                                                               font-bold
+                                                               text-[#86000D]"
+                                                >
+                                                    {service.name
+                                                        .charAt(0)
+                                                        .toUpperCase()}
                                                 </span>
+
                                             </div>
+
                                         </div>
+
                                     )}
 
-                                    {/* Service Details */}
+                                    {/* =================================================
+                                        SERVICE DETAILS
+                                    ================================================= */}
 
                                     <div className="p-6">
 
@@ -530,6 +566,27 @@ async function Department({ params }: PageProps) {
                                             </p>
 
                                         )}
+
+                                        {/* =================================================
+                                            GOOGLE URDU SEARCH
+                                        ================================================= */}
+
+                                        <a
+                                            href={`https://www.google.com/search?q=${encodeURIComponent(
+                                                `${service.name} اردو`
+                                            )}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex
+                                                       items-center
+                                                       mt-5
+                                                       text-sm
+                                                       font-semibold
+                                                       text-[#86000D]
+                                                       hover:underline"
+                                        >
+                                            Search in Urdu
+                                        </a>
 
                                     </div>
 
@@ -718,4 +775,3 @@ async function Department({ params }: PageProps) {
 }
 
 export default Department;
-

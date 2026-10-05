@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
-import axios from "axios";
 import { FaArrowRight, FaHandshake } from "react-icons/fa6";
+
+import { getActiveSupporters } from "@/lib/data/supporters/supporters";
 
 interface Supporter {
     id: number;
@@ -16,58 +16,117 @@ interface Supporter {
     updated_at: string;
 }
 
-interface SupportersResponse {
-    success: boolean;
-    data: Supporter[];
-}
+const containerClass = `
+    mx-auto
+    w-full
+    max-w-7xl
+    px-5
+    sm:px-8
+    lg:px-10
+    xl:px-12
+    2xl:max-w-[1440px]
+    2xl:px-16
+    3xl:max-w-[1600px]
+`;
 
 export default async function Supporters() {
     let supporters: Supporter[] = [];
 
     try {
-        const response = await axios.get<SupportersResponse>(
-            `${process.env.BACKEND_URL}/api/supporters`,
-            {
-                headers: {
-                    Accept: "application/json",
-                },
-            }
-        );
+        const result = await getActiveSupporters();
 
-        if (response.data.success) {
-            supporters = response.data.data;
-        }
+        supporters = result as Supporter[];
     } catch (error) {
         console.error("Failed to fetch supporters:", error);
     }
 
-    // Don't render an empty section if there are no supporters.
     if (!supporters.length) {
         return null;
     }
 
     return (
-        <section className="w-full bg-[#FBF9F9] py-16 sm:py-20 lg:py-24">
-            <div className="mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10 xl:px-12">
+        <section
+            id="supporters"
+            className="
+                scroll-mt-28
+                w-full
+                bg-[#FBF9F9]
+                py-12
+                sm:py-14
+                lg:py-16
+                xl:py-20
+                2xl:py-24
+            "
+        >
+            <div className={containerClass}>
 
-                {/* Section Header */}
-                <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-12 lg:mb-14">
-                    <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[#86000D]/10 px-4 py-2">
-                        <FaHandshake
-                            size={14}
-                            className="text-[#86000D]"
-                        />
+                {/* Header */}
+                <div
+                    className="
+                        mx-auto
+                        mb-8
+                        max-w-3xl
+                        text-center
+                        sm:mb-10
+                        lg:mb-12
+                    "
+                >
+                    <div
+                        className="
+                            mb-3
+                            flex
+                            items-center
+                            justify-center
+                            gap-3
+                            text-xs
+                            font-bold
+                            uppercase
+                            tracking-[0.15em]
+                            text-[#911824]
+                            sm:text-sm
+                        "
+                    >
+                        <span className="h-0.5 w-6 bg-[#911824] sm:w-8" />
 
-                        <span className="text-xs font-semibold uppercase tracking-[1px] text-[#86000D]">
+                        <span className="flex items-center gap-2">
+                            <FaHandshake
+                                aria-hidden="true"
+                                className="text-xs"
+                            />
+
                             Our Supporters
                         </span>
+
+                        <span className="h-0.5 w-6 bg-[#911824] sm:w-8" />
                     </div>
 
-                    <h2 className="text-[30px] font-bold leading-tight tracking-[-0.6px] text-[#1B1C1C] sm:text-[34px] lg:text-[38px]">
-                        Partners who support our mission
+                    <h2
+                        className="
+                            text-2xl
+                            font-bold
+                            leading-tight
+                            text-[#1B1C1C]
+                            sm:text-3xl
+                            lg:text-4xl
+                            xl:text-[2.75rem]
+                        "
+                    >
+                        Partners Who Support Our Mission
                     </h2>
 
-                    <p className="mt-4 text-sm leading-6 text-[#5B403D] sm:text-base sm:leading-7">
+                    <p
+                        className="
+                            mx-auto
+                            mt-3
+                            max-w-2xl
+                            text-sm
+                            leading-6
+                            text-[#5B403D]
+                            sm:mt-4
+                            sm:text-base
+                            sm:leading-7
+                        "
+                    >
                         We are grateful to the organizations and individuals
                         who support our efforts to provide quality healthcare
                         and serve the community.
@@ -75,93 +134,254 @@ export default async function Supporters() {
                 </div>
 
                 {/* Supporters */}
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {supporters.map((supporter) => (
-                        <div
+                <div
+                    className="
+                        grid
+                        grid-cols-1
+                        gap-4
+                        sm:grid-cols-2
+                        sm:gap-5
+                        lg:grid-cols-3
+                        xl:grid-cols-4
+                        xl:gap-6
+                    "
+                >
+                    {supporters.map((supporter, index) => (
+                        <article
                             key={supporter.id}
                             className="
-                                group flex h-full flex-col
-                                rounded-2xl border border-[#E8E4E4]
-                                bg-white p-5
-                                shadow-[0_4px_15px_rgba(0,0,0,0.04)]
-                                transition-all duration-300
+                                group
+                                relative
+                                flex
+                                flex-col
+                                overflow-hidden
+                                rounded-2xl
+                                border
+                                border-[#E4BEBA]/40
+                                bg-white
+                                p-4
+                                shadow-[0_4px_18px_rgba(134,0,13,0.04)]
+                                transition-all
+                                duration-300
                                 hover:-translate-y-1
-                                hover:shadow-[0_12px_25px_rgba(0,0,0,0.08)]
+                                hover:border-[#911824]/30
+                                hover:shadow-[0_10px_28px_rgba(134,0,13,0.09)]
+                                sm:p-5
+                                lg:p-5
                             "
                         >
+                            {/* Decorative Circle */}
+                            <div
+                                className="
+                                    absolute
+                                    -right-8
+                                    -top-8
+                                    h-24
+                                    w-24
+                                    rounded-full
+                                    bg-[#911824]/5
+                                    transition-transform
+                                    duration-500
+                                    group-hover:scale-125
+                                "
+                            />
+
+                            {/* Number */}
+                            <span
+                                className="
+                                    absolute
+                                    right-4
+                                    top-4
+                                    text-[10px]
+                                    font-bold
+                                    tracking-wider
+                                    text-gray-200
+                                    group-hover:text-[#911824]/20
+                                "
+                            >
+                                {String(index + 1).padStart(2, "0")}
+                            </span>
+
                             {/* Logo */}
-                            <div className="mb-5 flex h-28 w-full items-center justify-center rounded-xl bg-[#FBF9F9] p-5">
+                            <div
+                                className="
+                                    relative
+                                    flex
+                                    h-20
+                                    w-full
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    bg-[#FBF9F9]
+                                    p-3
+                                    sm:h-22
+                                    sm:p-4
+                                "
+                            >
                                 {supporter.logo_url ? (
-                                    <div className="relative h-full w-full">
+                                    <div
+                                        className="
+                                            relative
+                                            h-full
+                                            w-full
+                                        "
+                                    >
                                         <Image
                                             src={supporter.logo_url}
                                             alt={`${supporter.name} logo`}
                                             fill
-                                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                                            className="object-contain"
+                                            sizes="
+                                                (max-width: 640px) 100vw,
+                                                (max-width: 1024px) 50vw,
+                                                25vw
+                                            "
+                                            className="
+                                                object-contain
+                                                transition-transform
+                                                duration-300
+                                                group-hover:scale-105
+                                            "
                                         />
                                     </div>
                                 ) : (
                                     <FaHandshake
-                                        size={38}
-                                        className="text-[#86000D]/40"
+                                        aria-hidden="true"
+                                        className="
+                                            text-2xl
+                                            text-[#911824]/40
+                                        "
                                     />
                                 )}
                             </div>
 
                             {/* Content */}
-                            <div className="flex flex-1 flex-col">
-                                <h3 className="text-lg font-semibold leading-6 text-[#1B1C1C]">
+                            <div className="mt-4">
+                                <h3
+                                    className="
+                                        break-words
+                                        text-base
+                                        font-bold
+                                        leading-6
+                                        text-[#1B1C1C]
+                                        transition-colors
+                                        group-hover:text-[#911824]
+                                        sm:text-lg
+                                    "
+                                >
                                     {supporter.name}
                                 </h3>
 
-                                {(supporter.type || supporter.support_type) && (
-                                    <div className="mt-2 flex flex-wrap gap-2">
+                                {/* Tags */}
+                                {(supporter.type ||
+                                    supporter.support_type) && (
+                                    <div
+                                        className="
+                                            mt-2
+                                            flex
+                                            flex-wrap
+                                            gap-1.5
+                                        "
+                                    >
                                         {supporter.type && (
-                                            <span className="rounded-full bg-[#EFEDED] px-2.5 py-1 text-[11px] font-medium text-[#5B403D]">
+                                            <span
+                                                className="
+                                                    rounded-full
+                                                    bg-[#F3EEEE]
+                                                    px-2.5
+                                                    py-0.5
+                                                    text-[10px]
+                                                    font-semibold
+                                                    leading-5
+                                                    text-[#5B403D]
+                                                "
+                                            >
                                                 {supporter.type}
                                             </span>
                                         )}
 
                                         {supporter.support_type && (
-                                            <span className="rounded-full bg-[#86000D]/10 px-2.5 py-1 text-[11px] font-medium text-[#86000D]">
+                                            <span
+                                                className="
+                                                    rounded-full
+                                                    bg-[#911824]/10
+                                                    px-2.5
+                                                    py-0.5
+                                                    text-[10px]
+                                                    font-semibold
+                                                    leading-5
+                                                    text-[#911824]
+                                                "
+                                            >
                                                 {supporter.support_type}
                                             </span>
                                         )}
                                     </div>
                                 )}
 
+                                {/* Description */}
                                 {supporter.description && (
-                                    <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#5B403D]">
+                                    <p
+                                        className="
+                                            mt-2
+                                            line-clamp-2
+                                            text-xs
+                                            leading-5
+                                            text-[#5B403D]
+                                            sm:text-sm
+                                        "
+                                    >
                                         {supporter.description}
                                     </p>
                                 )}
-
-                                {/* Website */}
-                                {supporter.website_url && (
-                                    <div className="mt-auto pt-5">
-                                        <Link
-                                            href={supporter.website_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="
-                                                inline-flex items-center gap-2
-                                                text-sm font-semibold
-                                                text-[#86000D]
-                                                transition-colors
-                                                hover:text-[#650009]
-                                            "
-                                        >
-                                            Visit Website
-                                            <FaArrowRight
-                                                size={11}
-                                                className="transition-transform duration-200 group-hover:translate-x-1"
-                                            />
-                                        </Link>
-                                    </div>
-                                )}
                             </div>
-                        </div>
+
+                            {/* Website */}
+                            {supporter.website_url && (
+                                <div
+                                    className="
+                                        mt-4
+                                        border-t
+                                        border-[#E4BEBA]/40
+                                        pt-3
+                                    "
+                                >
+                                    <a
+                                        href={supporter.website_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label={`Visit ${supporter.name} website`}
+                                        className="
+                                            inline-flex
+                                            items-center
+                                            gap-2
+                                            text-xs
+                                            font-bold
+                                            text-[#911824]
+                                            transition-colors
+                                            hover:text-[#650009]
+                                            focus:outline-none
+                                            focus-visible:rounded
+                                            focus-visible:ring-2
+                                            focus-visible:ring-[#911824]
+                                            focus-visible:ring-offset-2
+                                            sm:text-sm
+                                        "
+                                    >
+                                        Visit Website
+
+                                        <FaArrowRight
+                                            aria-hidden="true"
+                                            className="
+                                                text-[9px]
+                                                transition-transform
+                                                duration-300
+                                                group-hover:translate-x-1
+                                            "
+                                        />
+                                    </a>
+                                </div>
+                            )}
+                        </article>
                     ))}
                 </div>
             </div>

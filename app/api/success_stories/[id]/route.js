@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
+import {
+    getActiveSuccessStoryById,
+} from "@/lib/data/successStories/successStories";
 
 // ============================================================
 // GET - Get single success story by ID
 // ============================================================
+// ============================================================
+// GET - Get single success story by ID
+// ============================================================
+
 export async function GET(request, { params }) {
     try {
         const { id } = await params;
@@ -22,29 +29,12 @@ export async function GET(request, { params }) {
             );
         }
 
-        const result = await sql`
-            SELECT
-                id,
-                title,
-                summary,
-                content,
-                image_url,
-                patient_name,
-                patient_age,
-                category,
-                story_date,
-                is_featured,
-                is_active,
-                created_at,
-                updated_at
-            FROM success_stories
-            WHERE id = ${storyId}
-              AND is_active = TRUE
-            LIMIT 1
-        `;
+        const story = await getActiveSuccessStoryById(
+            storyId
+        );
 
         // Story not found
-        if (result.length === 0) {
+        if (!story) {
             return NextResponse.json(
                 {
                     success: false,
@@ -57,13 +47,16 @@ export async function GET(request, { params }) {
         return NextResponse.json(
             {
                 success: true,
-                data: result[0],
+                data: story,
             },
             { status: 200 }
         );
 
     } catch (error) {
-        console.error("Error fetching success story:", error);
+        console.error(
+            "Error fetching success story:",
+            error
+        );
 
         return NextResponse.json(
             {
@@ -74,7 +67,6 @@ export async function GET(request, { params }) {
         );
     }
 }
-
 
 // ============================================================
 // PUT - Update success story by ID

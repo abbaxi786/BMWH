@@ -1,6 +1,8 @@
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getAchievementById } from "@/lib/data/achievment/achievements";
+
 import {
     FaArrowLeft,
     FaAward,
@@ -29,23 +31,9 @@ interface PageProps {
     }>;
 }
 
-async function getAchievement(id: string): Promise<AchievementAward | null> {
-    try {
-        const response = await axios.get(
-            `${process.env.BACKEND_URL}/api/acheivement_awards/${id}`,
-            {
-                timeout: 10000,
-            }
-        );
-
-        return response.data?.data || null;
-    } catch (error) {
-        console.error("Error fetching achievement:", error);
-        return null;
-    }
-}
-
 function formatType(type: string) {
+    if (!type) return "Recognition";
+
     return type
         .replace(/_/g, " ")
         .replace(/\b\w/g, (char) => char.toUpperCase());
@@ -54,7 +42,13 @@ function formatType(type: string) {
 function formatDate(date: string | null) {
     if (!date) return "Date not available";
 
-    return new Date(date).toLocaleDateString("en-US", {
+    const formattedDate = new Date(date);
+
+    if (Number.isNaN(formattedDate.getTime())) {
+        return "Date not available";
+    }
+
+    return formattedDate.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -66,55 +60,37 @@ export default async function AchievementDetailPage({
 }: PageProps) {
     const { id } = await params;
 
-    const achievement = await getAchievement(id);
+    let achievement: AchievementAward | null = null;
 
-    /* ================= NOT FOUND ================= */
+    try {
+        achievement = (await getAchievementById(
+            id
+        )) as AchievementAward | null;
+    } catch (error) {
+        console.error("Error fetching achievement:", error);
+    }
 
+    /*
+     * If the achievement doesn't exist or is inactive,
+     * show Next.js 404 page.
+     */
     if (!achievement) {
-        return (
-            <main className="min-h-screen bg-white">
-                <section className="flex min-h-[70vh] items-center justify-center px-6">
-                    <div className="max-w-lg text-center">
-
-                        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-50">
-                            <FaAward className="text-4xl text-[#911824]" />
-                        </div>
-
-                        <h1 className="text-3xl font-bold text-[#5B403D]">
-                            Achievement Not Found
-                        </h1>
-
-                        <p className="mt-4 leading-7 text-gray-600">
-                            The achievement or award you are looking for could
-                            not be found or is no longer available.
-                        </p>
-
-                        <Link
-                            href="/pages/achievements-awards"
-                            className="mt-7 inline-flex items-center gap-2 rounded-lg bg-[#911824] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#86000D]"
-                        >
-                            <FaArrowLeft />
-                            Back to Achievements
-                        </Link>
-
-                    </div>
-                </section>
-            </main>
-        );
+        notFound();
     }
 
     return (
         <main className="min-h-screen bg-white">
 
-            {/* ================= HERO ================= */}
-
+            {/* =====================================================
+                HERO
+            ====================================================== */}
             <section className="relative overflow-hidden bg-[#911824]">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#911824] via-[#911824] to-[#86000D]" />
+
+                <div className="absolute inset-0 bg-linear-to-r from-[#911824] via-[#911824] to-[#86000D]" />
 
                 <div className="relative mx-auto max-w-7xl px-6 py-16 lg:px-8 lg:py-20">
 
-                    {/* Back button */}
-
+                    {/* Back Button */}
                     <Link
                         href="/pages/achievements-awards"
                         className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-red-100 transition-colors hover:text-white"
@@ -126,23 +102,27 @@ export default async function AchievementDetailPage({
                     <div className="max-w-4xl">
 
                         {/* Type */}
-
                         <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm">
                             <FaAward />
+
                             {formatType(achievement.type)}
                         </div>
 
+                        {/* Title */}
                         <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
                             {achievement.title}
                         </h1>
 
+                        {/* Issuing Organization */}
                         {achievement.issuing_organization && (
                             <div className="mt-6 flex items-center gap-2 text-red-100">
+
                                 <FaBuilding />
 
                                 <span>
                                     {achievement.issuing_organization}
                                 </span>
+
                             </div>
                         )}
 
@@ -150,18 +130,20 @@ export default async function AchievementDetailPage({
                 </div>
             </section>
 
-            {/* ================= MAIN CONTENT ================= */}
-
+            {/* =====================================================
+                MAIN CONTENT
+            ====================================================== */}
             <section className="mx-auto max-w-7xl px-6 py-14 lg:px-8 lg:py-20">
 
                 <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
 
-                    {/* ================= IMAGE ================= */}
-
+                    {/* =================================================
+                        IMAGE
+                    ================================================== */}
                     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-sm">
 
                         {achievement.image_url ? (
-                            <div className="relative aspect-[4/3] w-full">
+                            <div className="relative aspect-4/3 w-full">
 
                                 <Image
                                     src={achievement.image_url}
@@ -174,7 +156,7 @@ export default async function AchievementDetailPage({
 
                             </div>
                         ) : (
-                            <div className="flex aspect-[4/3] w-full items-center justify-center bg-red-50">
+                            <div className="flex aspect-4/3 w-full items-center justify-center bg-red-50">
 
                                 <FaAward className="text-8xl text-[#911824]/20" />
 
@@ -183,8 +165,9 @@ export default async function AchievementDetailPage({
 
                     </div>
 
-                    {/* ================= INFORMATION ================= */}
-
+                    {/* =================================================
+                        INFORMATION
+                    ================================================== */}
                     <div>
 
                         <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#911824]">
@@ -196,11 +179,9 @@ export default async function AchievementDetailPage({
                         </h2>
 
                         {/* Details */}
-
                         <div className="mt-8 space-y-5">
 
-                            {/* Type */}
-
+                            {/* Recognition Type */}
                             <div className="flex gap-4 border-b border-gray-100 pb-5">
 
                                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-red-50 text-[#911824]">
@@ -219,8 +200,7 @@ export default async function AchievementDetailPage({
 
                             </div>
 
-                            {/* Organization */}
-
+                            {/* Issuing Organization */}
                             {achievement.issuing_organization && (
                                 <div className="flex gap-4 border-b border-gray-100 pb-5">
 
@@ -241,8 +221,7 @@ export default async function AchievementDetailPage({
                                 </div>
                             )}
 
-                            {/* Date */}
-
+                            {/* Award Date */}
                             {achievement.award_date && (
                                 <div className="flex gap-4 border-b border-gray-100 pb-5">
 
@@ -268,7 +247,6 @@ export default async function AchievementDetailPage({
                         </div>
 
                         {/* Official Website */}
-
                         {achievement.website_url && (
                             <a
                                 href={achievement.website_url}
@@ -277,6 +255,7 @@ export default async function AchievementDetailPage({
                                 className="mt-8 inline-flex items-center gap-2 rounded-lg bg-[#911824] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#86000D]"
                             >
                                 Visit Official Website
+
                                 <FaExternalLinkAlt className="text-sm" />
                             </a>
                         )}
@@ -285,8 +264,9 @@ export default async function AchievementDetailPage({
 
                 </div>
 
-                {/* ================= DESCRIPTION ================= */}
-
+                {/* =====================================================
+                    DESCRIPTION
+                ====================================================== */}
                 {achievement.description && (
                     <div className="mt-16 border-t border-gray-200 pt-12">
 
@@ -301,8 +281,9 @@ export default async function AchievementDetailPage({
                             </h2>
 
                             <div className="mt-6 text-base leading-8 text-gray-600">
+
                                 {achievement.description
-                                    .split("\n")
+                                    .split(/\r?\n/)
                                     .map((paragraph, index) => (
                                         <p
                                             key={index}
@@ -311,6 +292,7 @@ export default async function AchievementDetailPage({
                                             {paragraph}
                                         </p>
                                     ))}
+
                             </div>
 
                         </div>
@@ -320,9 +302,11 @@ export default async function AchievementDetailPage({
 
             </section>
 
-            {/* ================= CTA ================= */}
-
+            {/* =====================================================
+                CTA
+            ====================================================== */}
             <section className="bg-gray-50">
+
                 <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
 
                     <div className="rounded-3xl bg-[#911824] px-8 py-12 text-center sm:px-12">
@@ -344,12 +328,14 @@ export default async function AchievementDetailPage({
                             className="mt-7 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 font-semibold text-[#911824] transition-colors hover:bg-red-50"
                         >
                             <FaArrowLeft />
+
                             View All Achievements
                         </Link>
 
                     </div>
 
                 </div>
+
             </section>
 
         </main>

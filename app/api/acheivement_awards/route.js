@@ -2,28 +2,11 @@ import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
 import { requireAdmin } from "../../../lib/auth";
+import { getAchievements } from "@/lib/data/achievment/achievements";
 
-// GET - Get all active achievements and awards
 export async function GET() {
     try {
-        const result = await sql`
-            SELECT
-                id,
-                title,
-                type,
-                description,
-                image_url,
-                award_date,
-                issuing_organization,
-                website_url,
-                is_active,
-                created_at,
-                updated_at
-            FROM achievements_awards
-            WHERE is_active = TRUE
-            ORDER BY award_date DESC NULLS LAST, id DESC
-            LIMIT 3
-        `;
+        const result = await getAchievements();
 
         return NextResponse.json(
             {
@@ -33,7 +16,10 @@ export async function GET() {
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error fetching achievements and awards:", error);
+        console.error(
+            "Error fetching achievements and awards:",
+            error
+        );
 
         return NextResponse.json(
             {
@@ -44,7 +30,6 @@ export async function GET() {
         );
     }
 }
-
 
 // POST - Create achievement/award
 export async function POST(request) {

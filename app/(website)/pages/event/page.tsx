@@ -1,4 +1,3 @@
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -7,6 +6,8 @@ import {
     FaClock,
     FaLocationDot,
 } from "react-icons/fa6";
+
+import { getActiveEvents } from "@/lib/data/events/events";
 
 interface Event {
     id: number;
@@ -21,11 +22,6 @@ interface Event {
     is_active: boolean;
     created_at: string;
     updated_at: string;
-}
-
-interface EventsResponse {
-    success: boolean;
-    data: Event[];
 }
 
 function formatDate(date: string) {
@@ -50,25 +46,16 @@ function formatTime(time: string | null) {
     });
 }
 
-async function getEvents(): Promise<Event[]> {
+export default async function EventsPage() {
+    let events: Event[] = [];
+
     try {
-        const response = await axios.get<EventsResponse>(
-            `${process.env.BACKEND_URL}/api/events/all`
-        );
+        const result = await getActiveEvents();
 
-        if (response.data.success) {
-            return response.data.data;
-        }
-
-        return [];
+        events = result as Event[];
     } catch (error) {
         console.error("Error fetching all events:", error);
-        return [];
     }
-}
-
-export default async function EventsPage() {
-    const events = await getEvents();
 
     return (
         <main className="w-full bg-[#FBF9F9]">
@@ -263,6 +250,7 @@ export default async function EventsPage() {
                                 className="mt-6 inline-flex items-center gap-2 bg-[#911824] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#760f19]"
                             >
                                 Back to Home
+
                                 <FaArrowRight size={13} />
                             </Link>
                         </div>

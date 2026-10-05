@@ -1,6 +1,9 @@
-import axios from "axios";
 import Image from "next/image";
 import { FaUserTie } from "react-icons/fa6";
+
+import {
+    getEventGuestsByEventId,
+} from "@/lib/data/events/eventGuests";
 
 interface EventGuest {
     id: number;
@@ -14,36 +17,26 @@ interface EventGuest {
     updated_at: string;
 }
 
-interface GuestsResponse {
-    success: boolean;
-    data: EventGuest[];
-}
-
 interface EventGuestsProps {
     eventId: number;
-}
-
-async function getGuests(eventId: number): Promise<EventGuest[]> {
-    try {
-        const response = await axios.get<GuestsResponse>(
-            `${process.env.BACKEND_URL}/api/events/guests?event_id=${eventId}`
-        );
-
-        if (response.data.success) {
-            return response.data.data;
-        }
-
-        return [];
-    } catch (error) {
-        console.error("Error fetching event guests:", error);
-        return [];
-    }
 }
 
 export default async function EventGuests({
     eventId,
 }: EventGuestsProps) {
-    const guests = await getGuests(eventId);
+    let guests: EventGuest[] = [];
+
+    try {
+        const result =
+            await getEventGuestsByEventId(eventId);
+
+        guests = result as EventGuest[];
+    } catch (error) {
+        console.error(
+            "Error fetching event guests:",
+            error
+        );
+    }
 
     if (guests.length === 0) {
         return null;
@@ -127,3 +120,4 @@ export default async function EventGuests({
         </section>
     );
 }
+

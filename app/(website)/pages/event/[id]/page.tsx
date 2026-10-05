@@ -1,4 +1,3 @@
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -10,6 +9,8 @@ import {
 
 import EventGuests from "@/app/components/eventPart/event_guests";
 import EventGallery from "@/app/components/eventPart/gallery";
+
+import { getActiveEventById } from "@/lib/data/events/events";
 
 interface Event {
     id: number;
@@ -24,11 +25,6 @@ interface Event {
     is_active: boolean;
     created_at: string;
     updated_at: string;
-}
-
-interface EventResponse {
-    success: boolean;
-    data: Event;
 }
 
 interface EventPageProps {
@@ -60,23 +56,6 @@ function formatTime(time: string | null) {
     });
 }
 
-async function getEvent(eventId: number): Promise<Event | null> {
-    try {
-        const response = await axios.get<EventResponse>(
-            `${process.env.BACKEND_URL}/api/events/${eventId}`
-        );
-
-        if (response.data.success) {
-            return response.data.data;
-        }
-
-        return null;
-    } catch (error) {
-        console.error("Error fetching event:", error);
-        return null;
-    }
-}
-
 export default async function EventDetailPage({
     params,
 }: EventPageProps) {
@@ -97,7 +76,7 @@ export default async function EventDetailPage({
                     </p>
 
                     <Link
-                        href="/pages/events"
+                        href="/pages/event"
                         className="mt-6 inline-flex items-center gap-2 bg-[#911824] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#760f19]"
                     >
                         <FaArrowLeft size={13} />
@@ -108,7 +87,15 @@ export default async function EventDetailPage({
         );
     }
 
-    const event = await getEvent(eventId);
+    let event: Event | null = null;
+
+    try {
+        const result = await getActiveEventById(eventId);
+
+        event = result as Event | null;
+    } catch (error) {
+        console.error("Error fetching event:", error);
+    }
 
     if (!event) {
         return (
@@ -128,7 +115,7 @@ export default async function EventDetailPage({
                     </p>
 
                     <Link
-                        href="/events"
+                        href="/pages/event"
                         className="mt-6 inline-flex items-center gap-2 bg-[#911824] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#760f19]"
                     >
                         <FaArrowLeft size={13} />
@@ -325,10 +312,11 @@ export default async function EventDetailPage({
                     </p>
 
                     <Link
-                        href="/events"
+                        href="/pages/event"
                         className="mt-6 inline-flex items-center gap-2 bg-white px-6 py-3 text-sm font-semibold text-[#911824] transition-all hover:bg-gray-100"
                     >
                         View All Events
+
                         <FaArrowLeft
                             size={13}
                             className="rotate-180"

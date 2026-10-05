@@ -1,6 +1,8 @@
-import axios from "axios";
 import Image from "next/image";
-import { FaImages } from "react-icons/fa6";
+
+import {
+    getActiveEventGalleryByEventId,
+} from "@/lib/data/events/eventGallery";
 
 interface EventGalleryItem {
     id: number;
@@ -14,39 +16,26 @@ interface EventGalleryItem {
     updated_at: string;
 }
 
-interface GalleryResponse {
-    success: boolean;
-    data: EventGalleryItem[];
-}
-
 interface EventGalleryProps {
     eventId: number;
-}
-
-async function getGallery(
-    eventId: number
-): Promise<EventGalleryItem[]> {
-    try {
-        const response = await axios.get<GalleryResponse>(
-            `${process.env.BACKEND_URL}/api/events/event_gallery?event_id=${eventId}`
-        );
-
-
-        if (response.data.success) {
-            return response.data.data;
-        }
-
-        return [];
-    } catch (error) {
-        console.error("Error fetching event gallery:", error);
-        return [];
-    }
 }
 
 export default async function EventGallery({
     eventId,
 }: EventGalleryProps) {
-    const gallery = await getGallery(eventId);
+    let gallery: EventGalleryItem[] = [];
+
+    try {
+        const result =
+            await getActiveEventGalleryByEventId(eventId);
+
+        gallery = result as EventGalleryItem[];
+    } catch (error) {
+        console.error(
+            "Error fetching event gallery:",
+            error
+        );
+    }
 
     if (gallery.length === 0) {
         return null;
@@ -82,6 +71,7 @@ export default async function EventGallery({
                             key={item.id}
                             className="group overflow-hidden bg-white shadow-sm ring-1 ring-gray-100"
                         >
+                            {/* Image */}
                             <div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100">
                                 <Image
                                     src={item.image_url}
@@ -95,7 +85,9 @@ export default async function EventGallery({
                                 />
                             </div>
 
-                            {(item.title || item.description) && (
+                            {/* Content */}
+                            {(item.title ||
+                                item.description) && (
                                 <div className="p-5">
                                     {item.title && (
                                         <h3 className="text-lg font-bold text-[#1B1C1C]">
@@ -117,3 +109,4 @@ export default async function EventGallery({
         </section>
     );
 }
+

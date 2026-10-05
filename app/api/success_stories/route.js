@@ -1,31 +1,11 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
+import { getFeaturedSuccessStories } from "@/lib/data/successStories/successStories";
 
-// GET - Get top 3 featured success stories
 export async function GET() {
     try {
-        const result = await sql`
-            SELECT
-                id,
-                title,
-                summary,
-                content,
-                image_url,
-                patient_name,
-                patient_age,
-                category,
-                story_date,
-                is_featured,
-                is_active,
-                created_at,
-                updated_at
-            FROM success_stories
-            WHERE is_active = TRUE
-              AND is_featured = TRUE
-            ORDER BY story_date DESC NULLS LAST, id DESC
-            LIMIT 3
-        `;
+        const result = await getFeaturedSuccessStories();
 
         return NextResponse.json(
             {
@@ -46,7 +26,6 @@ export async function GET() {
         );
     }
 }
-
 
 // POST - Create a new success story
 export async function POST(request) {

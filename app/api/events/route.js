@@ -3,33 +3,14 @@ import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
 import { requireAdmin } from "../../../lib/auth";
 
-// ============================================================
-// GET - Get top 3 active events
-// ============================================================
+import {
+    getTopThreeActiveEvents,
+} from "@/lib/data/events/events";
 
 export async function GET() {
     try {
-        const result = await sql`
-            SELECT
-                id,
-                title,
-                description,
-                event_date,
-                start_time,
-                end_time,
-                location,
-                cover_image_url,
-                is_featured,
-                is_active,
-                created_at,
-                updated_at
-            FROM events
-            WHERE is_active = TRUE
-            ORDER BY
-                event_date DESC NULLS LAST,
-                id DESC
-            LIMIT 3
-        `;
+        const result =
+            await getTopThreeActiveEvents();
 
         return NextResponse.json(
             {
@@ -39,7 +20,10 @@ export async function GET() {
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error fetching top 3 events:", error);
+        console.error(
+            "Error fetching top 3 events:",
+            error
+        );
 
         return NextResponse.json(
             {

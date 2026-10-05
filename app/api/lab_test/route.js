@@ -2,26 +2,33 @@ import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 
+import {
+    getLabTests,
+    getActiveLabTests,
+    getLabTestsByCategory,
+    getActiveLabTestsByCategory,
+    searchLabTests,
+    searchActiveLabTests,
+} from "@/lib/data/lab_test/labTest";
 
-/*
-|--------------------------------------------------------------------------
-| GET - Get Lab Tests
-|--------------------------------------------------------------------------
-|
-| Public website:
-|   GET /api/lab-tests
-|   -> Returns only active lab tests
-|
-| Admin:
-|   GET /api/lab-tests?admin=true
-|   -> Returns all lab tests, including inactive ones
-|
-| Optional:
-|   GET /api/lab-tests?category=Haematology
-|   GET /api/lab-tests?search=CBC
-|
-|--------------------------------------------------------------------------
-*/
+
+// =====================================================
+// GET - Get Lab Tests
+// =====================================================
+//
+// Public:
+// GET /api/lab_test
+// -> Active tests only
+//
+// Admin:
+// GET /api/lab_test?admin=true
+// -> Active + inactive tests
+//
+// Optional:
+// ?category=Haematology
+// ?search=CBC
+//
+// =====================================================
 
 export async function GET(request) {
     try {
@@ -33,147 +40,77 @@ export async function GET(request) {
 
         let result;
 
-        /*
-        |--------------------------------------------------------------------------
-        | ADMIN REQUEST
-        |--------------------------------------------------------------------------
-        | Admin can see both active and inactive tests.
-        |--------------------------------------------------------------------------
-        */
+        // =================================================
+        // ADMIN
+        // =================================================
 
         if (admin) {
+
+            // Category + Search
             if (category && search) {
-                result = await sql`
-                    SELECT
-                        id,
-                        test_name,
-                        category,
-                        reporting_time,
-                        specimen_source,
-                        processing,
-                        is_active,
-                        created_at,
-                        updated_at
-                    FROM lab_tests
-                    WHERE category = ${category}
-                    AND test_name ILIKE ${"%" + search + "%"}
-                    ORDER BY test_name ASC
-                `;
-            } else if (category) {
-                result = await sql`
-                    SELECT
-                        id,
-                        test_name,
-                        category,
-                        reporting_time,
-                        specimen_source,
-                        processing,
-                        is_active,
-                        created_at,
-                        updated_at
-                    FROM lab_tests
-                    WHERE category = ${category}
-                    ORDER BY test_name ASC
-                `;
-            } else if (search) {
-                result = await sql`
-                    SELECT
-                        id,
-                        test_name,
-                        category,
-                        reporting_time,
-                        specimen_source,
-                        processing,
-                        is_active,
-                        created_at,
-                        updated_at
-                    FROM lab_tests
-                    WHERE test_name ILIKE ${"%" + search + "%"}
-                    ORDER BY test_name ASC
-                `;
-            } else {
-                result = await sql`
-                    SELECT
-                        id,
-                        test_name,
-                        category,
-                        reporting_time,
-                        specimen_source,
-                        processing,
-                        is_active,
-                        created_at,
-                        updated_at
-                    FROM lab_tests
-                    ORDER BY test_name ASC
-                `;
+                const categoryResults =
+                    await getLabTestsByCategory(category);
+
+                const searchText = search.toLowerCase();
+
+                result = categoryResults.filter((test) =>
+                    test.test_name
+                        ?.toLowerCase()
+                        .includes(searchText)
+                );
+            }
+
+            // Category only
+            else if (category) {
+                result = await getLabTestsByCategory(category);
+            }
+
+            // Search only
+            else if (search) {
+                result = await searchLabTests(search);
+            }
+
+            // Everything
+            else {
+                result = await getLabTests();
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | PUBLIC WEBSITE REQUEST
-        |--------------------------------------------------------------------------
-        | Public users only receive active lab tests.
-        |--------------------------------------------------------------------------
-        */
+        // =================================================
+        // PUBLIC
+        // =================================================
 
         else {
+
+            // Category + Search
             if (category && search) {
-                result = await sql`
-                    SELECT
-                        id,
-                        test_name,
-                        category,
-                        reporting_time,
-                        specimen_source,
-                        processing
-                    FROM lab_tests
-                    WHERE is_active = TRUE
-                    AND category = ${category}
-                    AND test_name ILIKE ${"%" + search + "%"}
-                    ORDER BY test_name ASC
-                `;
-            } else if (category) {
-                result = await sql`
-                    SELECT
-                        id,
-                        test_name,
-                        category,
-                        reporting_time,
-                        specimen_source,
-                        processing
-                    FROM lab_tests
-                    WHERE is_active = TRUE
-                    AND category = ${category}
-                    ORDER BY test_name ASC
-                `;
-            } else if (search) {
-                result = await sql`
-                    SELECT
-                        id,
-                        test_name,
-                        category,
-                        reporting_time,
-                        specimen_source,
-                        processing
-                    FROM lab_tests
-                    WHERE is_active = TRUE
-                    AND test_name ILIKE ${"%" + search + "%"}
-                    ORDER BY test_name ASC
-                `;
-            } else {
-                result = await sql`
-                    SELECT
-                        id,
-                        test_name,
-                        category,
-                        reporting_time,
-                        specimen_source,
-                        processing
-                    FROM lab_tests
-                    WHERE is_active = TRUE
-                    ORDER BY test_name ASC
-                `;
+                const categoryResults =
+                    await getActiveLabTestsByCategory(category);
+
+                const searchText = search.toLowerCase();
+
+                result = categoryResults.filter((test) =>
+                    test.test_name
+                        ?.toLowerCase()
+                        .includes(searchText)
+                );
+            }
+
+            // Category only
+            else if (category) {
+                result =
+                    await getActiveLabTestsByCategory(category);
+            }
+
+            // Search only
+            else if (search) {
+                result =
+                    await searchActiveLabTests(search);
+            }
+
+            // Everything active
+            else {
+                result = await getActiveLabTests();
             }
         }
 
@@ -200,26 +137,9 @@ export async function GET(request) {
 }
 
 
-/*
-|--------------------------------------------------------------------------
-| POST - Create Lab Test
-|--------------------------------------------------------------------------
-|
-| Used by:
-|   Admin panel only
-|
-| Body:
-| {
-|   "test_name": "Albumin",
-|   "category": "Routine Chemistry",
-|   "reporting_time": "24 Hrs",
-|   "specimen_source": "Serum (clotted vial)",
-|   "processing": "In-house",
-|   "is_active": true
-| }
-|
-|--------------------------------------------------------------------------
-*/
+// =====================================================
+// POST - Create Lab Test
+// =====================================================
 
 export async function POST(request) {
 
@@ -234,6 +154,7 @@ export async function POST(request) {
             { status: 401 }
         );
     }
+
     try {
         const body = await request.json();
 
@@ -246,12 +167,7 @@ export async function POST(request) {
             is_active = true,
         } = body;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Validation
-        |--------------------------------------------------------------------------
-        */
-
+        // Validation
         if (
             !test_name ||
             !category ||
@@ -269,12 +185,7 @@ export async function POST(request) {
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Insert
-        |--------------------------------------------------------------------------
-        */
-
+        // Insert
         const result = await sql`
             INSERT INTO lab_tests (
                 test_name,
@@ -328,26 +239,9 @@ export async function POST(request) {
 }
 
 
-/*
-|--------------------------------------------------------------------------
-| PUT - Update Lab Test
-|--------------------------------------------------------------------------
-|
-| URL:
-|   PUT /api/lab-tests?id=1
-|
-| Body:
-| {
-|   "test_name": "Albumin",
-|   "category": "Routine Chemistry",
-|   "reporting_time": "24 Hrs",
-|   "specimen_source": "Serum (clotted vial)",
-|   "processing": "In-house",
-|   "is_active": true
-| }
-|
-|--------------------------------------------------------------------------
-*/
+// =====================================================
+// PUT - Update Lab Test
+// =====================================================
 
 export async function PUT(request) {
 
@@ -362,6 +256,7 @@ export async function PUT(request) {
             { status: 401 }
         );
     }
+
     try {
         const { searchParams } = new URL(request.url);
 
@@ -388,12 +283,7 @@ export async function PUT(request) {
             is_active,
         } = body;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Validation
-        |--------------------------------------------------------------------------
-        */
-
+        // Validation
         if (
             !test_name ||
             !category ||
@@ -410,12 +300,6 @@ export async function PUT(request) {
                 { status: 400 }
             );
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Update
-        |--------------------------------------------------------------------------
-        */
 
         const result = await sql`
             UPDATE lab_tests
@@ -439,12 +323,6 @@ export async function PUT(request) {
                 created_at,
                 updated_at
         `;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Check if record exists
-        |--------------------------------------------------------------------------
-        */
 
         if (result.length === 0) {
             return NextResponse.json(
@@ -480,16 +358,9 @@ export async function PUT(request) {
 }
 
 
-/*
-|--------------------------------------------------------------------------
-| DELETE - Delete Lab Test
-|--------------------------------------------------------------------------
-|
-| URL:
-|   DELETE /api/lab-tests?id=1
-|
-|--------------------------------------------------------------------------
-*/
+// =====================================================
+// DELETE - Delete Lab Test
+// =====================================================
 
 export async function DELETE(request) {
 
@@ -504,6 +375,7 @@ export async function DELETE(request) {
             { status: 401 }
         );
     }
+
     try {
         const { searchParams } = new URL(request.url);
 
@@ -519,12 +391,6 @@ export async function DELETE(request) {
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Delete
-        |--------------------------------------------------------------------------
-        */
-
         const result = await sql`
             DELETE FROM lab_tests
             WHERE id = ${Number(id)}
@@ -532,12 +398,6 @@ export async function DELETE(request) {
                 id,
                 test_name
         `;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Check if record exists
-        |--------------------------------------------------------------------------
-        */
 
         if (result.length === 0) {
             return NextResponse.json(
@@ -571,83 +431,3 @@ export async function DELETE(request) {
         );
     }
 }
-
-
-// ### How both sides use it
-
-// **Public website:**
-
-// ```javascript
-// axios.get("/api/lab-tests");
-// ```
-
-// It gets only:
-
-// ```text
-// is_active = true
-// ```
-
-// **Admin panel:**
-
-// ```javascript
-// axios.get("/api/lab-tests?admin=true");
-// ```
-
-// It gets **all tests**, including inactive ones.
-
-// **Add:**
-
-// ```javascript
-// axios.post("/api/lab-tests", {
-//     test_name: "Albumin",
-//     category: "Routine Chemistry",
-//     reporting_time: "24 Hrs",
-//     specimen_source: "Serum (clotted vial)",
-//     processing: "In-house",
-//     is_active: true
-// });
-// ```
-
-// **Edit:**
-
-// ```javascript
-// axios.put("/api/lab-tests?id=1", {
-//     test_name: "Albumin",
-//     category: "Routine Chemistry",
-//     reporting_time: "24 Hrs",
-//     specimen_source: "Serum (clotted vial)",
-//     processing: "In-house",
-//     is_active: true
-// });
-// ```
-
-// **Delete:**
-
-// ```javascript
-// axios.delete("/api/lab-tests?id=1");
-// ```
-
-// ### One security point
-
-// The route above separates **what data is returned**, but it does **not yet authenticate POST/PUT/DELETE**.
-
-// Because your project already has an admin authentication system, I recommend that we add your existing admin-session/auth check to **POST, PUT, and DELETE**, while leaving `GET` public.
-
-// So the final structure becomes:
-
-// ```text
-// GET
-//   ├── Website → active tests
-//   └── Admin   → all tests
-
-// POST
-//   └── Admin authentication required
-
-// PUT
-//   └── Admin authentication required
-
-// DELETE
-//   └── Admin authentication required
-// ```
-
-// That is the safer setup for your CMS.

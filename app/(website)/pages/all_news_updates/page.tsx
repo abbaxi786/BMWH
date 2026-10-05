@@ -2,6 +2,7 @@ import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowRight, FaCalendarDays, FaHouse } from "react-icons/fa6";
+import {getNews} from "@/lib/data/news/news";
 
 interface AllNewsUpdate {
   id: number;
@@ -16,17 +17,20 @@ interface AllNewsUpdate {
 }
 
 export default async function AllNewsUpdates() {
-  let newsAndUpdates: AllNewsUpdate[] = [];
+  let newsAndUpdates: any[] = [];
 
-  try {
-    const response = await axios.get(
-      "http://localhost:3000/api/new_updates"
-    );
+  // try {
+  //   const response = await axios.get(
+  //     `${process.env.BACKEND_URL}/api/new_updates`
+  //   );
 
-    newsAndUpdates = response.data.data;
-  } catch (error) {
-    console.error("Failed to fetch news and updates:", error);
-  }
+  //   newsAndUpdates = response.data.data;
+  // } catch (error) {
+  //   console.error("Failed to fetch news and updates:", error);
+  // }
+
+  newsAndUpdates = await getNews();
+
 
   return (
     <main

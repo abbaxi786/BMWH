@@ -8,13 +8,16 @@ import { requireAdmin } from "../../../../lib/auth";
 // GET - Get gallery images for a specific event
 // ============================================================
 
+import {
+    getActiveEventGalleryByEventId,
+} from "@/lib/data/events/eventGallery";
+
 export async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
 
         const event_id = searchParams.get("event_id");
 
-        // Validate event_id
         if (!event_id) {
             return NextResponse.json(
                 {
@@ -25,22 +28,10 @@ export async function GET(request) {
             );
         }
 
-        const result = await sql`
-            SELECT
-                id,
-                event_id,
-                image_url,
-                title,
-                description,
-                display_order,
-                is_active,
-                created_at,
-                updated_at
-            FROM event_gallery
-            WHERE event_id = ${event_id}
-              AND is_active = TRUE
-            ORDER BY display_order ASC, id ASC
-        `;
+        const result =
+            await getActiveEventGalleryByEventId(
+                Number(event_id)
+            );
 
         return NextResponse.json(
             {
@@ -50,7 +41,10 @@ export async function GET(request) {
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error fetching event gallery:", error);
+        console.error(
+            "Error fetching event gallery:",
+            error
+        );
 
         return NextResponse.json(
             {
@@ -61,7 +55,6 @@ export async function GET(request) {
         );
     }
 }
-
 
 // ============================================================
 // POST - Add a gallery image to an event

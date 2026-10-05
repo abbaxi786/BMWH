@@ -45,7 +45,6 @@ export default function FacilityDetailPage() {
                     `/api/hospital_facilities?facility_id=${id}`
                 );
 
-                console.log("Facility response:", response.data);
 
                 if (
                     response.data.success &&

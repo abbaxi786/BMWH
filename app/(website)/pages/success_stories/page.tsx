@@ -1,6 +1,6 @@
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
+
 import {
     FaArrowRight,
     FaCalendarAlt,
@@ -8,6 +8,11 @@ import {
     FaHeart,
     FaUser,
 } from "react-icons/fa";
+
+import {
+    getActiveSuccessStories,
+} from "@/lib/data/successStories/successStories";
+
 
 interface SuccessStory {
     id: number;
@@ -25,39 +30,6 @@ interface SuccessStory {
     updated_at: string;
 }
 
-interface SuccessStoriesResponse {
-    success: boolean;
-    data: SuccessStory[];
-    message?: string;
-}
-
-async function getAllSuccessStories(): Promise<SuccessStory[]> {
-    try {
-        const baseUrl =
-            process.env.BACKEND_URL || "http://localhost:3000";
-
-        const response = await axios.get<SuccessStoriesResponse>(
-            `${baseUrl}/api/success_stories/all`,
-            {
-                timeout: 10000,
-            }
-        );
-
-        if (!response.data.success) {
-            console.error(
-                "Failed to fetch success stories:",
-                response.data.message
-            );
-
-            return [];
-        }
-
-        return response.data.data || [];
-    } catch (error) {
-        console.error("Error fetching success stories:", error);
-        return [];
-    }
-}
 
 function formatDate(date: string | null) {
     if (!date) return "Recent";
@@ -69,9 +41,20 @@ function formatDate(date: string | null) {
     });
 }
 
-export default async function SuccessStoriesPage() {
-    const stories = await getAllSuccessStories();
 
+export default async function SuccessStoriesPage() {
+    let stories: SuccessStory[] = [];
+
+    try {
+        const result = await getActiveSuccessStories();
+
+        stories = result as SuccessStory[];
+    } catch (error) {
+        console.error(
+            "Error fetching success stories:",
+            error
+        );
+    }
     return (
         <main className="min-h-screen bg-[#FBF9F9]">
 

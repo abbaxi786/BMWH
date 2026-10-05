@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 
 import {
+    getNews,
+    getNewsById,
+    getNewsBySlug,
+    getNewsByCategory,
+    getFeaturedNews,
+} from "@/lib/data/news/news";
+
+import {
     uploadFileToCloudinary,
     deleteFileFromCloudinary,
 } from "@/lib/uploadToCloudinary";
@@ -72,7 +80,8 @@ export async function POST(request) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "A news article with this slug already exists",
+                    message:
+                        "A news article with this slug already exists",
                 },
                 { status: 409 }
             );
@@ -80,12 +89,13 @@ export async function POST(request) {
 
         let image_url = null;
 
-        // Upload image if provided
+        // Upload image
         if (image && typeof image !== "string") {
-            const uploadResult = await uploadFileToCloudinary(
-                image,
-                "bmh/news"
-            );
+            const uploadResult =
+                await uploadFileToCloudinary(
+                    image,
+                    "bmh/news"
+                );
 
             image_url = uploadResult.secure_url;
         }
@@ -151,26 +161,23 @@ export async function POST(request) {
 
 export async function GET(request) {
     try {
-        const { searchParams } = new URL(request.url);
+        const { searchParams } =
+            new URL(request.url);
 
         const id = searchParams.get("id");
         const slug = searchParams.get("slug");
         const category = searchParams.get("category");
         const featured = searchParams.get("featured");
 
-        // ---------------------------------------------
+
+        // ==================================================
         // GET SINGLE NEWS BY ID
-        // ---------------------------------------------
+        // ==================================================
 
         if (id) {
-            const result = await sql`
-                SELECT *
-                FROM news_updates
-                WHERE id = ${id}
-                LIMIT 1
-            `;
+            const news = await getNewsById(id);
 
-            if (result.length === 0) {
+            if (!news) {
                 return NextResponse.json(
                     {
                         success: false,
@@ -182,23 +189,20 @@ export async function GET(request) {
 
             return NextResponse.json({
                 success: true,
-                data: result[0],
+                data: news,
             });
         }
 
-        // ---------------------------------------------
+
+        // ==================================================
         // GET SINGLE NEWS BY SLUG
-        // ---------------------------------------------
+        // ==================================================
 
         if (slug) {
-            const result = await sql`
-                SELECT *
-                FROM news_updates
-                WHERE slug = ${slug}
-                LIMIT 1
-            `;
+            const news =
+                await getNewsBySlug(slug);
 
-            if (result.length === 0) {
+            if (!news) {
                 return NextResponse.json(
                     {
                         success: false,
@@ -210,65 +214,53 @@ export async function GET(request) {
 
             return NextResponse.json({
                 success: true,
-                data: result[0],
+                data: news,
             });
         }
 
-        // ---------------------------------------------
+
+        // ==================================================
         // GET NEWS BY CATEGORY
-        // ---------------------------------------------
+        // ==================================================
 
         if (category) {
-            const result = await sql`
-                SELECT *
-                FROM news_updates
-                WHERE category = ${category}
-                AND is_published = TRUE
-                ORDER BY published_at DESC NULLS LAST, created_at DESC
-            `;
+            const news =
+                await getNewsByCategory(category);
 
             return NextResponse.json({
                 success: true,
-                count: result.length,
-                data: result,
+                count: news.length,
+                data: news,
             });
         }
 
-        // ---------------------------------------------
+
+        // ==================================================
         // GET FEATURED NEWS
-        // ---------------------------------------------
+        // ==================================================
 
         if (featured === "true") {
-            const result = await sql`
-                SELECT *
-                FROM news_updates
-                WHERE is_featured = TRUE
-                AND is_published = TRUE
-                ORDER BY published_at DESC NULLS LAST, created_at DESC
-            `;
+            const news =
+                await getFeaturedNews();
 
             return NextResponse.json({
                 success: true,
-                count: result.length,
-                data: result,
+                count: news.length,
+                data: news,
             });
         }
 
-        // ---------------------------------------------
-        // GET ALL PUBLISHED NEWS
-        // ---------------------------------------------
 
-        const result = await sql`
-            SELECT *
-            FROM news_updates
-            WHERE is_published = TRUE
-            ORDER BY published_at DESC NULLS LAST, created_at DESC
-        `;
+        // ==================================================
+        // GET ALL PUBLISHED NEWS
+        // ==================================================
+
+        const news = await getNews();
 
         return NextResponse.json({
             success: true,
-            count: result.length,
-            data: result,
+            count: news.length,
+            data: news,
         });
 
     } catch (error) {
@@ -303,7 +295,8 @@ export async function PUT(request) {
             );
         }
 
-        const { searchParams } = new URL(request.url);
+        const { searchParams } =
+            new URL(request.url);
 
         const id = searchParams.get("id");
 
@@ -317,10 +310,8 @@ export async function PUT(request) {
             );
         }
 
-        // ---------------------------------------------
-        // Find existing news
-        // ---------------------------------------------
 
+        // Find existing news
         const existingNews = await sql`
             SELECT *
             FROM news_updates
@@ -340,14 +331,16 @@ export async function PUT(request) {
 
         const oldNews = existingNews[0];
 
-        const formData = await request.formData();
+        const formData =
+            await request.formData();
 
         const title = formData.get("title");
         const slug = formData.get("slug");
         const excerpt = formData.get("excerpt");
         const content = formData.get("content");
         const category = formData.get("category");
-        const author_name = formData.get("author_name");
+        const author_name =
+            formData.get("author_name");
 
         const is_featured =
             formData.get("is_featured") === "true";
@@ -355,10 +348,14 @@ export async function PUT(request) {
         const is_published =
             formData.get("is_published") !== "false";
 
-        const published_at = formData.get("published_at");
+        const published_at =
+            formData.get("published_at");
 
-        const meta_title = formData.get("meta_title");
-        const meta_description = formData.get("meta_description");
+        const meta_title =
+            formData.get("meta_title");
+
+        const meta_description =
+            formData.get("meta_description");
 
         const image = formData.get("image");
 
@@ -366,26 +363,20 @@ export async function PUT(request) {
             formData.get("remove_image") === "true";
 
 
-        // ---------------------------------------------
         // Required fields
-        // ---------------------------------------------
-
         if (!title || !slug || !content) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "Title, slug and content are required",
+                    message:
+                        "Title, slug and content are required",
                 },
                 { status: 400 }
             );
         }
 
 
-        // ---------------------------------------------
         // Check duplicate slug
-        // Exclude current news article
-        // ---------------------------------------------
-
         const duplicateSlug = await sql`
             SELECT id
             FROM news_updates
@@ -398,44 +389,39 @@ export async function PUT(request) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "Another news article already uses this slug",
+                    message:
+                        "Another news article already uses this slug",
                 },
                 { status: 409 }
             );
         }
 
 
-        // ---------------------------------------------
         // Handle image
-        // ---------------------------------------------
-
         let image_url = oldNews.image_url;
 
         let newImageUploaded = false;
 
-        // New image selected
-        if (image && typeof image !== "string") {
+        if (
+            image &&
+            typeof image !== "string"
+        ) {
+            const uploadResult =
+                await uploadFileToCloudinary(
+                    image,
+                    "bmh/news"
+                );
 
-            const uploadResult = await uploadFileToCloudinary(
-                image,
-                "bmh/news"
-            );
-
-            image_url = uploadResult.secure_url;
+            image_url =
+                uploadResult.secure_url;
 
             newImageUploaded = true;
-        }
-
-        // Remove existing image
-        else if (remove_image) {
+        } else if (remove_image) {
             image_url = null;
         }
 
 
-        // ---------------------------------------------
         // Update database
-        // ---------------------------------------------
-
         const result = await sql`
             UPDATE news_updates
             SET
@@ -457,11 +443,7 @@ export async function PUT(request) {
         `;
 
 
-        // ---------------------------------------------
         // Delete old Cloudinary image
-        // Only after DB update succeeds
-        // ---------------------------------------------
-
         if (
             oldNews.image_url &&
             (
@@ -484,17 +466,22 @@ export async function PUT(request) {
 
         return NextResponse.json({
             success: true,
-            message: "News article updated successfully",
+            message:
+                "News article updated successfully",
             data: result[0],
         });
 
     } catch (error) {
-        console.error("Update news error:", error);
+        console.error(
+            "Update news error:",
+            error
+        );
 
         return NextResponse.json(
             {
                 success: false,
-                message: "Failed to update news article",
+                message:
+                    "Failed to update news article",
             },
             { status: 500 }
         );
@@ -520,7 +507,8 @@ export async function DELETE(request) {
             );
         }
 
-        const { searchParams } = new URL(request.url);
+        const { searchParams } =
+            new URL(request.url);
 
         const id = searchParams.get("id");
 
@@ -535,10 +523,7 @@ export async function DELETE(request) {
         }
 
 
-        // ---------------------------------------------
         // Find news before deleting
-        // ---------------------------------------------
-
         const existingNews = await sql`
             SELECT *
             FROM news_updates
@@ -559,20 +544,14 @@ export async function DELETE(request) {
         const news = existingNews[0];
 
 
-        // ---------------------------------------------
         // Delete from database
-        // ---------------------------------------------
-
         await sql`
             DELETE FROM news_updates
             WHERE id = ${id}
         `;
 
 
-        // ---------------------------------------------
         // Delete Cloudinary image
-        // ---------------------------------------------
-
         if (news.image_url) {
             try {
                 await deleteFileFromCloudinary(
@@ -589,16 +568,21 @@ export async function DELETE(request) {
 
         return NextResponse.json({
             success: true,
-            message: "News article deleted successfully",
+            message:
+                "News article deleted successfully",
         });
 
     } catch (error) {
-        console.error("Delete news error:", error);
+        console.error(
+            "Delete news error:",
+            error
+        );
 
         return NextResponse.json(
             {
                 success: false,
-                message: "Failed to delete news article",
+                message:
+                    "Failed to delete news article",
             },
             { status: 500 }
         );

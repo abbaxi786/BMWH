@@ -1,27 +1,11 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
+import { getActiveSupporters } from "@/lib/data/supporters/supporters";
 
-
-// GET - Get all active supporters
 export async function GET() {
     try {
-        const result = await sql`
-            SELECT
-                id,
-                name,
-                type,
-                support_type,
-                description,
-                logo_url,
-                website_url,
-                is_active,
-                created_at,
-                updated_at
-            FROM supporters
-            WHERE is_active = TRUE
-            ORDER BY id DESC
-        `;
+        const result = await getActiveSupporters();
 
         return NextResponse.json(
             {
@@ -30,7 +14,6 @@ export async function GET() {
             },
             { status: 200 }
         );
-
     } catch (error) {
         console.error("Error fetching supporters:", error);
 
@@ -43,7 +26,6 @@ export async function GET() {
         );
     }
 }
-
 
 // POST - Create a new supporter
 export async function POST(request) {

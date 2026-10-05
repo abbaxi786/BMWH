@@ -6,6 +6,10 @@ import {
 } from "@/lib/uploadToCloudinary";
 import { requireAdmin } from "@/lib/auth";
 
+import {
+    getDoctorById,
+} from "@/lib/data/doctors/doctors";
+
 
 // ============================================================
 // POST - CREATE DOCTOR
@@ -62,7 +66,10 @@ export async function POST(request) {
 
         let photo_url = null;
 
+        // ----------------------------------------------------
         // Upload doctor photo
+        // ----------------------------------------------------
+
         if (
             photo &&
             typeof photo.arrayBuffer === "function"
@@ -75,6 +82,10 @@ export async function POST(request) {
 
             photo_url = uploadedPhoto.secure_url;
         }
+
+        // ----------------------------------------------------
+        // Insert doctor
+        // ----------------------------------------------------
 
         const result = await sql`
             INSERT INTO doctors
@@ -160,17 +171,13 @@ export async function GET(request) {
             );
         }
 
-        const result = await sql`
-            SELECT
-                doctors.*,
-                departments.name AS department_name
-            FROM doctors
-            INNER JOIN departments
-                ON doctors.department_id = departments.id
-            WHERE doctors.id = ${id}
-        `;
+        // ----------------------------------------------------
+        // Use data-layer function
+        // ----------------------------------------------------
 
-        if (result.length === 0) {
+        const doctor = await getDoctorById(id);
+
+        if (!doctor) {
             return NextResponse.json(
                 {
                     success: false,
@@ -185,7 +192,7 @@ export async function GET(request) {
         return NextResponse.json(
             {
                 success: true,
-                data: result[0],
+                data: doctor,
             },
             {
                 status: 200,
@@ -202,6 +209,7 @@ export async function GET(request) {
             {
                 success: false,
                 message:
+                    error?.message ||
                     "Failed to fetch doctor",
             },
             {
@@ -317,15 +325,13 @@ export async function PUT(request) {
             formData.get("profile_link");
 
         const is_active =
-            formData.get("is_active") ===
-            "true";
+            formData.get("is_active") === "true";
 
         const photo =
             formData.get("photo");
 
         const remove_photo =
-            formData.get("remove_photo") ===
-            "true";
+            formData.get("remove_photo") === "true";
 
         // ----------------------------------------------------
         // Validate required fields
@@ -356,16 +362,13 @@ export async function PUT(request) {
         let photo_url =
             currentDoctor.photo_url;
 
-        // Case 1:
-        // A new photo was selected
-        //
-        // The new photo will replace the old photo.
+        // ----------------------------------------------------
+        // New photo selected
         // ----------------------------------------------------
 
         if (
             photo &&
-            typeof photo.arrayBuffer ===
-                "function"
+            typeof photo.arrayBuffer === "function"
         ) {
             const uploadedPhoto =
                 await uploadFileToCloudinary(
@@ -377,9 +380,8 @@ export async function PUT(request) {
                 uploadedPhoto.secure_url;
         }
 
-        // Case 2:
-        // User explicitly removed existing photo
-        // and did not upload a new one.
+        // ----------------------------------------------------
+        // Existing photo removed
         // ----------------------------------------------------
 
         else if (remove_photo) {
@@ -387,7 +389,7 @@ export async function PUT(request) {
         }
 
         // ----------------------------------------------------
-        // Update doctor in database
+        // Update doctor
         // ----------------------------------------------------
 
         const result = await sql`
@@ -409,25 +411,18 @@ export async function PUT(request) {
         `;
 
         // ----------------------------------------------------
-        // Delete old Cloudinary photo
-        //
-        // This happens only if the photo changed or
-        // was removed.
+        // Delete old Cloudinary image
         // ----------------------------------------------------
 
         if (
             currentDoctor.photo_url &&
-            photo_url !==
-                currentDoctor.photo_url
+            photo_url !== currentDoctor.photo_url
         ) {
             try {
                 await deleteFileFromCloudinary(
                     currentDoctor.photo_url
                 );
             } catch (cloudinaryError) {
-                // Do not fail the database update
-                // just because Cloudinary deletion failed.
-
                 console.error(
                     "Failed to delete old doctor photo from Cloudinary:",
                     cloudinaryError
@@ -438,8 +433,7 @@ export async function PUT(request) {
         return NextResponse.json(
             {
                 success: true,
-                message:
-                    "Doctor updated successfully",
+                message: "Doctor updated successfully",
                 data: result[0],
             },
             {
@@ -515,9 +509,6 @@ export async function DELETE(request) {
 
         // ----------------------------------------------------
         // Get doctor before deleting
-        //
-        // We need photo_url so we can delete the
-        // Cloudinary image afterwards.
         // ----------------------------------------------------
 
         const existingDoctor = await sql`
@@ -542,7 +533,7 @@ export async function DELETE(request) {
             existingDoctor[0];
 
         // ----------------------------------------------------
-        // Delete doctor from database
+        // Delete doctor
         // ----------------------------------------------------
 
         await sql`
@@ -551,7 +542,7 @@ export async function DELETE(request) {
         `;
 
         // ----------------------------------------------------
-        // Delete doctor's photo from Cloudinary
+        // Delete Cloudinary photo
         // ----------------------------------------------------
 
         if (doctor.photo_url) {
@@ -560,10 +551,6 @@ export async function DELETE(request) {
                     doctor.photo_url
                 );
             } catch (cloudinaryError) {
-                // Database deletion already succeeded.
-                // Do not return a failed DELETE response
-                // just because Cloudinary failed.
-
                 console.error(
                     "Failed to delete doctor photo from Cloudinary:",
                     cloudinaryError
@@ -574,8 +561,7 @@ export async function DELETE(request) {
         return NextResponse.json(
             {
                 success: true,
-                message:
-                    "Doctor deleted successfully",
+                message: "Doctor deleted successfully",
             },
             {
                 status: 200,

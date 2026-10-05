@@ -1,6 +1,8 @@
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
+import { GetTopThree } from "@/lib/data/achievment/achievements";
+
 import {
     FaAward,
     FaCalendarAlt,
@@ -22,16 +24,11 @@ interface AchievementAward {
     updated_at: string;
 }
 
-async function getAchievements(): Promise<AchievementAward[]> {
+async function getAchievements(): Promise<any[]> {
     try {
-        const response = await axios.get(
-            `${process.env.BACKEND_URL}/api/acheivement_awards/all`,
-            {
-                timeout: 10000,
-            }
-        );
+        const data = await GetTopThree();
 
-        return response.data?.data || [];
+        return data || [];
     } catch (error) {
         console.error("Error fetching achievements and awards:", error);
         return [];
@@ -62,7 +59,7 @@ export default async function AchievementsAwardsPage() {
 
             {/* ================= HERO ================= */}
             <section className="relative overflow-hidden bg-[#911824]">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#911824] via-[#911824] to-[#86000D]" />
+                <div className="absolute inset-0 bg-linear-to-r from-[#911824] via-[#911824] to-[#86000D]" />
 
                 <div className="relative mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-24">
                     <div className="max-w-3xl">

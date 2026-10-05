@@ -4,24 +4,13 @@ import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
 import { requireAdmin } from "../../../lib/auth";
 
 // GET - Get all active health partners
+import {
+    getActiveHealthPartners
+} from "@/lib/data/healthPartners/healthPartners";
+
 export async function GET() {
     try {
-        const result = await sql`
-            SELECT
-                id,
-                name,
-                type,
-                partnership_type,
-                description,
-                logo_url,
-                website_url,
-                is_active,
-                created_at,
-                updated_at
-            FROM health_partners
-            WHERE is_active = TRUE
-            ORDER BY id DESC
-        `;
+        const result = await getActiveHealthPartners();
 
         return NextResponse.json(
             {
@@ -39,8 +28,7 @@ export async function GET() {
         return NextResponse.json(
             {
                 success: false,
-                message:
-                    "Failed to fetch health partners",
+                message: "Failed to fetch health partners",
             },
             { status: 500 }
         );

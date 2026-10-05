@@ -1,4 +1,3 @@
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -8,6 +7,8 @@ import {
     FaHeart,
     FaUser,
 } from "react-icons/fa";
+
+import { getActiveSuccessStoryById } from "@/lib/data/successStories/successStories";
 
 interface SuccessStory {
     id: number;
@@ -25,54 +26,7 @@ interface SuccessStory {
     updated_at: string;
 }
 
-interface SuccessStoryResponse {
-    success: boolean;
-    data: SuccessStory;
-    message?: string;
-}
-
-async function getSuccessStory(
-    id: string
-): Promise<SuccessStory | null> {
-    try {
-        const baseUrl =
-            process.env.BACKEND_URL || "http://127.0.0.1:3000";
-
-        const response = await axios.get<SuccessStoryResponse>(
-            `${baseUrl}/api/success_stories/${id}`,
-            {
-                timeout: 10000,
-            }
-        );
-
-        if (!response.data.success) {
-            console.error(
-                "Failed to fetch success story:",
-                response.data.message
-            );
-
-            return null;
-        }
-
-        return response.data.data;
-    } catch (error) {
-        console.error("Error fetching success story:", error);
-        return null;
-    }
-}
-
-
-function formatDate(date: string | null) {
-    if (!date) return "Recent";
-
-    return new Date(date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    });
-}
-
-interface SuccessStoryPageProps {
+interface PageProps {
     params: Promise<{
         id: string;
     }>;
@@ -80,59 +34,92 @@ interface SuccessStoryPageProps {
 
 export default async function SuccessStoryPage({
     params,
-}: SuccessStoryPageProps) {
+}: PageProps) {
     const { id } = await params;
 
-    const story = await getSuccessStory(id);
+    const storyId = Number(id);
 
-    // Story not found
-    if (!story) {
+    if (!id || Number.isNaN(storyId)) {
         return (
-            <main className="flex min-h-[70vh] items-center justify-center bg-[#FBF9F9] px-6">
-                <div className="max-w-lg text-center">
-
-                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#911824]/10">
-                        <FaHeart className="text-3xl text-[#911824]" />
-                    </div>
-
-                    <h1 className="mt-6 text-3xl font-bold text-gray-900">
-                        Story Not Found
+            <main className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+                <div className="max-w-xl w-full bg-white rounded-2xl shadow-md p-10 text-center">
+                    <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                        Invalid Success Story
                     </h1>
 
-                    <p className="mt-3 text-gray-600">
-                        The success story you are looking for could not
-                        be found or is no longer available.
+                    <p className="text-gray-600 mb-8">
+                        The success story ID provided is not valid.
                     </p>
 
                     <Link
                         href="/pages/success_stories"
-                        className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#911824] px-6 py-3 font-semibold text-white transition hover:bg-[#7d151f]"
+                        className="inline-flex items-center gap-2 bg-[#911824] text-white px-6 py-3 rounded-lg hover:bg-[#7a141f] transition"
                     >
                         <FaArrowLeft />
                         Back to Success Stories
                     </Link>
-
                 </div>
             </main>
         );
     }
 
+    let story: SuccessStory | null = null;
+
+    try {
+        const result = await getActiveSuccessStoryById(storyId);
+
+        story = result as SuccessStory | null;
+    } catch (error) {
+        console.error("Error fetching success story:", error);
+    }
+
+    if (!story) {
+        return (
+            <main className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+                <div className="max-w-xl w-full bg-white rounded-2xl shadow-md p-10 text-center">
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-50 flex items-center justify-center">
+                        <FaHeart className="text-3xl text-[#911824]" />
+                    </div>
+
+                    <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                        Success Story Not Found
+                    </h1>
+
+                    <p className="text-gray-600 mb-8">
+                        The success story you are looking for may have been
+                        removed or is no longer available.
+                    </p>
+
+                    <Link
+                        href="/pages/success_stories"
+                        className="inline-flex items-center gap-2 bg-[#911824] text-white px-6 py-3 rounded-lg hover:bg-[#7a141f] transition"
+                    >
+                        <FaArrowLeft />
+                        Back to Success Stories
+                    </Link>
+                </div>
+            </main>
+        );
+    }
+
+    const formattedDate = story.story_date
+        ? new Date(story.story_date).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+          })
+        : null;
+
     return (
-        <main className="min-h-screen bg-[#FBF9F9]">
-
-            {/* =====================================
-                HERO / STORY BANNER
-            ====================================== */}
-            <section className="relative h-105 w-full overflow-hidden">
-
-                {/* Background Image */}
+        <main className="min-h-screen bg-gray-50">
+            {/* Hero */}
+            <section className="relative h-[420px] md:h-[500px] overflow-hidden">
                 {story.image_url ? (
                     <Image
                         src={story.image_url}
                         alt={story.title}
                         fill
                         priority
-                        sizes="100vw"
                         className="object-cover"
                     />
                 ) : (
@@ -140,19 +127,15 @@ export default async function SuccessStoryPage({
                 )}
 
                 {/* Overlay */}
-                <div className="absolute inset-0 bg-black/65" />
+                <div className="absolute inset-0 bg-black/60" />
 
-                {/* Hero Content */}
-                <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-6 lg:px-8">
-
+                <div className="relative z-10 h-full max-w-7xl mx-auto px-6 flex items-end pb-12">
                     <div className="max-w-4xl text-white">
-
                         {/* Breadcrumb */}
-                        <div className="mb-6 flex flex-wrap items-center gap-2 text-sm text-white/75">
-
+                        <div className="flex items-center gap-2 text-sm mb-6 text-gray-200 flex-wrap">
                             <Link
                                 href="/"
-                                className="transition hover:text-white"
+                                className="hover:text-white transition"
                             >
                                 Home
                             </Link>
@@ -161,290 +144,231 @@ export default async function SuccessStoryPage({
 
                             <Link
                                 href="/pages/success_stories"
-                                className="transition hover:text-white"
+                                className="hover:text-white transition"
                             >
                                 Success Stories
                             </Link>
 
                             <FaChevronRight className="text-xs" />
 
-                            <span className="text-white">
+                            <span className="text-gray-300">
                                 {story.title}
                             </span>
-
                         </div>
 
-                        {/* Category / Featured */}
-                        <div className="mb-5 flex flex-wrap items-center gap-3">
-
+                        {/* Badges */}
+                        <div className="flex flex-wrap items-center gap-3 mb-5">
                             {story.category && (
-                                <span className="rounded-full bg-white/15 px-4 py-2 text-sm font-medium backdrop-blur-sm">
+                                <span className="inline-block bg-white/20 backdrop-blur-sm border border-white/30 text-white px-4 py-2 rounded-full text-sm">
                                     {story.category}
                                 </span>
                             )}
 
                             {story.is_featured && (
-                                <span className="inline-flex items-center gap-2 rounded-full bg-[#911824] px-4 py-2 text-sm font-semibold">
-                                    <FaHeart />
+                                <span className="inline-block bg-[#911824] text-white px-4 py-2 rounded-full text-sm font-medium">
                                     Featured Story
                                 </span>
                             )}
-
                         </div>
 
                         {/* Title */}
-                        <h1 className="text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-5">
                             {story.title}
                         </h1>
 
                         {/* Summary */}
                         {story.summary && (
-                            <p className="mt-5 max-w-3xl text-base leading-7 text-white/85 sm:text-lg">
+                            <p className="text-lg md:text-xl text-gray-200 max-w-3xl leading-relaxed">
                                 {story.summary}
                             </p>
                         )}
-
                     </div>
-
                 </div>
             </section>
 
-
-            {/* =====================================
-                STORY CONTENT
-            ====================================== */}
-            <section className="px-6 py-16 lg:px-8">
-                <div className="mx-auto max-w-6xl">
-
-                    <div className="grid gap-12 lg:grid-cols-[1fr_320px]">
-
-                        {/* =========================
-                            MAIN STORY
-                        ========================== */}
-                        <article>
-
+            {/* Main Content */}
+            <section className="py-16 md:py-20">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-12">
+                        {/* Story Content */}
+                        <article className="lg:col-span-2">
                             {/* Patient Information */}
-                            <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
-
-                                <div className="flex flex-wrap items-center gap-6">
-
-                                    {/* Patient */}
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                                     {story.patient_name && (
-                                        <div className="flex items-center gap-3">
-
-                                            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#911824]/10">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full bg-[#911824]/10 flex items-center justify-center shrink-0">
                                                 <FaUser className="text-[#911824]" />
                                             </div>
 
                                             <div>
-                                                <p className="text-xs uppercase tracking-wide text-gray-500">
+                                                <p className="text-sm text-gray-500">
                                                     Patient
                                                 </p>
 
-                                                <p className="font-semibold text-gray-900">
+                                                <p className="font-semibold text-gray-800">
                                                     {story.patient_name}
                                                 </p>
                                             </div>
-
                                         </div>
                                     )}
 
-                                    {/* Age */}
                                     {story.patient_age !== null && (
-                                        <div className="border-l border-gray-200 pl-6">
-
-                                            <p className="text-xs uppercase tracking-wide text-gray-500">
-                                                Age
-                                            </p>
-
-                                            <p className="font-semibold text-gray-900">
-                                                {story.patient_age} years
-                                            </p>
-
-                                        </div>
-                                    )}
-
-                                    {/* Date */}
-                                    {story.story_date && (
-                                        <div className="border-l border-gray-200 pl-6">
-
-                                            <div className="flex items-center gap-2">
-
-                                                <FaCalendarAlt className="text-[#911824]" />
-
-                                                <div>
-                                                    <p className="text-xs uppercase tracking-wide text-gray-500">
-                                                        Story Date
-                                                    </p>
-
-                                                    <p className="font-semibold text-gray-900">
-                                                        {formatDate(
-                                                            story.story_date
-                                                        )}
-                                                    </p>
-                                                </div>
-
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full bg-[#911824]/10 flex items-center justify-center shrink-0">
+                                                <FaUser className="text-[#911824]" />
                                             </div>
 
+                                            <div>
+                                                <p className="text-sm text-gray-500">
+                                                    Age
+                                                </p>
+
+                                                <p className="font-semibold text-gray-800">
+                                                    {story.patient_age} years
+                                                </p>
+                                            </div>
                                         </div>
                                     )}
 
+                                    {formattedDate && (
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full bg-[#911824]/10 flex items-center justify-center shrink-0">
+                                                <FaCalendarAlt className="text-[#911824]" />
+                                            </div>
+
+                                            <div>
+                                                <p className="text-sm text-gray-500">
+                                                    Story Date
+                                                </p>
+
+                                                <p className="font-semibold text-gray-800">
+                                                    {formattedDate}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Story */}
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7 md:p-10">
+                                <div className="mb-8">
+                                    <p className="text-[#911824] font-semibold text-sm uppercase tracking-wider mb-3">
+                                        Patient Success Story
+                                    </p>
+
+                                    <h2 className="text-3xl md:text-4xl font-bold text-gray-800">
+                                        A Journey of Hope and Recovery
+                                    </h2>
                                 </div>
 
-                            </div>
-
-
-                            {/* Story Heading */}
-                            <div className="mb-8">
-                                <span className="text-sm font-semibold uppercase tracking-wider text-[#911824]">
-                                    Patient Success Story
-                                </span>
-
-                                <h2 className="mt-2 text-3xl font-bold text-gray-900">
-                                    A Journey of Hope and Recovery
-                                </h2>
-                            </div>
-
-
-                            {/* Content */}
-                            <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 sm:p-8 lg:p-10">
-
-                                <div className="whitespace-pre-line text-base leading-8 text-gray-700">
-                                    {story.content}
+                                <div className="prose prose-lg max-w-none">
+                                    <div className="text-gray-700 leading-8 whitespace-pre-line">
+                                        {story.content}
+                                    </div>
                                 </div>
-
                             </div>
-
 
                             {/* Back Button */}
                             <div className="mt-8">
-
                                 <Link
                                     href="/pages/success_stories"
-                                    className="inline-flex items-center gap-2 font-semibold text-[#911824] transition-all hover:gap-3"
+                                    className="inline-flex items-center gap-2 text-[#911824] font-semibold hover:gap-3 transition-all"
                                 >
                                     <FaArrowLeft />
                                     Back to Success Stories
                                 </Link>
-
                             </div>
-
                         </article>
 
-
-                        {/* =================================
-                            SIDEBAR
-                        ================================== */}
-                        <aside>
-
-                            <div className="sticky top-24 space-y-6">
-
+                        {/* Sidebar */}
+                        <aside className="lg:col-span-1">
+                            <div className="space-y-6 lg:sticky lg:top-24">
                                 {/* Story Image */}
                                 {story.image_url && (
-                                    <div className="relative h-64 w-full overflow-hidden rounded-2xl bg-gray-100 shadow-sm">
-
-                                        <Image
-                                            src={story.image_url}
-                                            alt={story.title}
-                                            fill
-                                            sizes="320px"
-                                            className="object-cover"
-                                        />
-
+                                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                                        <div className="relative aspect-[4/3]">
+                                            <Image
+                                                src={story.image_url}
+                                                alt={story.title}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
                                     </div>
                                 )}
 
-
-                                {/* About Card */}
-                                <div className="rounded-2xl bg-[#911824] p-6 text-white">
-
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/15">
-                                        <FaHeart className="text-xl" />
+                                {/* Compassionate Care */}
+                                <div className="bg-[#911824] rounded-2xl p-7 text-white">
+                                    <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mb-5">
+                                        <FaHeart className="text-2xl" />
                                     </div>
 
-                                    <h3 className="mt-5 text-xl font-bold">
+                                    <h3 className="text-2xl font-bold mb-3">
                                         Compassionate Care
                                     </h3>
 
-                                    <p className="mt-3 text-sm leading-6 text-white/80">
-                                        At Bashir Memorial Welfare Hospital,
-                                        every patient receives dedicated care,
-                                        support, and attention throughout their
-                                        healthcare journey.
+                                    <p className="text-white/85 leading-7">
+                                        Every patient deserves compassionate
+                                        care, expert treatment, and support
+                                        throughout their healthcare journey.
                                     </p>
-
                                 </div>
 
-
-                                {/* Contact Card */}
-                                <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
-
-                                    <h3 className="text-xl font-bold text-gray-900">
-                                        Need Medical Assistance?
+                                {/* Contact Us */}
+                                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-7">
+                                    <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                                        Need Medical Care?
                                     </h3>
 
-                                    <p className="mt-3 text-sm leading-6 text-gray-600">
+                                    <p className="text-gray-600 leading-7 mb-6">
                                         Our healthcare team is here to help you
-                                        with quality and compassionate medical
-                                        care.
+                                        receive the care and treatment you need.
                                     </p>
 
                                     <Link
-                                        href="/contact"
-                                        className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-[#911824] px-5 py-3 font-semibold text-white transition hover:bg-[#7d151f]"
+                                        href="/pages/contact"
+                                        className="inline-flex items-center justify-center w-full bg-[#911824] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#7a141f] transition"
                                     >
                                         Contact Us
                                     </Link>
-
                                 </div>
-
                             </div>
-
                         </aside>
-
                     </div>
-
                 </div>
             </section>
 
+            {/* Bottom CTA */}
+            <section className="bg-[#911824] py-16">
+                <div className="max-w-4xl mx-auto px-6 text-center text-white">
+                    <h2 className="text-3xl md:text-4xl font-bold mb-5">
+                        Your Health, Our Commitment
+                    </h2>
 
-            {/* =====================================
-                BOTTOM CTA
-            ====================================== */}
-            <section className="bg-white px-6 py-14 lg:px-8">
+                    <p className="text-lg text-white/85 leading-8 max-w-2xl mx-auto mb-8">
+                        Our team is committed to providing quality healthcare,
+                        compassionate treatment, and support for every patient.
+                    </p>
 
-                <div className="mx-auto max-w-7xl rounded-3xl bg-[#911824] px-6 py-10 sm:px-10 lg:px-14">
-
-                    <div className="flex flex-col items-center justify-between gap-7 md:flex-row">
-
-                        <div className="max-w-2xl text-white">
-
-                            <h2 className="text-3xl font-bold sm:text-4xl">
-                                Your Health Matters to Us
-                            </h2>
-
-                            <p className="mt-3 leading-7 text-white/80">
-                                Experience compassionate healthcare and
-                                professional medical services at Bashir
-                                Memorial Welfare Hospital.
-                            </p>
-
-                        </div>
-
+                    <div className="flex flex-col sm:flex-row justify-center gap-4">
                         <Link
-                            href="/contact"
-                            className="inline-flex shrink-0 items-center gap-3 rounded-lg bg-white px-6 py-3 font-semibold text-[#911824] transition hover:bg-gray-100"
+                            href="/pages/appointment"
+                            className="inline-flex items-center justify-center bg-white text-[#911824] px-7 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
                         >
-                            Contact Us
-                            <FaChevronRight className="text-sm" />
+                            Book an Appointment
                         </Link>
 
+                        <Link
+                            href="/pages/success_stories"
+                            className="inline-flex items-center justify-center border border-white text-white px-7 py-3 rounded-lg font-semibold hover:bg-white/10 transition"
+                        >
+                            View More Stories
+                        </Link>
                     </div>
-
                 </div>
-
             </section>
-
         </main>
     );
 }

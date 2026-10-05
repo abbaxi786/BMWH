@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { sql } from "@/lib/db";
+import { getActiveEventById } from "@/lib/data/events/events";
 
-// GET - Get single event by ID
 export async function GET(request, { params }) {
     try {
         const { id } = await params;
@@ -19,28 +18,10 @@ export async function GET(request, { params }) {
             );
         }
 
-        const result = await sql`
-            SELECT
-                id,
-                title,
-                description,
-                event_date,
-                start_time,
-                end_time,
-                location,
-                cover_image_url,
-                is_featured,
-                is_active,
-                created_at,
-                updated_at
-            FROM events
-            WHERE id = ${eventId}
-              AND is_active = TRUE
-            LIMIT 1
-        `;
+        const event = await getActiveEventById(eventId);
 
         // Event not found
-        if (result.length === 0) {
+        if (!event) {
             return NextResponse.json(
                 {
                     success: false,
@@ -53,7 +34,7 @@ export async function GET(request, { params }) {
         return NextResponse.json(
             {
                 success: true,
-                data: result[0],
+                data: event,
             },
             { status: 200 }
         );

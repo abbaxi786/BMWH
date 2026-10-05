@@ -3,6 +3,10 @@ import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
 import { requireAdmin } from "@/lib/auth";
 
+import {
+    getDiagnosticServices,
+} from "@/lib/data/diagnostic/diagnostic";
+
 export async function POST(request) {
     const admin = await requireAdmin();
 
@@ -15,8 +19,8 @@ export async function POST(request) {
             { status: 401 }
         );
     }
-    try {
 
+    try {
         const formData = await request.formData();
 
         const name = formData.get("name");
@@ -26,17 +30,24 @@ export async function POST(request) {
         const image = formData.get("image");
 
         if (!name || !category) {
-            return NextResponse.json({
-                success: false,
-                message: "name and category are required"
-            }, {
-                status: 400
-            });
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "name and category are required",
+                },
+                {
+                    status: 400,
+                }
+            );
         }
 
         let image_url = null;
 
-        if (image && typeof image.arrayBuffer === "function") {
+        if (
+            image &&
+            typeof image.arrayBuffer === "function" &&
+            image.size > 0
+        ) {
             const uploaded = await uploadFileToCloudinary(
                 image,
                 "bmh/diagnostic-services"
@@ -47,80 +58,80 @@ export async function POST(request) {
 
         const result = await sql`
             INSERT INTO diagnostic_services
-                (
-                    name,
-                    category,
-                    description,
-                    image_url,
-                    is_active
-                )
+            (
+                name,
+                category,
+                description,
+                image_url,
+                is_active
+            )
             VALUES
-                (
-                    ${name},
-                    ${category},
-                    ${description},
-                    ${image_url},
-                    ${is_active}
-                )
+            (
+                ${name},
+                ${category},
+                ${description},
+                ${image_url},
+                ${is_active}
+            )
             RETURNING *;
         `;
 
-        return NextResponse.json({
-            success: true,
-            message: "Diagnostic service created successfully",
-            data: result[0]
-        }, {
-            status: 201
-        });
-
+        return NextResponse.json(
+            {
+                success: true,
+                message: "Diagnostic service created successfully",
+                data: result[0],
+            },
+            {
+                status: 201,
+            }
+        );
     } catch (error) {
-        console.error(error);
+        console.error("Create diagnostic service error:", error);
 
-        return NextResponse.json({
-            success: false,
-            message: error?.message
-        }, {
-            status: 500
-        });
+        return NextResponse.json(
+            {
+                success: false,
+                message:
+                    error?.message ||
+                    "Failed to create diagnostic service",
+            },
+            {
+                status: 500,
+            }
+        );
     }
 }
 
-
-export async function GET(request) {
+export async function GET() {
     try {
-        // const { searchParams } = new URL(request.url);
+        const result = await getDiagnosticServices();
 
-        // const ds_id = searchParams.get("ds_id");
-
-        // if (!ds_id) {
-        //     return NextResponse.json({
-        //         success: false,
-        //         message: "ds_id is required"
-        //     }, {
-        //         status: 400
-        //     });
-        // }
-
-        const result = await sql`
-            SELECT id, name,category, image_url, description, is_active
-            FROM diagnostic_services
-        `;
-
-        return NextResponse.json({
-            success: true,
-            data: result
-        }, {
-            status: 200
-        });
-
+        return NextResponse.json(
+            {
+                success: true,
+                data: result,
+            },
+            {
+                status: 200,
+            }
+        );
     } catch (error) {
-        console.error(error);
+        console.error(
+            "Get diagnostic services error:",
+            error
+        );
 
-        return NextResponse.json({
-            success: false,
-            message: error?.message
-        }, {
-            status: 500
-        });
+        return NextResponse.json(
+            {
+                success: false,
+                message:
+                    error?.message ||
+                    "Failed to fetch diagnostic services",
+            },
+            {
+                status: 500,
+            }
+        );
     }
 }

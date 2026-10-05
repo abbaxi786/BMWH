@@ -1,532 +1,409 @@
-import DoctorSchedule from "@/app/components/doctors/schedule";
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import {
-    FaBriefcaseMedical,
-    FaChevronRight,
-    FaGraduationCap,
-    FaStethoscope,
-    FaUserDoctor,
-} from "react-icons/fa6";
-import { MdVerified } from "react-icons/md";
 
-interface Doctor {
+import {
+    FaArrowLeft,
+    FaCalendarCheck,
+    FaCheckCircle,
+    FaGraduationCap,
+    FaHospitalUser,
+    FaStethoscope,
+    FaUserMd,
+} from "react-icons/fa";
+
+import { MdEmail, MdPhone } from "react-icons/md";
+
+import DoctorSchedule from "@/app/components/doctors/schedule";
+import { getActiveDoctorById } from "@/lib/data/doctors/doctors";
+
+type Doctor = {
     id: number;
     department_id: number;
     name: string;
     doctor_type: string;
     designation: string;
-    specialty: string;
-    qualifications: string;
-    biography: string;
-    expertise: string;
+    specialty: string | null;
+    qualifications: string | null;
+    biography: string | null;
+    expertise: string | null;
     photo_url: string | null;
     profile_link: string | null;
     is_active: boolean;
     created_at: string;
     updated_at: string;
     department_name: string;
-}
+};
 
-interface PageProps {
+type PageProps = {
     params: Promise<{
         id: string;
     }>;
-}
+};
 
-async function DoctorView({ params }: PageProps) {
+export default async function DoctorViewPage({ params }: PageProps) {
     const { id } = await params;
-
-    let doctor: Doctor | null = null;
+    let doctor = null
 
     try {
-        const response = await axios.get(
-            `${process.env.BACKEND_URL}/api/doctors`,
-            {
-                params: {
-                    id,
-                },
-            }
-        );
-
-        doctor = response.data.data;
-
-        console.log("Fetched doctor:", doctor);
+        doctor = await getActiveDoctorById(id);
     } catch (error) {
         console.error("Error fetching doctor:", error);
     }
 
-    /* =====================================================
-       DOCTOR NOT FOUND
-    ====================================================== */
-
     if (!doctor) {
         return (
-            <main className="min-h-screen bg-white">
-
-                <div className="mx-auto flex min-h-[70vh] max-w-7xl items-center justify-center px-4">
-
-                    <div className="text-center">
-
-                        <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-[#911824]/10">
-                            <FaUserDoctor className="text-4xl text-[#911824]" />
-                        </div>
-
-                        <h1 className="text-3xl font-bold text-gray-900">
-                            Doctor Not Found
-                        </h1>
-
-                        <p className="mt-3 text-gray-500">
-                            We could not find the doctor you are looking for.
-                        </p>
-
-                        <Link
-                            href="/pages/doctors"
-                            className="mt-7 inline-flex items-center gap-2 rounded-md bg-[#911824] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#75131d]"
-                        >
-                            Back to Doctors
-                        </Link>
-
+            <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+                <div className="max-w-lg w-full bg-white rounded-2xl shadow-md p-8 text-center">
+                    <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-red-50 flex items-center justify-center">
+                        <FaUserMd className="text-4xl text-[#911824]" />
                     </div>
 
-                </div>
+                    <h1 className="text-2xl font-bold text-gray-800 mb-3">
+                        Doctor Not Found
+                    </h1>
 
+                    <p className="text-gray-500 mb-6">
+                        The doctor you are looking for does not exist or is
+                        currently unavailable.
+                    </p>
+
+                    <Link
+                        href="/pages/doctors"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#911824] text-white font-semibold hover:bg-[#75131d] transition"
+                    >
+                        <FaArrowLeft />
+                        Back to Doctors
+                    </Link>
+                </div>
             </main>
         );
     }
 
-    /* =====================================================
-       EXPERTISE
-    ====================================================== */
-
     const expertise = doctor.expertise
         ? doctor.expertise
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean)
+              .split(",")
+              .map((item:any) => item.trim())
+              .filter(Boolean)
         : [];
 
     return (
-        <main
-            id="doctor-profile"
-            className="min-h-screen animate-fade-in-up bg-white"
-        >
-
-            {/* =====================================================
-                HERO
-            ====================================================== */}
-
-            <section
-                id="doctor-profile-header"
-                className="scroll-mt-28 border-b border-gray-200 bg-white"
-            >
-
-                <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-
-                    {/* Breadcrumb */}
-                    <nav
-                        aria-label="Breadcrumb"
-                        className="mb-8 flex flex-wrap items-center gap-2 text-sm"
+        <main className="bg-gray-50 min-h-screen">
+            {/* =========================
+                HERO SECTION
+            ========================== */}
+            <section className="bg-[#911824] text-white">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                    {/* Back Button */}
+                    <Link
+                        href="/pages/doctors"
+                        className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-8 transition"
                     >
+                        <FaArrowLeft />
+                        Back to Doctors
+                    </Link>
 
-                        <Link
-                            href="/"
-                            className="font-medium text-gray-500 transition hover:text-[#911824]"
-                        >
-                            Home
-                        </Link>
-
-                        <FaChevronRight className="text-[10px] text-gray-400" />
-
-                        <Link
-                            href="/pages/doctors"
-                            className="font-medium text-gray-500 transition hover:text-[#911824]"
-                        >
-                            Doctors
-                        </Link>
-
-                        <FaChevronRight className="text-[10px] text-gray-400" />
-
-                        <span className="font-medium text-gray-500">
-                            {doctor.department_name}
-                        </span>
-
-                        <FaChevronRight className="text-[10px] text-gray-400" />
-
-                        <span
-                            className="max-w-50 truncate font-semibold text-[#911824]"
-                            aria-current="page"
-                        >
-                            {doctor.name}
-                        </span>
-
-                    </nav>
-
-
-                    {/* Doctor Hero Card */}
-                    <div className="grid overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm lg:grid-cols-[390px_1fr]">
-
+                    <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 items-center">
                         {/* Doctor Image */}
-                        <div className="relative min-h-105 bg-gray-100 lg:min-h-125">
-
-                            {doctor.photo_url ? (
-
-                                <Image
-                                    src={doctor.photo_url}
-                                    alt={doctor.name}
-                                    fill
-                                    priority
-                                    className="object-cover"
-                                    sizes="(max-width: 1024px) 100vw, 390px"
-                                />
-
-                            ) : (
-
-                                <div className="flex h-full min-h-105 items-center justify-center">
-                                    <FaUserDoctor className="text-8xl text-gray-300" />
-                                </div>
-
-                            )}
-
+                        <div className="flex justify-center lg:justify-start">
+                            <div className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-2xl overflow-hidden bg-white/10 border-4 border-white/20 shadow-xl">
+                                {doctor.photo_url ? (
+                                    <Image
+                                        src={doctor.photo_url}
+                                        alt={doctor.name}
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 768px) 288px, 320px"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <FaUserMd className="text-8xl text-white/60" />
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
-
                         {/* Doctor Information */}
-                        <div className="flex flex-col justify-center px-7 py-10 sm:px-10 lg:px-14">
-
-                            {/* Doctor Type + Availability */}
-                            <div className="mb-5 flex flex-wrap items-center gap-3">
-
-                                <span className="rounded-full bg-[#911824]/10 px-4 py-2 text-xs font-bold uppercase tracking-wide text-[#911824]">
+                        <div>
+                            <div className="flex flex-wrap items-center gap-3 mb-4">
+                                <span className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full text-sm">
+                                    <FaUserMd />
                                     {doctor.doctor_type}
                                 </span>
 
                                 {doctor.is_active && (
-                                    <span className="flex items-center gap-1.5 rounded-full bg-green-50 px-4 py-2 text-xs font-semibold text-green-700">
-                                        <MdVerified className="text-base" />
+                                    <span className="inline-flex items-center gap-2 bg-green-500/20 border border-green-300/30 px-4 py-2 rounded-full text-sm">
+                                        <FaCheckCircle />
                                         Available
                                     </span>
                                 )}
-
                             </div>
 
-
-                            {/* Name */}
-                            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3">
                                 {doctor.name}
                             </h1>
 
-
-                            {/* Designation */}
-                            <p className="mt-4 text-xl font-medium text-[#911824]">
+                            <p className="text-xl text-white/90 mb-2">
                                 {doctor.designation}
                             </p>
 
-
-                            {/* Specialty */}
                             {doctor.specialty && (
-                                <div className="mt-7 flex items-center gap-3 text-gray-600">
-
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#911824]/10">
-                                        <FaStethoscope className="text-[#911824]" />
-                                    </div>
-
-                                    <div>
-                                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                            Specialty
-                                        </p>
-
-                                        <p className="font-semibold text-gray-800">
-                                            {doctor.specialty}
-                                        </p>
-                                    </div>
-
-                                </div>
+                                <p className="text-white/80 flex items-center gap-2 mb-6">
+                                    <FaStethoscope />
+                                    {doctor.specialty}
+                                </p>
                             )}
 
-
-                            {/* Qualifications */}
                             {doctor.qualifications && (
-                                <div className="mt-4 flex items-start gap-3 text-gray-600">
-
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#911824]/10">
-                                        <FaGraduationCap className="text-[#911824]" />
-                                    </div>
-
-                                    <div>
-                                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                            Qualifications
-                                        </p>
-
-                                        <p className="font-semibold leading-6 text-gray-800">
-                                            {doctor.qualifications}
-                                        </p>
-                                    </div>
-
+                                <div className="flex items-start gap-3 text-white/90 mb-7">
+                                    <FaGraduationCap className="mt-1 shrink-0" />
+                                    <span>{doctor.qualifications}</span>
                                 </div>
                             )}
 
-
-                            {/* CTA */}
-                            <div className="mt-9 flex flex-wrap gap-3">
-
-                                <button className="rounded-md bg-[#911824] px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-[#75131d]">
-                                    Book an Appointment
-                                </button>
-
-                                <a
-                                    href="#about-doctor"
-                                    className="rounded-md border border-gray-300 px-7 py-3.5 text-sm font-semibold text-gray-700 transition hover:border-[#911824] hover:text-[#911824]"
-                                >
-                                    View Profile
-                                </a>
-
-                            </div>
-
+                            <Link
+                                href="#appointment"
+                                className="inline-flex items-center gap-2 bg-white text-[#911824] px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
+                            >
+                                <FaCalendarCheck />
+                                Book Appointment
+                            </Link>
                         </div>
-
                     </div>
-
                 </div>
             </section>
 
-
-            {/* =====================================================
-                CONTENT
-            ====================================================== */}
-
-            <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-
-                <div className="grid gap-10 lg:grid-cols-[1fr_350px]">
-
-                    {/* =================================================
-                        LEFT COLUMN
-                    ================================================= */}
-
-                    <div className="space-y-8">
-
+            {/* =========================
+                MAIN CONTENT
+            ========================== */}
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* =========================
+                        LEFT CONTENT
+                    ========================== */}
+                    <div className="lg:col-span-2 space-y-8">
                         {/* About Doctor */}
-                        <div
-                            id="about-doctor"
-                            className="scroll-mt-28 border-b border-gray-200 pb-9"
-                        >
+                        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+                            <div className="flex items-center gap-3 mb-5">
+                                <div className="w-11 h-11 rounded-lg bg-[#911824]/10 flex items-center justify-center">
+                                    <FaUserMd className="text-[#911824] text-xl" />
+                                </div>
 
-                            <div className="mb-6 flex items-center gap-4">
+                                <h2 className="text-2xl font-bold text-gray-800">
+                                    About Doctor
+                                </h2>
+                            </div>
 
-                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#911824]/10">
-                                    <FaUserDoctor className="text-xl text-[#911824]" />
+                            {doctor.biography ? (
+                                <p className="text-gray-600 leading-8 whitespace-pre-line">
+                                    {doctor.biography}
+                                </p>
+                            ) : (
+                                <p className="text-gray-500">
+                                    No biography information is available for
+                                    this doctor.
+                                </p>
+                            )}
+                        </section>
+
+                        {/* Expertise */}
+                        {expertise.length > 0 && (
+                            <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-11 h-11 rounded-lg bg-[#911824]/10 flex items-center justify-center">
+                                        <FaStethoscope className="text-[#911824] text-xl" />
+                                    </div>
+
+                                    <h2 className="text-2xl font-bold text-gray-800">
+                                        Areas of Expertise
+                                    </h2>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {expertise.map((item:any, index:number) => (
+                                        <div
+                                            key={`${item}-${index}`}
+                                            className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 border border-gray-100"
+                                        >
+                                            <FaCheckCircle className="text-[#911824] shrink-0" />
+
+                                            <span className="text-gray-700">
+                                                {item}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        {/* Schedule */}
+                        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="w-11 h-11 rounded-lg bg-[#911824]/10 flex items-center justify-center">
+                                    <FaCalendarCheck className="text-[#911824] text-xl" />
                                 </div>
 
                                 <div>
-                                    <h2 className="text-2xl font-bold text-gray-900">
-                                        About the Doctor
+                                    <h2 className="text-2xl font-bold text-gray-800">
+                                        Doctor Schedule
                                     </h2>
 
-                                    <p className="mt-1 text-sm text-gray-500">
-                                        Professional background
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Check the doctor's available schedule.
                                     </p>
                                 </div>
-
                             </div>
 
-                            <p className="max-w-4xl text-base leading-8 text-gray-600">
-                                {doctor.biography}
-                            </p>
+                            <DoctorSchedule doctorId={doctor.id} />
+                        </section>
 
-                        </div>
+                        {/* Qualifications */}
+                        {doctor.qualifications && (
+                            <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+                                <div className="flex items-center gap-3 mb-5">
+                                    <div className="w-11 h-11 rounded-lg bg-[#911824]/10 flex items-center justify-center">
+                                        <FaGraduationCap className="text-[#911824] text-xl" />
+                                    </div>
 
+                                    <h2 className="text-2xl font-bold text-gray-800">
+                                        Qualifications
+                                    </h2>
+                                </div>
 
-                        {/* Areas of Expertise */}
-                        {expertise.length > 0 && (
-                            <div
-                                id="doctor-expertise"
-                                className="scroll-mt-28 border-b border-gray-200 pb-9"
-                            >
+                                <p className="text-gray-600 leading-8 whitespace-pre-line">
+                                    {doctor.qualifications}
+                                </p>
+                            </section>
+                        )}
+                    </div>
 
-                                <div className="mb-6 flex items-center gap-4">
+                    {/* =========================
+                        RIGHT SIDEBAR
+                    ========================== */}
+                    <aside className="space-y-6">
+                        {/* Professional Details */}
+                        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                            <h2 className="text-xl font-bold text-gray-800 mb-6">
+                                Professional Details
+                            </h2>
 
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#911824]/10">
-                                        <FaBriefcaseMedical className="text-xl text-[#911824]" />
+                            <div className="space-y-5">
+                                {/* Department */}
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-lg bg-[#911824]/10 flex items-center justify-center shrink-0">
+                                        <FaHospitalUser className="text-[#911824]" />
                                     </div>
 
                                     <div>
-                                        <h2 className="text-2xl font-bold text-gray-900">
-                                            Areas of Expertise
-                                        </h2>
+                                        <p className="text-sm text-gray-500">
+                                            Department
+                                        </p>
 
-                                        <p className="mt-1 text-sm text-gray-500">
-                                            Clinical specialties and expertise
+                                        <p className="font-semibold text-gray-800 mt-1">
+                                            {doctor.department_name}
                                         </p>
                                     </div>
-
-                                </div>
-
-                                <div className="flex flex-wrap gap-3">
-
-                                    {expertise.map((item, index) => (
-                                        <span
-                                            key={`${item}-${index}`}
-                                            className="rounded-md border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:border-[#911824]/30 hover:bg-[#911824]/5 hover:text-[#911824]"
-                                        >
-                                            {item}
-                                        </span>
-                                    ))}
-
-                                </div>
-
-                            </div>
-                        )}
-
-
-                        {/* Doctor Schedule */}
-                        <div
-                            id="doctor-schedule"
-                            className="scroll-mt-28"
-                        >
-                            <DoctorSchedule doctorId={doctor.id} />
-                        </div>
-
-
-                        {/* Qualifications */}
-                        <div
-                            id="doctor-qualifications"
-                            className="scroll-mt-28"
-                        >
-
-                            <div className="mb-6 flex items-center gap-4">
-
-                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#911824]/10">
-                                    <FaGraduationCap className="text-xl text-[#911824]" />
-                                </div>
-
-                                <div>
-                                    <h2 className="text-2xl font-bold text-gray-900">
-                                        Qualifications
-                                    </h2>
-
-                                    <p className="mt-1 text-sm text-gray-500">
-                                        Education and professional qualifications
-                                    </p>
-                                </div>
-
-                            </div>
-
-                            <div className="rounded-lg border border-gray-200 bg-gray-50 p-5">
-
-                                <p className="font-medium leading-7 text-gray-700">
-                                    {doctor.qualifications}
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    {/* =================================================
-                        RIGHT SIDEBAR
-                    ================================================= */}
-
-                    <aside className="space-y-6">
-
-                        {/* Professional Details */}
-                        <div
-                            id="doctor-professional-details"
-                            className="scroll-mt-28 rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
-                        >
-
-                            <h3 className="text-xl font-bold text-gray-900">
-                                Professional Details
-                            </h3>
-
-                            <div className="my-5 h-px bg-gray-200" />
-
-                            <div className="space-y-5">
-
-                                {/* Specialty */}
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                        Specialty
-                                    </p>
-
-                                    <p className="mt-1.5 font-semibold text-gray-800">
-                                        {doctor.specialty || "Not specified"}
-                                    </p>
-                                </div>
-
-                                {/* Doctor Type */}
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                        Doctor Type
-                                    </p>
-
-                                    <p className="mt-1.5 font-semibold text-gray-800">
-                                        {doctor.doctor_type}
-                                    </p>
                                 </div>
 
                                 {/* Designation */}
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                        Designation
-                                    </p>
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-lg bg-[#911824]/10 flex items-center justify-center shrink-0">
+                                        <FaUserMd className="text-[#911824]" />
+                                    </div>
 
-                                    <p className="mt-1.5 font-semibold leading-6 text-gray-800">
-                                        {doctor.designation}
-                                    </p>
+                                    <div>
+                                        <p className="text-sm text-gray-500">
+                                            Designation
+                                        </p>
+
+                                        <p className="font-semibold text-gray-800 mt-1">
+                                            {doctor.designation}
+                                        </p>
+                                    </div>
                                 </div>
 
-                                {/* Department */}
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                                        Department
-                                    </p>
+                                {/* Specialty */}
+                                {doctor.specialty && (
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-10 h-10 rounded-lg bg-[#911824]/10 flex items-center justify-center shrink-0">
+                                            <FaStethoscope className="text-[#911824]" />
+                                        </div>
 
-                                    <p className="mt-1.5 font-semibold text-gray-800">
-                                        {doctor.department_name || "Not specified"}
-                                    </p>
-                                </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500">
+                                                Specialty
+                                            </p>
 
+                                            <p className="font-semibold text-gray-800 mt-1">
+                                                {doctor.specialty}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
+                        </section>
 
-                        </div>
-
-
-                        {/* Appointment CTA */}
-                        <div
-                            id="doctor-appointment"
-                            className="scroll-mt-28 rounded-xl bg-[#911824] p-7 text-white"
+                        {/* Appointment Card */}
+                        <section
+                            id="appointment"
+                            className="bg-[#911824] text-white rounded-2xl p-6 shadow-sm"
                         >
+                            <FaCalendarCheck className="text-4xl mb-4" />
 
-                            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-white/10">
-                                <FaStethoscope className="text-xl" />
-                            </div>
+                            <h2 className="text-2xl font-bold mb-3">
+                                Book an Appointment
+                            </h2>
 
-                            <h3 className="text-2xl font-bold">
-                                Need Medical Care?
-                            </h3>
-
-                            <p className="mt-3 text-sm leading-6 text-white/75">
-                                Schedule a consultation with {doctor.name} and receive
-                                professional medical care from our experienced team.
+                            <p className="text-white/80 leading-7 mb-6">
+                                Schedule an appointment with{" "}
+                                <span className="font-semibold text-white">
+                                    {doctor.name}
+                                </span>{" "}
+                                at our hospital.
                             </p>
 
-                            <button className="mt-6 w-full rounded-md bg-white px-5 py-3.5 text-sm font-bold text-[#911824] transition hover:bg-gray-100">
-                                Book an Appointment
-                            </button>
+                            <Link
+                                href="/pages/appointments"
+                                className="w-full inline-flex justify-center items-center gap-2 bg-white text-[#911824] px-5 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
+                            >
+                                <FaCalendarCheck />
+                                Make Appointment
+                            </Link>
+                        </section>
 
-                        </div>
+                        {/* Contact Card */}
+                        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                            <h2 className="text-xl font-bold text-gray-800 mb-5">
+                                Need Assistance?
+                            </h2>
 
+                            <p className="text-gray-500 text-sm leading-6 mb-5">
+                                Contact our hospital team if you need help
+                                booking an appointment.
+                            </p>
+
+                            <div className="space-y-4">
+                                <a
+                                    href="tel:+920000000000"
+                                    className="flex items-center gap-3 text-gray-700 hover:text-[#911824] transition"
+                                >
+                                    <MdPhone className="text-xl text-[#911824]" />
+                                    <span>Contact Hospital</span>
+                                </a>
+
+                                <a
+                                    href="mailto:info@bmwhospital.org.pk"
+                                    className="flex items-center gap-3 text-gray-700 hover:text-[#911824] transition"
+                                >
+                                    <MdEmail className="text-xl text-[#911824]" />
+                                    <span>
+                                        info@bmwhospital.org.pk
+                                    </span>
+                                </a>
+                            </div>
+                        </section>
                     </aside>
-
                 </div>
-
             </section>
-
         </main>
     );
 }
-
-export default DoctorView;

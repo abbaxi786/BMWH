@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
 import { requireAdmin } from "../../../../lib/auth";
-
+import {getAchievementById} from "@/lib/data/achievment/achievements";
 
 // GET - Get single achievement/award
 export async function GET(request, { params }) {
@@ -21,24 +21,24 @@ export async function GET(request, { params }) {
             );
         }
 
-        const result = await sql`
-            SELECT
-                id,
-                title,
-                type,
-                description,
-                image_url,
-                award_date,
-                issuing_organization,
-                website_url,
-                is_active,
-                created_at,
-                updated_at
-            FROM achievements_awards
-            WHERE id = ${achievementId}
-            LIMIT 1
-        `;
-
+        // const result = await sql`
+        //     SELECT
+        //         id,
+        //         title,
+        //         type,
+        //         description,
+        //         image_url,
+        //         award_date,
+        //         issuing_organization,
+        //         website_url,
+        //         is_active,
+        //         created_at,
+        //         updated_at
+        //     FROM achievements_awards
+        //     WHERE id = ${achievementId}
+        //     LIMIT 1
+        // `;
+        const result = await getAchievementById(achievementId);
         if (result.length === 0) {
             return NextResponse.json(
                 {

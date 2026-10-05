@@ -1,4 +1,3 @@
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -7,21 +6,20 @@ import {
     FaMicroscope,
     FaStethoscope,
 } from "react-icons/fa";
+
 import ContactUsCard from "@/app/components/contactCard/contactCard";
+
+import {
+    getActiveDiagnosticServices,
+} from "@/lib/data/diagnostic/diagnostic";
 
 interface DiagnosticService {
     id: number;
     name: string;
     category: string;
-    image_url: string;
-    description: string;
+    image_url: string | null;
+    description: string | null;
     is_active: boolean;
-}
-
-interface DiagnosticApiResponse {
-    success: boolean;
-    data: DiagnosticService[];
-    message?: string;
 }
 
 /**
@@ -68,15 +66,8 @@ async function Diagnostic() {
     let diagnostics: DiagnosticService[] = [];
 
     try {
-        const response = await axios.get<DiagnosticApiResponse>(
-            `${process.env.BACKEND_URL}/api/diagnostic_services`
-        );
-
-        if (response.data.success) {
-            diagnostics = response.data.data.filter(
-                (service) => service.is_active
-            );
-        }
+        diagnostics =
+            (await getActiveDiagnosticServices()) as DiagnosticService[];
     } catch (error) {
         console.error(
             "Error fetching diagnostic services:",
@@ -92,7 +83,6 @@ async function Diagnostic() {
             id="diagnostic-page"
             className="min-h-screen bg-white animate-fade-in-up"
         >
-
             {/* =====================================================
                 HERO SECTION
             ===================================================== */}
@@ -107,30 +97,19 @@ async function Diagnostic() {
                     backgroundPosition: "center right",
                 }}
             >
-
-                {/* Light blue gradient */}
-
                 <div className="absolute inset-0 bg-linear-to-r from-blue-50 via-blue-50/90 to-blue-100/30" />
-
-                {/* Soft white layer */}
 
                 <div className="absolute inset-0 bg-linear-to-r from-white/80 via-white/30 to-transparent" />
 
-                {/* Bottom fade */}
-
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-blue-50/50 to-transparent" />
 
-                {/* Hero Content */}
-
                 <div className="relative z-10 mx-auto flex min-h-105 max-w-7xl items-center px-6 py-16 md:px-8 md:py-20">
-
                     <div className="max-w-3xl">
 
                         {/* Breadcrumb */}
 
                         <div className="breadcrumbs mb-8 text-sm">
                             <ul>
-
                                 <li>
                                     <Link
                                         href="/"
@@ -145,23 +124,18 @@ async function Diagnostic() {
                                         Diagnostics
                                     </span>
                                 </li>
-
                             </ul>
                         </div>
-
 
                         {/* Label */}
 
                         <div className="mb-5 flex items-center gap-3">
-
                             <span className="h-0.5 w-10 bg-[#86000D]" />
 
                             <span className="text-sm font-semibold uppercase tracking-[0.2em] text-[#86000D]">
                                 Diagnostic Services
                             </span>
-
                         </div>
-
 
                         {/* Heading */}
 
@@ -169,21 +143,17 @@ async function Diagnostic() {
                             Diagnostics & Imaging
                         </h1>
 
-
                         {/* Description */}
 
                         <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5B403D]">
-                            Access reliable diagnostic and imaging services
-                            supported by modern technology and professional
-                            medical expertise for accurate evaluation and care.
+                            Access reliable diagnostic and imaging
+                            services supported by modern technology
+                            and professional medical expertise for
+                            accurate evaluation and care.
                         </p>
-
                     </div>
-
                 </div>
-
             </section>
-
 
             {/* =====================================================
                 INTRODUCTION
@@ -193,7 +163,6 @@ async function Diagnostic() {
                 id="diagnostic-introduction"
                 className="scroll-mt-28 py-16 md:py-20"
             >
-
                 <div className="mx-auto max-w-7xl px-6">
 
                     <div className="grid items-center gap-12 lg:grid-cols-2">
@@ -201,15 +170,12 @@ async function Diagnostic() {
                         {/* Left */}
 
                         <div>
-
                             <div className="flex items-center gap-3">
-
                                 <span className="h-0.5 w-10 bg-[#86000D]" />
 
                                 <span className="text-sm font-semibold uppercase tracking-[0.15em] text-[#86000D]">
                                     Our Services
                                 </span>
-
                             </div>
 
                             <h2 className="mt-4 text-3xl font-bold text-gray-900 md:text-4xl">
@@ -218,20 +184,19 @@ async function Diagnostic() {
 
                             <p className="mt-5 max-w-xl text-lg leading-8 text-gray-600">
                                 Our diagnostic services help healthcare
-                                professionals accurately evaluate medical
-                                conditions and make informed decisions about
-                                patient care.
+                                professionals accurately evaluate
+                                medical conditions and make informed
+                                decisions about patient care.
                             </p>
 
                             <p className="mt-4 max-w-xl leading-7 text-gray-600">
-                                From medical imaging to specialized diagnostic
-                                examinations, our services are designed with
-                                accuracy, accessibility, and patient comfort
-                                in mind.
+                                From medical imaging to specialized
+                                diagnostic examinations, our services
+                                are designed with accuracy,
+                                accessibility, and patient comfort in
+                                mind.
                             </p>
-
                         </div>
-
 
                         {/* Right Feature Cards */}
 
@@ -240,13 +205,11 @@ async function Diagnostic() {
                             {/* Modern Diagnostics */}
 
                             <div className="flex items-center gap-5 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-
                                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-red-50 text-[#86000D]">
                                     <FaMicroscope className="text-2xl" />
                                 </div>
 
                                 <div>
-
                                     <h3 className="font-bold text-gray-900">
                                         Modern Diagnostics
                                     </h3>
@@ -254,22 +217,17 @@ async function Diagnostic() {
                                     <p className="mt-1 text-sm text-gray-600">
                                         Supporting accurate clinical evaluation.
                                     </p>
-
                                 </div>
-
                             </div>
-
 
                             {/* Patient Focused */}
 
                             <div className="flex items-center gap-5 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-
                                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
                                     <FaHeartbeat className="text-2xl" />
                                 </div>
 
                                 <div>
-
                                     <h3 className="font-bold text-gray-900">
                                         Patient Focused
                                     </h3>
@@ -277,22 +235,17 @@ async function Diagnostic() {
                                     <p className="mt-1 text-sm text-gray-600">
                                         Comfortable and accessible diagnostic care.
                                     </p>
-
                                 </div>
-
                             </div>
-
 
                             {/* Clinical Support */}
 
                             <div className="flex items-center gap-5 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-
                                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-700">
                                     <FaStethoscope className="text-2xl" />
                                 </div>
 
                                 <div>
-
                                     <h3 className="font-bold text-gray-900">
                                         Clinical Support
                                     </h3>
@@ -300,19 +253,12 @@ async function Diagnostic() {
                                     <p className="mt-1 text-sm text-gray-600">
                                         Helping doctors make informed decisions.
                                     </p>
-
                                 </div>
-
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </section>
-
 
             {/* =====================================================
                 DIAGNOSTIC SERVICES
@@ -322,21 +268,17 @@ async function Diagnostic() {
                 id="diagnostic-services"
                 className="scroll-mt-28 bg-gray-50 py-16 md:py-20"
             >
-
                 <div className="mx-auto max-w-7xl px-6">
 
                     {/* Section Heading */}
 
                     <div className="mb-12">
-
                         <div className="flex items-center gap-3">
-
                             <span className="h-0.5 w-10 bg-[#86000D]" />
 
                             <span className="text-sm font-semibold uppercase tracking-[0.15em] text-[#86000D]">
                                 Available Services
                             </span>
-
                         </div>
 
                         <h2 className="mt-3 text-3xl font-bold text-gray-900 md:text-4xl">
@@ -344,26 +286,21 @@ async function Diagnostic() {
                         </h2>
 
                         <p className="mt-4 max-w-2xl text-gray-600">
-                            Explore the diagnostic services currently available
-                            at Bashir Memorial Welfare Hospital.
+                            Explore the diagnostic services currently
+                            available at Bashir Memorial Welfare
+                            Hospital.
                         </p>
-
                     </div>
-
 
                     {/* No Services */}
 
                     {diagnostics.length === 0 ? (
-
                         <div
                             id="no-diagnostic-services"
                             className="scroll-mt-28 rounded-2xl border border-gray-200 bg-white px-6 py-16 text-center shadow-sm"
                         >
-
                             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
-
                                 <FaStethoscope className="text-2xl text-[#86000D]" />
-
                             </div>
 
                             <h3 className="mt-5 text-2xl font-bold text-gray-900">
@@ -371,20 +308,17 @@ async function Diagnostic() {
                             </h3>
 
                             <p className="mx-auto mt-2 max-w-md text-gray-600">
-                                Diagnostic services are currently unavailable.
-                                Please check back later or contact the hospital
-                                for more information.
+                                Diagnostic services are currently
+                                unavailable. Please check back later
+                                or contact the hospital for more
+                                information.
                             </p>
-
                         </div>
-
                     ) : (
-
                         <div className="flex flex-col gap-12">
 
                             {Object.entries(groupedDiagnostics).map(
                                 ([category, services]) => {
-
                                     const categoryId =
                                         createCategoryId(category);
 
@@ -394,19 +328,15 @@ async function Diagnostic() {
                                             id={categoryId}
                                             className="scroll-mt-28"
                                         >
-
                                             {/* Category Heading */}
 
                                             <div className="mb-6 flex items-center gap-3 border-b border-gray-200 pb-3">
-
                                                 <span className="h-0.5 w-8 bg-[#86000D]" />
 
                                                 <h3 className="text-2xl font-bold text-gray-900 md:text-3xl">
                                                     {category}
                                                 </h3>
-
                                             </div>
-
 
                                             {/* Services */}
 
@@ -414,60 +344,63 @@ async function Diagnostic() {
 
                                                 {services.map(
                                                     (service) => (
-
                                                         <article
                                                             key={service.id}
                                                             className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                                                         >
-
                                                             <Link
                                                                 href={`/pages/diagnostic/${service.id}`}
                                                             >
-
                                                                 {/* Image */}
 
                                                                 <div className="relative h-64 overflow-hidden bg-gray-100">
 
-                                                                    <Image
-                                                                        src={service.image_url}
-                                                                        alt={service.name}
-                                                                        fill
-                                                                        sizes="(max-width: 768px) 100vw, 50vw"
-                                                                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                                                    />
-
-                                                                    {/* Image Overlay */}
+                                                                    {service.image_url ? (
+                                                                        <Image
+                                                                            src={
+                                                                                service.image_url
+                                                                            }
+                                                                            alt={
+                                                                                service.name
+                                                                            }
+                                                                            fill
+                                                                            sizes="(max-width: 768px) 100vw, 50vw"
+                                                                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="flex h-full w-full items-center justify-center bg-gray-100">
+                                                                            <FaMicroscope className="text-5xl text-gray-300" />
+                                                                        </div>
+                                                                    )}
 
                                                                     <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
 
-
-                                                                    {/* Category */}
-
                                                                     <div className="absolute left-5 top-5">
-
                                                                         <span className="badge border-none bg-[#86000D] px-4 py-3 text-white">
-                                                                            {service.category}
+                                                                            {
+                                                                                service.category
+                                                                            }
                                                                         </span>
-
                                                                     </div>
-
                                                                 </div>
-
 
                                                                 {/* Content */}
 
                                                                 <div className="p-6">
-
                                                                     <h3 className="text-2xl font-bold text-gray-900">
-                                                                        {service.name}
+                                                                        {
+                                                                            service.name
+                                                                        }
                                                                     </h3>
 
                                                                     <p className="mt-3 leading-7 text-gray-600">
-                                                                        {service.description}
+                                                                        {
+                                                                            service.description ||
+                                                                            "Diagnostic service available at Bashir Memorial Welfare Hospital."
+                                                                        }
                                                                     </p>
 
                                                                     <div className="mt-6 flex items-center justify-between">
-
                                                                         <span className="text-sm font-semibold text-[#86000D]">
                                                                             Diagnostic Service
                                                                         </span>
@@ -475,33 +408,21 @@ async function Diagnostic() {
                                                                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-[#86000D] transition-colors group-hover:bg-[#86000D] group-hover:text-white">
                                                                             <FaArrowRight />
                                                                         </span>
-
                                                                     </div>
-
                                                                 </div>
-
                                                             </Link>
-
                                                         </article>
-
                                                     )
                                                 )}
-
                                             </div>
-
                                         </section>
                                     );
                                 }
                             )}
-
                         </div>
-
                     )}
-
                 </div>
-
             </section>
-
 
             {/* =====================================================
                 CONTACT INFORMATION
@@ -514,7 +435,6 @@ async function Diagnostic() {
                 <ContactUsCard />
             </section>
 
-
             {/* =====================================================
                 CTA
             ===================================================== */}
@@ -523,7 +443,6 @@ async function Diagnostic() {
                 id="diagnostic-cta"
                 className="scroll-mt-28 bg-linear-to-r from-[#86000D] to-[#a90012] py-16"
             >
-
                 <div className="mx-auto max-w-5xl px-6 text-center">
 
                     <h2 className="text-3xl font-bold text-white md:text-4xl">
@@ -531,8 +450,9 @@ async function Diagnostic() {
                     </h2>
 
                     <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-white/85">
-                        Contact Bashir Memorial Welfare Hospital to learn more
-                        about our diagnostic services and available facilities.
+                        Contact Bashir Memorial Welfare Hospital to
+                        learn more about our diagnostic services and
+                        available facilities.
                     </p>
 
                     <div className="mt-8 flex flex-wrap justify-center gap-4">
@@ -552,11 +472,8 @@ async function Diagnostic() {
                         </Link>
 
                     </div>
-
                 </div>
-
             </section>
-
         </main>
     );
 }

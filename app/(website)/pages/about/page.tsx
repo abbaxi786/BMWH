@@ -16,12 +16,30 @@ import {
     MdOutlineMedicalServices,
 } from "react-icons/md";
 
+import LeadershipMessages from "@/app/components/AboutContent/leadership_message";
 import Supporters from "@/app/components/AboutContent/supporters";
 import OfficeBearers from "@/app/components/AboutContent/office_bearers";
 import HealthPartners from "@/app/components/AboutContent/health_partners";
 import SuccessStories from "@/app/components/AboutContent/success_stories";
 import DepartmentsSection from "@/app/components/departmentPageComponents/countedDepartment";
 import EventsSection from "@/app/components/landingPageComponents/events_section";
+
+// ============================================================
+// SHARED HOMEPAGE CONTAINER
+// ============================================================
+
+const containerClass = `
+    mx-auto
+    w-full
+    max-w-7xl
+    px-5
+    sm:px-8
+    lg:px-10
+    xl:px-12
+    2xl:max-w-[1440px]
+    2xl:px-16
+    3xl:max-w-[1600px]
+`;
 
 // ============================================================
 // DUMMY DATA
@@ -128,7 +146,7 @@ const departments = [
 ];
 
 // ============================================================
-// ACHIEVEMENTS / JOURNEY
+// JOURNEY
 // ============================================================
 
 const journey = [
@@ -153,40 +171,6 @@ const journey = [
 ];
 
 // ============================================================
-// RECENT EVENTS
-// ============================================================
-
-const recentEvents = [
-    {
-        id: 1,
-        title: "Community Health Awareness Program",
-        date: "15 August 2026",
-        location: "BMWH Hospital",
-        description:
-            "A community-focused healthcare awareness initiative aimed at promoting better health practices.",
-        image: "/images/events/event-1.jpg",
-    },
-    {
-        id: 2,
-        title: "Medical Awareness Camp",
-        date: "05 July 2026",
-        location: "BMWH Hospital",
-        description:
-            "An awareness and healthcare initiative designed to connect the community with medical professionals.",
-        image: "/images/events/event-2.jpg",
-    },
-    {
-        id: 3,
-        title: "Healthcare Community Gathering",
-        date: "20 June 2026",
-        location: "BMWH Hospital",
-        description:
-            "A community gathering bringing healthcare professionals and members of the community together.",
-        image: "/images/events/event-3.jpg",
-    },
-];
-
-// ============================================================
 // PAGE
 // ============================================================
 
@@ -194,7 +178,13 @@ export default function AboutPage() {
     return (
         <main
             id="about"
-            className="bg-[#FBF9F9] text-gray-800 animate-fade-in-up"
+            className="
+                w-full
+                overflow-x-hidden
+                bg-[#FBF9F9]
+                text-[#1B1C1C]
+                animate-fade-in-up
+            "
         >
             {/* ==================================================
                 HERO
@@ -202,42 +192,144 @@ export default function AboutPage() {
 
             <section
                 id="about-overview"
-                className="relative scroll-mt-28 overflow-hidden bg-white"
+                className="
+                    relative
+                    scroll-mt-28
+                    overflow-hidden
+                    bg-white
+                    py-16
+                    sm:py-20
+                    lg:py-24
+                    xl:py-28
+                    2xl:py-32
+                "
             >
-                <div className="mx-auto flex min-h-140 max-w-7xl items-center px-6 py-20 lg:px-10">
-                    <div className="grid w-full items-center gap-14 lg:grid-cols-2">
-
+                <div className={containerClass}>
+                    <div
+                        className="
+                            grid
+                            w-full
+                            items-center
+                            gap-10
+                            lg:grid-cols-2
+                            lg:gap-14
+                            xl:gap-16
+                            2xl:gap-20
+                        "
+                    >
                         {/* Content */}
 
-                        <div>
-                            <div className="mb-5 flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.15em] text-[#911824]">
-                                <span className="h-0.5 w-10 bg-[#911824]" />
-                                About BMWH
+                        <div className="max-w-2xl">
+                            <div
+                                className="
+                                    mb-4
+                                    flex
+                                    items-center
+                                    gap-2
+                                    text-[11px]
+                                    font-semibold
+                                    uppercase
+                                    tracking-[0.2em]
+                                    text-[#911824]
+                                    sm:text-xs
+                                "
+                            >
+                                <span className="h-px w-8 bg-[#911824] sm:w-10" />
+
+                                <span>About BMWH</span>
                             </div>
 
-                            <h1 className="max-w-3xl text-4xl font-bold leading-tight text-gray-900 md:text-5xl lg:text-6xl">
+                            <h1
+                                className="
+                                    text-4xl
+                                    font-bold
+                                    leading-[1.1]
+                                    tracking-tight
+                                    text-[#1B1C1C]
+                                    sm:text-5xl
+                                    lg:text-[52px]
+                                    xl:text-[58px]
+                                    2xl:text-[64px]
+                                "
+                            >
                                 Caring for People,
                                 <span className="block text-[#911824]">
                                     Serving the Community
                                 </span>
                             </h1>
 
-                            <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-600">
+                            <p
+                                className="
+                                    mt-5
+                                    max-w-2xl
+                                    text-base
+                                    leading-7
+                                    text-[#5B403D]
+                                    sm:mt-6
+                                    sm:text-lg
+                                    sm:leading-8
+                                    xl:text-[19px]
+                                "
+                            >
                                 {aboutData.subtitle}
                             </p>
 
-                            <div className="mt-8 flex flex-wrap gap-4">
+                            <div className="mt-7 flex flex-wrap gap-3 sm:mt-8 sm:gap-4">
                                 <Link
                                     href="/pages/contact"
-                                    className="btn border-none bg-[#911824] px-7 text-white hover:bg-[#7d1420]"
+                                    className="
+                                        inline-flex
+                                        items-center
+                                        gap-2
+                                        bg-[#911824]
+                                        px-6
+                                        py-3
+                                        text-sm
+                                        font-semibold
+                                        text-white
+                                        transition-all
+                                        duration-300
+                                        hover:bg-[#7d1420]
+                                        focus:outline-none
+                                        focus-visible:ring-2
+                                        focus-visible:ring-[#911824]
+                                        focus-visible:ring-offset-2
+                                        sm:px-7
+                                        sm:py-3.5
+                                    "
                                 >
                                     Contact Us
-                                    <FaArrowRight />
+                                    <FaArrowRight
+                                        aria-hidden="true"
+                                        size={13}
+                                    />
                                 </Link>
 
                                 <Link
                                     href="/pages/departments"
-                                    className="btn btn-outline border-gray-300 px-7 text-gray-700 hover:border-[#911824] hover:bg-[#911824] hover:text-white"
+                                    className="
+                                        inline-flex
+                                        items-center
+                                        gap-2
+                                        border
+                                        border-[#D9D0CE]
+                                        px-6
+                                        py-3
+                                        text-sm
+                                        font-semibold
+                                        text-[#5B403D]
+                                        transition-all
+                                        duration-300
+                                        hover:border-[#911824]
+                                        hover:bg-[#911824]
+                                        hover:text-white
+                                        focus:outline-none
+                                        focus-visible:ring-2
+                                        focus-visible:ring-[#911824]
+                                        focus-visible:ring-offset-2
+                                        sm:px-7
+                                        sm:py-3.5
+                                    "
                                 >
                                     Our Departments
                                 </Link>
@@ -247,35 +339,83 @@ export default function AboutPage() {
                         {/* Image */}
 
                         <div className="relative">
-                            <div className="relative aspect-4/3 w-full overflow-hidden rounded-3xl bg-gray-100">
+                            <div
+                                className="
+                                    relative
+                                    h-[300px]
+                                    w-full
+                                    overflow-hidden
+                                    rounded-2xl
+                                    bg-gray-100
+                                    sm:h-[380px]
+                                    lg:h-[440px]
+                                    xl:h-[500px]
+                                    2xl:h-[560px]
+                                "
+                            >
                                 <Image
                                     src="/images/buildingImage.jpeg"
                                     alt="Bashir Memorial Welfare Hospital"
                                     fill
-                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    sizes="
+                                    (max-width: 1024px) 100vw,
+                                    (max-width: 1536px) 50vw,
+                                    680px
+                                "
                                     className="object-cover"
                                 />
                             </div>
 
-                            <div className="absolute -bottom-6 -left-6 hidden rounded-2xl bg-white p-5 shadow-xl sm:block">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#911824]/10 text-xl text-[#911824]">
-                                        <FaHeartbeat />
+                            {/* Floating Card */}
+
+                            <div
+                                className="
+                                    absolute
+                                    -bottom-5
+                                    left-4
+                                    hidden
+                                    rounded-xl
+                                    bg-white
+                                    p-4
+                                    shadow-xl
+                                    sm:block
+                                    lg:-left-6
+                                    lg:p-5
+                                "
+                            >
+                                <div className="flex items-center gap-3 lg:gap-4">
+                                    <div
+                                        className="
+                                            flex
+                                            h-11
+                                            w-11
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-full
+                                            bg-[#911824]/10
+                                            text-lg
+                                            text-[#911824]
+                                            lg:h-12
+                                            lg:w-12
+                                            lg:text-xl
+                                        "
+                                    >
+                                        <FaHeartbeat aria-hidden="true" />
                                     </div>
 
                                     <div>
-                                        <p className="text-sm font-semibold text-gray-900">
+                                        <p className="text-sm font-semibold text-[#1B1C1C]">
                                             Patient-Centered
                                         </p>
 
-                                        <p className="text-xs text-gray-500">
+                                        <p className="text-xs text-[#6B5A58]">
                                             Healthcare & Welfare
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </section>
@@ -286,22 +426,62 @@ export default function AboutPage() {
 
             <section
                 id="who-we-are"
-                className="scroll-mt-28 py-20 lg:py-28"
+                className="
+                    scroll-mt-28
+                    bg-[#FBF9F9]
+                    py-16
+                    sm:py-20
+                    lg:py-24
+                    xl:py-28
+                    2xl:py-32
+                "
             >
-                <div className="mx-auto max-w-275 px-6 lg:px-10">
-                    <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
-
+                <div className={containerClass}>
+                    <div
+                        className="
+                            grid
+                            gap-8
+                            lg:grid-cols-[0.8fr_1.2fr]
+                            lg:gap-14
+                            xl:gap-20
+                        "
+                    >
                         <div>
-                            <p className="mb-3 text-sm font-bold uppercase tracking-wider text-[#911824]">
-                                Who We Are
-                            </p>
+                            <div className="mb-3 flex items-center gap-2">
+                                <span className="h-px w-8 bg-[#911824]" />
 
-                            <h2 className="text-3xl font-bold leading-tight text-gray-900 md:text-4xl">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#911824] sm:text-xs">
+                                    Who We Are
+                                </p>
+                            </div>
+
+                            <h2
+                                className="
+                                    max-w-xl
+                                    text-3xl
+                                    font-bold
+                                    leading-tight
+                                    tracking-tight
+                                    text-[#1B1C1C]
+                                    sm:text-4xl
+                                    lg:text-[42px]
+                                    xl:text-[46px]
+                                "
+                            >
                                 A growing hospital with a clear purpose
                             </h2>
                         </div>
 
-                        <div className="space-y-5 text-[16px] leading-8 text-gray-600">
+                        <div
+                            className="
+                                space-y-5
+                                text-base
+                                leading-7
+                                text-[#5B403D]
+                                sm:text-[17px]
+                                sm:leading-8
+                            "
+                        >
                             <p>
                                 {aboutData.introduction.description}
                             </p>
@@ -310,7 +490,6 @@ export default function AboutPage() {
                                 {aboutData.introduction.descriptionTwo}
                             </p>
                         </div>
-
                     </div>
                 </div>
             </section>
@@ -321,37 +500,84 @@ export default function AboutPage() {
 
             <section
                 id="mission-vision"
-                className="scroll-mt-28 bg-white py-20 lg:py-24"
+                className="
+                    scroll-mt-28
+                    bg-white
+                    py-16
+                    sm:py-20
+                    lg:py-24
+                    xl:py-28
+                    2xl:py-32
+                "
             >
-                <div className="mx-auto max-w-275 px-6 lg:px-10">
+                <div className={containerClass}>
+                    <div className="mb-10 text-center sm:mb-12">
+                        <div className="mb-3 flex items-center justify-center gap-2">
+                            <span className="h-px w-8 bg-[#911824]" />
 
-                    <div className="mb-12 text-center">
-                        <p className="mb-3 text-sm font-bold uppercase tracking-wider text-[#911824]">
-                            What Guides Us
-                        </p>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#911824] sm:text-xs">
+                                What Guides Us
+                            </p>
 
-                        <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
+                            <span className="h-px w-8 bg-[#911824]" />
+                        </div>
+
+                        <h2
+                            className="
+                                text-3xl
+                                font-bold
+                                tracking-tight
+                                text-[#1B1C1C]
+                                sm:text-4xl
+                                lg:text-[42px]
+                                xl:text-[46px]
+                            "
+                        >
                             Our Mission & Vision
                         </h2>
                     </div>
 
-                    <div className="grid gap-7 md:grid-cols-2">
-
+                    <div className="grid gap-5 sm:gap-6 lg:grid-cols-2 xl:gap-8">
                         {/* Mission */}
 
                         <div
                             id="mission"
-                            className="scroll-mt-28 rounded-3xl bg-[#FBF9F9] p-8 md:p-10"
+                            className="
+                                scroll-mt-28
+                                min-h-70
+                                border
+                                border-[#E7DEDC]
+                                bg-[#FBF9F9]
+                                p-7
+                                sm:p-8
+                                lg:p-10
+                                xl:min-h-80
+                            "
                         >
-                            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#911824] text-2xl text-white">
-                                <FaHeartbeat />
+                            <div
+                                className="
+                                    mb-6
+                                    flex
+                                    h-13
+                                    w-13
+                                    items-center
+                                    justify-center
+                                    bg-[#911824]
+                                    text-xl
+                                    text-white
+                                    sm:h-14
+                                    sm:w-14
+                                    sm:text-2xl
+                                "
+                            >
+                                <FaHeartbeat aria-hidden="true" />
                             </div>
 
-                            <h3 className="mb-4 text-2xl font-bold text-gray-900">
+                            <h3 className="mb-4 text-2xl font-bold text-[#1B1C1C]">
                                 Our Mission
                             </h3>
 
-                            <p className="leading-8 text-gray-600">
+                            <p className="leading-7 text-[#5B403D] sm:leading-8">
                                 {aboutData.mission}
                             </p>
                         </div>
@@ -360,21 +586,43 @@ export default function AboutPage() {
 
                         <div
                             id="vision"
-                            className="scroll-mt-28 rounded-3xl bg-[#911824] p-8 text-white md:p-10"
+                            className="
+                                scroll-mt-28
+                                min-h-70
+                                bg-[#911824]
+                                p-7
+                                text-white
+                                sm:p-8
+                                lg:p-10
+                                xl:min-h-80
+                            "
                         >
-                            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-2xl">
-                                <MdHealthAndSafety />
+                            <div
+                                className="
+                                    mb-6
+                                    flex
+                                    h-13
+                                    w-13
+                                    items-center
+                                    justify-center
+                                    bg-white/10
+                                    text-xl
+                                    sm:h-14
+                                    sm:w-14
+                                    sm:text-2xl
+                                "
+                            >
+                                <MdHealthAndSafety aria-hidden="true" />
                             </div>
 
                             <h3 className="mb-4 text-2xl font-bold">
                                 Our Vision
                             </h3>
 
-                            <p className="leading-8 text-white/80">
+                            <p className="leading-7 text-white/80 sm:leading-8">
                                 {aboutData.vision}
                             </p>
                         </div>
-
                     </div>
                 </div>
             </section>
@@ -385,44 +633,99 @@ export default function AboutPage() {
 
             <section
                 id="founder"
-                className="scroll-mt-28 py-20 lg:py-28"
+                className="
+                    scroll-mt-28
+                    bg-[#FBF9F9]
+                    py-16
+                    sm:py-20
+                    lg:py-24
+                    xl:py-28
+                    2xl:py-32
+                "
             >
-                <div className="mx-auto max-w-275 px-6 lg:px-10">
-
-                    <div className="grid items-center gap-12 lg:grid-cols-[0.75fr_1.25fr]">
-
+                <div className={containerClass}>
+                    <div
+                        className="
+                            grid
+                            items-center
+                            gap-10
+                            lg:grid-cols-[0.75fr_1.25fr]
+                            lg:gap-14
+                            xl:gap-20
+                        "
+                    >
                         {/* Founder Image */}
 
-                        <div className="relative mx-auto w-full max-w-95">
-                            <div className="aspect-4/5 overflow-hidden rounded-3xl bg-gray-100">
-                                <div className="flex h-full items-center justify-center text-center text-gray-400">
-                                    <div>
-                                        <FaUserMd className="mx-auto mb-4 text-5xl" />
-                                        <p className="text-sm">
-                                            Founder Image
-                                        </p>
-                                    </div>
-                                </div>
+                        <div className="relative mx-auto w-full max-w-sm lg:max-w-md">
+                            <div
+                                className="
+                                    relative
+                                    aspect-4/5
+                                    w-full
+                                    overflow-hidden
+                                    bg-gray-100
+                                "
+                            >
+                                <Image
+                                    src={founder.image}
+                                    alt={founder.name}
+                                    fill
+                                    sizes="
+                                        (max-width: 1024px) 100vw,
+                                        (max-width: 1536px) 35vw,
+                                        450px
+                                    "
+                                    className="object-cover"
+                                />
                             </div>
                         </div>
 
                         {/* Message */}
 
-                        <div>
-                            <p className="mb-3 text-sm font-bold uppercase tracking-wider text-[#911824]">
-                                From Our Founder
-                            </p>
+                        <div className="max-w-3xl">
+                            <div className="mb-3 flex items-center gap-2">
+                                <span className="h-px w-8 bg-[#911824]" />
 
-                            <h2 className="mb-7 text-3xl font-bold leading-tight text-gray-900 md:text-4xl">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#911824] sm:text-xs">
+                                    From Our Founder
+                                </p>
+                            </div>
+
+                            <h2
+                                className="
+                                    mb-6
+                                    text-3xl
+                                    font-bold
+                                    leading-tight
+                                    tracking-tight
+                                    text-[#1B1C1C]
+                                    sm:text-4xl
+                                    lg:text-[42px]
+                                    xl:text-[46px]
+                                "
+                            >
                                 A vision built around people
                             </h2>
 
-                            <blockquote className="border-l-4 border-[#911824] pl-6 text-lg italic leading-8 text-gray-600">
+                            <blockquote
+                                className="
+                                    border-l-4
+                                    border-[#911824]
+                                    pl-5
+                                    text-base
+                                    italic
+                                    leading-7
+                                    text-[#5B403D]
+                                    sm:pl-6
+                                    sm:text-lg
+                                    sm:leading-8
+                                "
+                            >
                                 “{founder.message}”
                             </blockquote>
 
-                            <div className="mt-7">
-                                <h3 className="font-bold text-gray-900">
+                            <div className="mt-6">
+                                <h3 className="font-bold text-[#1B1C1C]">
                                     {founder.name}
                                 </h3>
 
@@ -433,20 +736,49 @@ export default function AboutPage() {
 
                             <Link
                                 href="/about/founder"
-                                className="mt-7 inline-flex items-center gap-2 font-semibold text-[#911824] hover:gap-3"
+                                className="
+                                    mt-6
+                                    inline-flex
+                                    items-center
+                                    gap-2
+                                    text-sm
+                                    font-semibold
+                                    text-[#911824]
+                                    transition-all
+                                    duration-300
+                                    hover:gap-3
+                                    focus:outline-none
+                                    focus-visible:ring-2
+                                    focus-visible:ring-[#911824]
+                                    focus-visible:ring-offset-2
+                                "
                             >
                                 Read More About Our Founder
-                                <FaArrowRight />
+
+                                <FaArrowRight
+                                    aria-hidden="true"
+                                    size={13}
+                                />
                             </Link>
                         </div>
-
                     </div>
                 </div>
             </section>
 
             {/* ==================================================
+                LEADERSHIP
+            ================================================== */}
+
+            <section
+                id="leadership"
+                className="scroll-mt-28"
+            >
+                <LeadershipMessages />
+            </section>
+
+            {/* ==================================================
                 OFFICE BEARERS
-                ================================================== */}
+            ================================================== */}
 
             <section
                 id="office-bearers"
@@ -461,20 +793,41 @@ export default function AboutPage() {
 
             <section
                 id="patient-welfare"
-                className="scroll-mt-28 bg-[#911824] py-20 text-white lg:py-24"
+                className="
+                    scroll-mt-28
+                    bg-[#911824]
+                    py-16
+                    text-white
+                    sm:py-20
+                    lg:py-24
+                    xl:py-28
+                    2xl:py-32
+                "
             >
-                <div className="mx-auto max-w-275 px-6 lg:px-10">
+                <div className={containerClass}>
+                    <div className="mb-10 max-w-3xl sm:mb-14">
+                        <div className="mb-3 flex items-center gap-2">
+                            <span className="h-px w-8 bg-white/70" />
 
-                    <div className="mb-14 max-w-3xl">
-                        <p className="mb-3 text-sm font-bold uppercase tracking-wider text-white/70">
-                            Our Commitment
-                        </p>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/70 sm:text-xs">
+                                Our Commitment
+                            </p>
+                        </div>
 
-                        <h2 className="text-3xl font-bold md:text-4xl">
+                        <h2
+                            className="
+                                text-3xl
+                                font-bold
+                                leading-tight
+                                sm:text-4xl
+                                lg:text-[42px]
+                                xl:text-[46px]
+                            "
+                        >
                             Patient Welfare at the Heart of Our Care
                         </h2>
 
-                        <p className="mt-5 leading-8 text-white/75">
+                        <p className="mt-5 text-sm leading-7 text-white/75 sm:text-base sm:leading-8">
                             At BMWH, healthcare goes beyond diagnosis and
                             treatment. We believe that every patient deserves
                             dignity, compassion, respect, and support throughout
@@ -482,14 +835,39 @@ export default function AboutPage() {
                         </p>
                     </div>
 
-                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-
+                    <div
+                        className="
+                            grid
+                            grid-cols-1
+                            gap-5
+                            sm:grid-cols-2
+                            sm:gap-6
+                            lg:grid-cols-4
+                            xl:gap-7
+                            2xl:gap-8
+                        "
+                    >
                         {welfareItems.map((item) => (
-                            <div
+                            <article
                                 key={item.title}
-                                className="rounded-2xl border border-white/10 bg-white/10 p-6"
+                                className="
+                                    min-h-57.5
+                                    border
+                                    border-white/10
+                                    bg-white/10
+                                    p-6
+                                    transition-all
+                                    duration-300
+                                    hover:-translate-y-1
+                                    hover:bg-white/[0.14]
+                                    sm:p-7
+                                    xl:min-h-62.5
+                                "
                             >
-                                <div className="mb-5 text-3xl">
+                                <div
+                                    aria-hidden="true"
+                                    className="mb-5 text-3xl text-white"
+                                >
                                     {item.icon}
                                 </div>
 
@@ -500,9 +878,8 @@ export default function AboutPage() {
                                 <p className="text-sm leading-7 text-white/70">
                                     {item.description}
                                 </p>
-                            </div>
+                            </article>
                         ))}
-
                     </div>
                 </div>
             </section>
@@ -524,20 +901,43 @@ export default function AboutPage() {
 
             <section
                 id="our-journey"
-                className="scroll-mt-28 py-20 lg:py-24"
+                className="
+                    scroll-mt-28
+                    bg-[#FBF9F9]
+                    py-16
+                    sm:py-20
+                    lg:py-24
+                    xl:py-28
+                    2xl:py-32
+                "
             >
-                <div className="mx-auto max-w-275 px-6 lg:px-10">
+                <div className={containerClass}>
+                    <div className="mb-10 text-center sm:mb-14">
+                        <div className="mb-3 flex items-center justify-center gap-2">
+                            <span className="h-px w-8 bg-[#911824]" />
 
-                    <div className="mb-14 text-center">
-                        <p className="mb-3 text-sm font-bold uppercase tracking-wider text-[#911824]">
-                            Our Journey
-                        </p>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#911824] sm:text-xs">
+                                Our Journey
+                            </p>
 
-                        <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
+                            <span className="h-px w-8 bg-[#911824]" />
+                        </div>
+
+                        <h2
+                            className="
+                                text-3xl
+                                font-bold
+                                tracking-tight
+                                text-[#1B1C1C]
+                                sm:text-4xl
+                                lg:text-[42px]
+                                xl:text-[46px]
+                            "
+                        >
                             Building Our Future
                         </h2>
 
-                        <p className="mx-auto mt-4 max-w-2xl leading-7 text-gray-600">
+                        <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-[#5B403D] sm:text-base">
                             As a newly established hospital, every step marks
                             the beginning of our journey toward serving the
                             community better.
@@ -545,52 +945,95 @@ export default function AboutPage() {
                     </div>
 
                     <div className="relative">
+                        {/* Timeline Line */}
 
-                        <div className="absolute left-4 top-0 hidden h-full w-px bg-gray-200 md:left-1/2 md:block" />
+                        <div
+                            aria-hidden="true"
+                            className="
+                                absolute
+                                left-1/2
+                                top-0
+                                hidden
+                                h-full
+                                w-px
+                                -translate-x-1/2
+                                bg-[#E1D8D6]
+                                md:block
+                            "
+                        />
 
-                        <div className="space-y-10">
-
+                        <div className="space-y-10 xl:space-y-14">
                             {journey.map((item, index) => (
                                 <div
                                     key={`${item.year}-${index}`}
-                                    className={`relative grid items-center gap-8 md:grid-cols-2 ${index % 2 === 0
-                                            ? ""
-                                            : "md:[&>div:first-child]:order-2"
-                                        }`}
+                                    className="
+                                        relative
+                                        grid
+                                        items-center
+                                        gap-8
+                                        md:grid-cols-2
+                                        md:gap-16
+                                    "
                                 >
+                                    {/* Left / Right Content */}
+
                                     <div
                                         className={
                                             index % 2 === 0
                                                 ? "md:text-right"
-                                                : "md:text-left"
+                                                : "md:order-2 md:text-left"
                                         }
                                     >
                                         <span className="text-sm font-bold text-[#911824]">
                                             {item.year}
                                         </span>
 
-                                        <h3 className="mt-2 text-xl font-bold text-gray-900">
+                                        <h3 className="mt-2 text-xl font-bold text-[#1B1C1C] xl:text-2xl">
                                             {item.title}
                                         </h3>
 
-                                        <p className="mt-3 leading-7 text-gray-600">
+                                        <p className="mt-3 text-sm leading-7 text-[#5B403D] sm:text-base">
                                             {item.description}
                                         </p>
                                     </div>
 
+                                    {/* Timeline Point */}
+
                                     <div
-                                        className={`hidden md:flex ${index % 2 === 0
+                                        className={`
+                                            hidden
+                                            md:flex
+                                            ${index % 2 === 0
                                                 ? "justify-start"
-                                                : "justify-end"
-                                            }`}
+                                                : "order-1 justify-end"
+                                            }
+                                        `}
                                     >
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#911824] text-white shadow-lg">
-                                            <FaCheckCircle />
+                                        <div
+                                            className="
+                                                relative
+                                                z-10
+                                                flex
+                                                h-12
+                                                w-12
+                                                items-center
+                                                justify-center
+                                                rounded-full
+                                                bg-[#911824]
+                                                text-white
+                                                shadow-lg
+                                                ring-8
+                                                ring-[#FBF9F9]
+                                            "
+                                        >
+                                            <FaCheckCircle
+                                                aria-hidden="true"
+                                                size={16}
+                                            />
                                         </div>
                                     </div>
                                 </div>
                             ))}
-
                         </div>
                     </div>
                 </div>
@@ -630,7 +1073,7 @@ export default function AboutPage() {
             </section>
 
             {/* ==================================================
-                RECENT EVENTS
+                EVENTS
             ================================================== */}
 
             <section
@@ -646,45 +1089,107 @@ export default function AboutPage() {
 
             <section
                 id="compliance"
-                className="scroll-mt-28 bg-white py-16"
+                className="
+                    scroll-mt-28
+                    bg-white
+                    py-16
+                    sm:py-20
+                    lg:py-24
+                    xl:py-28
+                "
             >
-                <div className="mx-auto max-w-225 px-6 lg:px-10">
-
-                    <div className="flex flex-col items-start justify-between gap-6 rounded-3xl bg-[#FBF9F9] p-8 md:flex-row md:items-center md:p-10">
-
+                <div className={containerClass}>
+                    <div
+                        className="
+                            flex
+                            flex-col
+                            items-start
+                            justify-between
+                            gap-6
+                            border
+                            border-[#E7DEDC]
+                            bg-[#FBF9F9]
+                            p-7
+                            sm:p-8
+                            md:flex-row
+                            md:items-center
+                            lg:p-10
+                            xl:p-12
+                        "
+                    >
                         <div className="flex items-start gap-5">
-
-                            <div className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#911824]/10 text-2xl text-[#911824] sm:flex">
-                                <FaShieldAlt />
+                            <div
+                                className="
+                                    hidden
+                                    h-14
+                                    w-14
+                                    shrink-0
+                                    items-center
+                                    justify-center
+                                    bg-[#911824]/10
+                                    text-2xl
+                                    text-[#911824]
+                                    sm:flex
+                                "
+                            >
+                                <FaShieldAlt aria-hidden="true" />
                             </div>
 
                             <div>
-                                <p className="text-sm font-bold uppercase tracking-wider text-[#911824]">
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#911824] sm:text-xs">
                                     Our Standards
                                 </p>
 
-                                <h2 className="mt-2 text-2xl font-bold text-gray-900">
+                                <h2
+                                    className="
+                                        mt-2
+                                        text-2xl
+                                        font-bold
+                                        text-[#1B1C1C]
+                                        sm:text-3xl
+                                    "
+                                >
                                     Committed to Safe & Ethical Healthcare
                                 </h2>
 
-                                <p className="mt-3 max-w-2xl leading-7 text-gray-600">
+                                <p className="mt-3 max-w-2xl text-sm leading-7 text-[#5B403D] sm:text-base">
                                     BMWH is committed to maintaining high
                                     standards of patient safety, dignity,
                                     privacy, ethical practice, and quality
                                     healthcare.
                                 </p>
                             </div>
-
                         </div>
 
                         <Link
                             href="/compliance"
-                            className="btn shrink-0 border-none bg-[#911824] px-6 text-white hover:bg-[#7d1420]"
+                            className="
+                                inline-flex
+                                shrink-0
+                                items-center
+                                gap-2
+                                bg-[#911824]
+                                px-6
+                                py-3
+                                text-sm
+                                font-semibold
+                                text-white
+                                transition-all
+                                duration-300
+                                hover:bg-[#7d1420]
+                                focus:outline-none
+                                focus-visible:ring-2
+                                focus-visible:ring-[#911824]
+                                focus-visible:ring-offset-2
+                            "
                         >
                             View Compliance
-                            <FaArrowRight />
-                        </Link>
 
+                            <FaArrowRight
+                                aria-hidden="true"
+                                size={13}
+                            />
+                        </Link>
                     </div>
                 </div>
             </section>
@@ -695,42 +1200,103 @@ export default function AboutPage() {
 
             <section
                 id="about-cta"
-                className="scroll-mt-28 bg-[#911824] py-20 text-white"
+                className="
+                    scroll-mt-28
+                    bg-[#911824]
+                    py-16
+                    text-white
+                    sm:py-20
+                    lg:py-24
+                    xl:py-28
+                    2xl:py-32
+                "
             >
-                <div className="mx-auto max-w-225 px-6 text-center">
-
-                    <h2 className="text-3xl font-bold md:text-4xl">
-                        Healthcare With Compassion
-                    </h2>
-
-                    <p className="mx-auto mt-5 max-w-2xl leading-8 text-white/75">
-                        Whether you need medical care, want to support our
-                        mission, or simply want to learn more about BMWH,
-                        we are here to help.
-                    </p>
-
-                    <div className="mt-8 flex flex-wrap justify-center gap-4">
-
-                        <Link
-                            href="/contact"
-                            className="btn border-none bg-white px-7 text-[#911824] hover:bg-gray-100"
+                <div className={containerClass}>
+                    <div className="mx-auto max-w-3xl text-center">
+                        <h2
+                            className="
+                                text-3xl
+                                font-bold
+                                leading-tight
+                                sm:text-4xl
+                                lg:text-[42px]
+                                xl:text-[46px]
+                            "
                         >
-                            Contact Us
-                            <FaArrowRight />
-                        </Link>
+                            Healthcare With Compassion
+                        </h2>
 
-                        <Link
-                            href="/donate"
-                            className="btn btn-outline border-white/40 px-7 text-white hover:bg-white hover:text-[#911824]"
-                        >
-                            Support Our Mission
-                        </Link>
+                        <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/75 sm:text-base sm:leading-8">
+                            Whether you need medical care, want to support our
+                            mission, or simply want to learn more about BMWH,
+                            we are here to help.
+                        </p>
 
+                        <div className="mt-7 flex flex-wrap justify-center gap-3 sm:mt-8 sm:gap-4">
+                            <Link
+                                href="/contact"
+                                className="
+                                    inline-flex
+                                    items-center
+                                    gap-2
+                                    bg-white
+                                    px-6
+                                    py-3
+                                    text-sm
+                                    font-semibold
+                                    text-[#911824]
+                                    transition-all
+                                    duration-300
+                                    hover:bg-gray-100
+                                    focus:outline-none
+                                    focus-visible:ring-2
+                                    focus-visible:ring-white
+                                    focus-visible:ring-offset-2
+                                    focus-visible:ring-offset-[#911824]
+                                    sm:px-7
+                                    sm:py-3.5
+                                "
+                            >
+                                Contact Us
+
+                                <FaArrowRight
+                                    aria-hidden="true"
+                                    size={13}
+                                />
+                            </Link>
+
+                            <Link
+                                href="/donate"
+                                className="
+                                    inline-flex
+                                    items-center
+                                    gap-2
+                                    border
+                                    border-white/40
+                                    px-6
+                                    py-3
+                                    text-sm
+                                    font-semibold
+                                    text-white
+                                    transition-all
+                                    duration-300
+                                    hover:bg-white
+                                    hover:text-[#911824]
+                                    focus:outline-none
+                                    focus-visible:ring-2
+                                    focus-visible:ring-white
+                                    focus-visible:ring-offset-2
+                                    focus-visible:ring-offset-[#911824]
+                                    sm:px-7
+                                    sm:py-3.5
+                                "
+                            >
+                                Support Our Mission
+                            </Link>
+                        </div>
                     </div>
-
                 </div>
             </section>
-
         </main>
     );
 }

@@ -1,83 +1,159 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
+
 import {
     uploadFileToCloudinary,
     deleteFileFromCloudinary,
 } from "@/lib/uploadToCloudinary";
-import { requireAdmin } from "@/lib/auth";
 
-/*
-|--------------------------------------------------------------------------
-| POST - Create Hospital Facility
-|--------------------------------------------------------------------------
-*/
-export async function POST(request) {
+import {getHospitalFacilities,getHospitalFacilityById} from "@/lib/data/hospitalFacilities/hospitalFacilties"
+
+
+// =====================================================
+// GET - Get all facilities OR one facility by ID
+// =====================================================
+
+export async function GET(request) {
     try {
-        // Admin authentication
-        const admin = await requireAdmin();
+        const { searchParams } = new URL(request.url);
 
-        if (!admin) {
+        const facilityId = searchParams.get("facility_id");
+
+        // =================================================
+        // Get single facility
+        // =================================================
+
+        if (facilityId) {
+            const facility = await getHospitalFacilityById(
+                facilityId
+            );
+
+            if (!facility) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Hospital facility not found",
+                    },
+                    { status: 404 }
+                );
+            }
+
             return NextResponse.json(
                 {
-                    success: false,
-                    message: "Unauthorized",
+                    success: true,
+                    data: facility,
                 },
-                {
-                    status: 401,
-                }
+                { status: 200 }
             );
         }
+
+        // =================================================
+        // Get all facilities
+        // =================================================
+
+        const facilities = await getHospitalFacilities();
+
+        return NextResponse.json(
+            {
+                success: true,
+                data: facilities,
+            },
+            { status: 200 }
+        );
+
+    } catch (error) {
+        console.error(
+            "Error fetching hospital facilities:",
+            error
+        );
+
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Failed to fetch hospital facilities",
+            },
+            { status: 500 }
+        );
+    }
+}
+
+
+// =====================================================
+// POST - Create a new facility
+// =====================================================
+
+export async function POST(request) {
+    try {
+        // Check admin authentication
+        await requireAdmin();
 
         const formData = await request.formData();
 
         const name = formData.get("name");
         const category = formData.get("category");
         const description = formData.get("description");
-        const is_active = formData.get("is_active") === "true";
+        const isActive = formData.get("is_active");
         const image = formData.get("image");
 
-        if (!name || !category) {
+        // =================================================
+        // Validate required fields
+        // =================================================
+
+        if (!name) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "name and category are required",
+                    message: "Facility name is required",
                 },
-                {
-                    status: 400,
-                }
+                { status: 400 }
             );
         }
 
-        let image_url = null;
+        // =================================================
+        // Upload image
+        // =================================================
 
-        // Upload image if provided
-        if (image && typeof image.arrayBuffer === "function") {
-            const uploaded = await uploadFileToCloudinary(
+        let imageUrl = null;
+
+        if (image && image.size > 0) {
+            const uploadResult = await uploadFileToCloudinary(
                 image,
                 "bmh/facilities"
             );
 
-            image_url = uploaded.secure_url;
+            // Your existing function returns the Cloudinary result
+            imageUrl = uploadResult.secure_url;
         }
 
+        // =================================================
+        // Insert facility
+        // =================================================
+
         const result = await sql`
-            INSERT INTO hospital_facilities
-                (
-                    name,
-                    category,
-                    description,
-                    image_url,
-                    is_active
-                )
-            VALUES
-                (
-                    ${name},
-                    ${category},
-                    ${description},
-                    ${image_url},
-                    ${is_active}
-                )
-            RETURNING *;
+            INSERT INTO hospital_facilities (
+                name,
+                category,
+                description,
+                image_url,
+                is_active
+            )
+            VALUES (
+                ${name},
+                ${category || null},
+                ${description || null},
+                ${imageUrl},
+                ${isActive === "true"}
+            )
+            RETURNING
+                id,
+                name,
+                category,
+                description,
+                image_url,
+                is_active,
+                created_at,
+                updated_at
         `;
 
         return NextResponse.json(
@@ -86,294 +162,150 @@ export async function POST(request) {
                 message: "Hospital facility created successfully",
                 data: result[0],
             },
-            {
-                status: 201,
-            }
+            { status: 201 }
         );
+
     } catch (error) {
-        console.error("POST hospital facility error:", error);
+        console.error(
+            "Error creating hospital facility:",
+            error
+        );
 
         return NextResponse.json(
             {
                 success: false,
-                message: error?.message || "Failed to create hospital facility",
+                message: "Failed to create hospital facility",
             },
-            {
-                status: 500,
-            }
+            { status: 500 }
         );
     }
 }
 
 
-/*
-|--------------------------------------------------------------------------
-| GET - Get Hospital Facilities
-|--------------------------------------------------------------------------
-*/
-export async function GET(request) {
-    try {
-        const { searchParams } = new URL(request.url);
+// =====================================================
+// PUT - Update an existing facility
+// =====================================================
 
-        const facility_id = searchParams.get("facility_id");
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get Single Facility
-        |--------------------------------------------------------------------------
-        */
-        if (facility_id) {
-            const result = await sql`
-                SELECT *
-                FROM hospital_facilities
-                WHERE id = ${facility_id}
-            `;
-
-            if (result.length === 0) {
-                return NextResponse.json(
-                    {
-                        success: false,
-                        message: "Hospital facility not found",
-                    },
-                    {
-                        status: 404,
-                    }
-                );
-            }
-
-            return NextResponse.json(
-                {
-                    success: true,
-                    data: result[0],
-                },
-                {
-                    status: 200,
-                }
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Get All Facilities
-        |--------------------------------------------------------------------------
-        */
-        const result = await sql`
-            SELECT *
-            FROM hospital_facilities
-            ORDER BY id ASC;
-        `;
-
-        return NextResponse.json(
-            {
-                success: true,
-                data: result,
-            },
-            {
-                status: 200,
-            }
-        );
-    } catch (error) {
-        console.error("GET hospital facilities error:", error);
-
-        return NextResponse.json(
-            {
-                success: false,
-                message: "Failed to fetch hospital facilities",
-            },
-            {
-                status: 500,
-            }
-        );
-    }
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| PUT - Update Hospital Facility
-|--------------------------------------------------------------------------
-|
-| Example:
-| PUT /api/hospital_facilities?facility_id=1
-|
-| FormData:
-| name
-| category
-| description
-| is_active
-| image              -> optional new image
-| remove_image=true  -> remove existing image
-|
-|--------------------------------------------------------------------------
-*/
 export async function PUT(request) {
     try {
-        // Admin authentication
-        const admin = await requireAdmin();
+        // Check admin authentication
+        await requireAdmin();
 
-        if (!admin) {
+        const formData = await request.formData();
+
+        const facilityId = formData.get("facility_id");
+        const name = formData.get("name");
+        const category = formData.get("category");
+        const description = formData.get("description");
+        const isActive = formData.get("is_active");
+        const image = formData.get("image");
+        const removeImage = formData.get("remove_image");
+
+        // =================================================
+        // Validate facility ID
+        // =================================================
+
+        if (!facilityId) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "Unauthorized",
+                    message: "Facility ID is required",
                 },
-                {
-                    status: 401,
-                }
+                { status: 400 }
             );
         }
 
-        const { searchParams } = new URL(request.url);
+        // =================================================
+        // Get existing facility
+        // =================================================
 
-        const facility_id = searchParams.get("facility_id");
-
-        if (!facility_id) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "facility_id is required",
-                },
-                {
-                    status: 400,
-                }
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Find Existing Facility
-        |--------------------------------------------------------------------------
-        */
-        const existingFacility = await sql`
-            SELECT *
+        const existingResult = await sql`
+            SELECT
+                id,
+                name,
+                category,
+                description,
+                image_url,
+                is_active
             FROM hospital_facilities
-            WHERE id = ${facility_id}
+            WHERE id = ${facilityId}
+            LIMIT 1
         `;
 
-        if (existingFacility.length === 0) {
+        if (existingResult.length === 0) {
             return NextResponse.json(
                 {
                     success: false,
                     message: "Hospital facility not found",
                 },
-                {
-                    status: 404,
-                }
+                { status: 404 }
             );
         }
 
-        const currentFacility = existingFacility[0];
+        const existingFacility = existingResult[0];
 
-        /*
-        |--------------------------------------------------------------------------
-        | Read FormData
-        |--------------------------------------------------------------------------
-        */
-        const formData = await request.formData();
+        let imageUrl = existingFacility.image_url;
 
-        const name = formData.get("name");
-        const category = formData.get("category");
-        const description = formData.get("description");
-        const is_active = formData.get("is_active") === "true";
+        // =================================================
+        // Upload new image
+        // =================================================
 
-        const image = formData.get("image");
-
-        const remove_image =
-            formData.get("remove_image") === "true";
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Required Fields
-        |--------------------------------------------------------------------------
-        */
-        if (!name || !category) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "name and category are required",
-                },
-                {
-                    status: 400,
-                }
-            );
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Image Handling
-        |--------------------------------------------------------------------------
-        */
-
-        let image_url = currentFacility.image_url;
-
-        let oldImageToDelete = null;
-
-        /*
-        |--------------------------------------------------------------------------
-        | New Image Uploaded
-        |--------------------------------------------------------------------------
-        */
-        if (
-            image &&
-            typeof image.arrayBuffer === "function"
-        ) {
-            const uploaded = await uploadFileToCloudinary(
+        if (image && image.size > 0) {
+            const uploadResult = await uploadFileToCloudinary(
                 image,
                 "bmh/facilities"
             );
 
-            image_url = uploaded.secure_url;
-
-            // Delete old image after successful DB update
-            oldImageToDelete = currentFacility.image_url;
+            imageUrl = uploadResult.secure_url;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Remove Existing Image
-        |--------------------------------------------------------------------------
-        |
-        | Only remove the image when no new image is being uploaded.
-        |
-        |--------------------------------------------------------------------------
-        */
-        else if (remove_image) {
-            image_url = null;
+        // =================================================
+        // Remove image
+        // =================================================
 
-            oldImageToDelete = currentFacility.image_url;
+        if (removeImage === "true") {
+            imageUrl = null;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Update Database
-        |--------------------------------------------------------------------------
-        */
+        // =================================================
+        // Update facility
+        // =================================================
+
         const result = await sql`
             UPDATE hospital_facilities
             SET
-                name = ${name},
-                category = ${category},
-                description = ${description},
-                image_url = ${image_url},
-                is_active = ${is_active}
-            WHERE id = ${facility_id}
-            RETURNING *;
+                name = ${name || existingFacility.name},
+                category = ${category || null},
+                description = ${description || null},
+                image_url = ${imageUrl},
+                is_active = ${isActive === "true"},
+                updated_at = NOW()
+            WHERE id = ${facilityId}
+            RETURNING
+                id,
+                name,
+                category,
+                description,
+                image_url,
+                is_active,
+                created_at,
+                updated_at
         `;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Delete Old Cloudinary Image
-        |--------------------------------------------------------------------------
-        |
-        | Database update has already succeeded, so failure to delete
-        | the old image should not make the API return an error.
-        |
-        |--------------------------------------------------------------------------
-        */
-        if (oldImageToDelete) {
+        // =================================================
+        // Delete old image
+        // =================================================
+
+        if (
+            existingFacility.image_url &&
+            (
+                (image && image.size > 0) ||
+                removeImage === "true"
+            )
+        ) {
             try {
                 await deleteFileFromCloudinary(
-                    oldImageToDelete
+                    existingFacility.image_url
                 );
             } catch (cloudinaryError) {
                 console.error(
@@ -389,115 +321,95 @@ export async function PUT(request) {
                 message: "Hospital facility updated successfully",
                 data: result[0],
             },
-            {
-                status: 200,
-            }
+            { status: 200 }
         );
+
     } catch (error) {
-        console.error("PUT hospital facility error:", error);
+        console.error(
+            "Error updating hospital facility:",
+            error
+        );
 
         return NextResponse.json(
             {
                 success: false,
-                message:
-                    error?.message ||
-                    "Failed to update hospital facility",
+                message: "Failed to update hospital facility",
             },
-            {
-                status: 500,
-            }
+            { status: 500 }
         );
     }
 }
 
 
-/*
-|--------------------------------------------------------------------------
-| DELETE - Delete Hospital Facility
-|--------------------------------------------------------------------------
-|
-| Example:
-| DELETE /api/hospital_facilities?facility_id=1
-|
-|--------------------------------------------------------------------------
-*/
+// =====================================================
+// DELETE - Delete a facility
+// =====================================================
+
 export async function DELETE(request) {
     try {
-        // Admin authentication
-        const admin = await requireAdmin();
-
-        if (!admin) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Unauthorized",
-                },
-                {
-                    status: 401,
-                }
-            );
-        }
+        // Check admin authentication
+        await requireAdmin();
 
         const { searchParams } = new URL(request.url);
 
-        const facility_id = searchParams.get("facility_id");
+        const facilityId = searchParams.get("facility_id");
 
-        if (!facility_id) {
+        // =================================================
+        // Validate facility ID
+        // =================================================
+
+        if (!facilityId) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "facility_id is required",
+                    message: "Facility ID is required",
                 },
-                {
-                    status: 400,
-                }
+                { status: 400 }
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Find Facility
-        |--------------------------------------------------------------------------
-        */
-        const existingFacility = await sql`
-            SELECT *
+        // =================================================
+        // Get facility before deleting
+        // =================================================
+
+        const existingResult = await sql`
+            SELECT
+                id,
+                image_url
             FROM hospital_facilities
-            WHERE id = ${facility_id}
+            WHERE id = ${facilityId}
+            LIMIT 1
         `;
 
-        if (existingFacility.length === 0) {
+        if (existingResult.length === 0) {
             return NextResponse.json(
                 {
                     success: false,
                     message: "Hospital facility not found",
                 },
-                {
-                    status: 404,
-                }
+                { status: 404 }
             );
         }
 
-        const facility = existingFacility[0];
+        const existingFacility = existingResult[0];
 
-        /*
-        |--------------------------------------------------------------------------
-        | Delete From Database
-        |--------------------------------------------------------------------------
-        */
+        // =================================================
+        // Delete from database
+        // =================================================
+
         await sql`
             DELETE FROM hospital_facilities
-            WHERE id = ${facility_id}
+            WHERE id = ${facilityId}
         `;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Delete Image From Cloudinary
-        |--------------------------------------------------------------------------
-        */
-        if (facility.image_url) {
+        // =================================================
+        // Delete image from Cloudinary
+        // =================================================
+
+        if (existingFacility.image_url) {
             try {
                 await deleteFileFromCloudinary(
-                    facility.image_url
+                    existingFacility.image_url
                 );
             } catch (cloudinaryError) {
                 console.error(
@@ -512,23 +424,21 @@ export async function DELETE(request) {
                 success: true,
                 message: "Hospital facility deleted successfully",
             },
-            {
-                status: 200,
-            }
+            { status: 200 }
         );
+
     } catch (error) {
-        console.error("DELETE hospital facility error:", error);
+        console.error(
+            "Error deleting hospital facility:",
+            error
+        );
 
         return NextResponse.json(
             {
                 success: false,
-                message:
-                    error?.message ||
-                    "Failed to delete hospital facility",
+                message: "Failed to delete hospital facility",
             },
-            {
-                status: 500,
-            }
+            { status: 500 }
         );
     }
 }

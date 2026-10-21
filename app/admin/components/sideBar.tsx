@@ -124,7 +124,7 @@ const sections: NavSection[] = [
         items: [
             {
                 label: "Website Settings",
-                href: "/admin/settings",
+                href: "/admin/website_setting",
                 icon: <FiSettings size={18} />,
             },
             {

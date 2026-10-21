@@ -586,10 +586,9 @@ export default function MobileMenu() {
           bg-black/40
           transition-opacity
           duration-300
-          ${
-            isOpen
-              ? "pointer-events-auto opacity-100"
-              : "pointer-events-none opacity-0"
+          ${isOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0"
           }
         `}
       />
@@ -616,10 +615,9 @@ export default function MobileMenu() {
           transition-transform
           duration-300
           ease-in-out
-          ${
-            isOpen
-              ? "translate-x-0"
-              : "translate-x-full"
+          ${isOpen
+            ? "translate-x-0"
+            : "translate-x-full"
           }
         `}
       >
@@ -658,14 +656,7 @@ export default function MobileMenu() {
               width={42}
               height={42}
               priority
-              className="
-                h-9
-                w-9
-                shrink-0
-                object-contain
-                sm:h-10
-                sm:w-10
-              "
+              className="h-9 w-9 shrink-0 object-contain"
             />
 
             <div className="flex min-w-0 flex-col">
@@ -825,10 +816,9 @@ export default function MobileMenu() {
                               text-xs
                               transition-transform
                               duration-200
-                              ${
-                                isSectionOpen
-                                  ? "rotate-180"
-                                  : ""
+                              ${isSectionOpen
+                                ? "rotate-180"
+                                : ""
                               }
                             `}
                           />
@@ -843,10 +833,9 @@ export default function MobileMenu() {
                           transition-[grid-template-rows]
                           duration-200
                           ease-in-out
-                          ${
-                            isSectionOpen
-                              ? "grid-rows-[1fr]"
-                              : "grid-rows-[0fr]"
+                          ${isSectionOpen
+                            ? "grid-rows-[1fr]"
+                            : "grid-rows-[0fr]"
                           }
                         `}
                       >

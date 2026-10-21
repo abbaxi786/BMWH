@@ -340,24 +340,11 @@ function Nav() {
                             "
                         >
                             <Image
-                                loading="eager"
                                 src="/logo.png"
-                                alt="Bashir Memorial Welfare Hospital Logo"
+                                alt="Hospital Logo"
                                 width={48}
                                 height={48}
-                                className="
-                                            h-9
-                                            w-9
-                                            shrink-0
-                                            object-contain
-                                            aspect-square
-
-                                            min-[321px]:h-10
-                                            min-[321px]:w-10
-
-                                            sm:h-12
-                                            sm:w-12
-                                        "
+                                className="object-contain"
                             />
                             <div
                                 className="

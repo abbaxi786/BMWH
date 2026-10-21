@@ -1,15 +1,35 @@
+
+"use client";
+
+import { useEffect, useState, useRef } from "react";
+import type { IconType } from "react-icons";
 import {
     FaUserGroup,
     FaHandHoldingHeart,
     FaClock,
 } from "react-icons/fa6";
 
-const IMPACT_STATS = [
+interface ImpactStat {
+    id: number;
+    target: number;
+    suffix: string;
+    title: string;
+    description: string;
+    display_order: number;
+    is_active?: boolean;
+}
+
+interface ImpactStatDisplay extends ImpactStat {
+    icon: IconType;
+    className: string;
+    iconClassName: string;
+    titleClassName: string;
+    descriptionClassName: string;
+}
+
+// Fixed frontend presentation; content comes from PostgreSQL.
+const FIXED_PRESENTATION = [
     {
-        value: "50K+",
-        title: "Patients Served",
-        description:
-            "Providing continuous care and support to our growing community over the years.",
         icon: FaUserGroup,
         className: "bg-[#86000D] text-white",
         iconClassName: "text-white",
@@ -17,10 +37,6 @@ const IMPACT_STATS = [
         descriptionClassName: "text-white/80",
     },
     {
-        value: "10K+",
-        title: "Free Treatments",
-        description:
-            "Funded through generous donations and our dedicated welfare programs.",
         icon: FaHandHoldingHeart,
         className: "bg-[#E9E8E8] text-[#5B403D]",
         iconClassName: "text-[#86000D]",
@@ -28,10 +44,6 @@ const IMPACT_STATS = [
         descriptionClassName: "text-[#5B403D]",
     },
     {
-        value: "25+",
-        title: "Years of Service",
-        description:
-            "A legacy of clinical integrity, trust, and unwavering commitment to health.",
         icon: FaClock,
         className: "bg-[#303031] text-[#F2F0F0]",
         iconClassName: "text-[#F2F0F0]",
@@ -40,208 +52,192 @@ const IMPACT_STATS = [
     },
 ];
 
+interface RunningNumberProps {
+    target: number;
+    duration?: number;
+}
+
+function RunningNumber({
+    target,
+    duration = 1500,
+}: RunningNumberProps) {
+    const [count, setCount] = useState(0);
+    const elementRef = useRef<HTMLSpanElement>(null);
+
+    useEffect(() => {
+        const element = elementRef.current;
+        if (!element) return;
+
+        let hasAnimated = false;
+        let animationFrame = 0;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (!entry.isIntersecting || hasAnimated) return;
+
+                hasAnimated = true;
+                let startTime: number | null = null;
+
+                const animate = (timestamp: number) => {
+                    if (startTime === null) {
+                        startTime = timestamp;
+                    }
+
+                    const progress = Math.min(
+                        (timestamp - startTime) / duration,
+                        1
+                    );
+
+                    setCount(Math.floor(progress * target));
+
+                    if (progress < 1) {
+                        animationFrame =
+                            requestAnimationFrame(animate);
+                    }
+                };
+
+                animationFrame = requestAnimationFrame(animate);
+            },
+            { threshold: 0.1 }
+        );
+
+        observer.observe(element);
+
+        return () => {
+            observer.disconnect();
+            cancelAnimationFrame(animationFrame);
+        };
+    }, [target, duration]);
+
+    return <span ref={elementRef}>{count}</span>;
+}
+
 export default function ImpactStats() {
+    const [stats, setStats] = useState<ImpactStatDisplay[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [hasError, setHasError] = useState(false);
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        async function fetchImpactStats() {
+            try {
+                const response = await fetch("/api/content/stats", {
+                    method: "GET",
+                    cache: "no-store",
+                    signal: controller.signal,
+                });
+
+                if (!response.ok) {
+                    throw new Error(
+                        "Failed to fetch impact statistics"
+                    );
+                }
+
+                const result = await response.json();
+
+                if (!result.success || !Array.isArray(result.data)) {
+                    throw new Error("Invalid impact statistics response");
+                }
+
+                const mappedStats: ImpactStatDisplay[] = result.data
+                    .filter(
+                        (stat: ImpactStat) =>
+                            Number.isInteger(stat.display_order) &&
+                            stat.display_order >= 1 &&
+                            stat.display_order <= 3 &&
+                            Number.isInteger(stat.target) &&
+                            stat.target >= 0 &&
+                            typeof stat.title === "string" &&
+                            typeof stat.suffix === "string" &&
+                            typeof stat.description === "string"
+                    )
+                    .map((stat: ImpactStat) => ({
+                        ...stat,
+                        ...FIXED_PRESENTATION[stat.display_order - 1],
+                    }))
+                    .sort(
+                        (a:any, b:any) => a.display_order - b.display_order
+                    );
+
+                setStats(mappedStats);
+            } catch (error) {
+                if (
+                    error instanceof Error &&
+                    error.name === "AbortError"
+                ) {
+                    return;
+                }
+
+                console.error("Impact stats API error:", error);
+                setHasError(true);
+            } finally {
+                if (!controller.signal.aborted) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        void fetchImpactStats();
+
+        return () => controller.abort();
+    }, []);
+
+    // Avoid showing outdated hardcoded content if the API fails.
+    if (loading || hasError || stats.length === 0) {
+        return null;
+    }
+
     return (
         <section
             aria-labelledby="impact-stats-heading"
             className="relative z-20 w-full"
         >
-            {/* Accessible heading */}
-            <h2
-                id="impact-stats-heading"
-                className="sr-only"
-            >
+            <h2 id="impact-stats-heading" className="sr-only">
                 Our Impact
             </h2>
 
-            {/* Impact Card */}
-            <div
-                className="
-                    w-full
-                    overflow-hidden
-                    rounded-xl
-                    border
-                    border-[#E4BEBA]/40
-                    bg-[#FBF9F9]
-                    shadow-[0_18px_40px_rgba(0,0,0,0.10)]
+            <div className="mx-auto max-w-7xl px-4 py-12">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    {stats.map((stat) => {
+                        const IconComponent = stat.icon;
 
-                    lg:rounded-2xl
-                "
-            >
-                <div
-                    className="
-                        grid
-                        w-full
-                        grid-cols-1
-
-                        md:grid-cols-3
-                    "
-                >
-                    {IMPACT_STATS.map(
-                        ({
-                            value,
-                            title,
-                            description,
-                            icon: Icon,
-                            className,
-                            iconClassName,
-                            titleClassName,
-                            descriptionClassName,
-                        }) => (
-                            <article
-                                key={title}
-                                className={`
-                                    relative
-                                    flex
-                                    min-h-[175px]
-                                    flex-col
-                                    justify-between
-                                    gap-5
-                                    overflow-hidden
-                                    p-6
-
-                                    sm:min-h-[185px]
-                                    sm:p-7
-
-                                    md:min-h-[190px]
-                                    md:p-7
-
-                                    lg:min-h-[200px]
-                                    lg:p-8
-
-                                    xl:min-h-[210px]
-                                    xl:p-9
-
-                                    2xl:min-h-[220px]
-                                    2xl:p-10
-
-                                    ${className}
-                                `}
+                        return (
+                            <div
+                                key={stat.id}
+                                className={`flex flex-col gap-4 rounded-xl border border-[#E4BEBA]/40 p-8 shadow-[0_18px_40px_rgba(0,0,0,0.05)] transition-transform duration-300 hover:-translate-y-1 ${stat.className}`}
                             >
-                                {/* Decorative Circle */}
-                                <div
-                                    aria-hidden="true"
-                                    className="
-                                        pointer-events-none
-                                        absolute
-                                        -right-10
-                                        -top-10
-                                        h-28
-                                        w-28
-                                        rounded-full
-                                        border
-                                        border-white/10
-                                    "
-                                />
-
-                                {/* Top Row */}
-                                <div
-                                    className="
-                                        relative
-                                        z-10
-                                        flex
-                                        w-full
-                                        items-start
-                                        justify-between
-                                        gap-4
-                                    "
-                                >
-                                    <Icon
-                                        aria-hidden="true"
-                                        size={28}
-                                        className={`
-                                            shrink-0
-                                            opacity-90
-
-                                            sm:h-8
-                                            sm:w-8
-
-                                            lg:h-9
-                                            lg:w-9
-
-                                            2xl:h-10
-                                            2xl:w-10
-
-                                            ${iconClassName}
-                                        `}
-                                    />
-
-                                    <span
-                                        className="
-                                            text-2xl
-                                            font-bold
-                                            leading-8
-                                            tracking-[-0.4px]
-
-                                            sm:text-[26px]
-                                            sm:leading-9
-
-                                            lg:text-[28px]
-
-                                            2xl:text-3xl
-                                            2xl:leading-10
-                                        "
-                                    >
-                                        {value}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-4xl font-bold tracking-tight">
+                                        <RunningNumber
+                                            key={`${stat.id}-${stat.target}`}
+                                            target={stat.target}
+                                        />
+                                        {stat.suffix}
                                     </span>
+
+                                    <IconComponent
+                                        aria-hidden="true"
+                                        className={`text-3xl ${stat.iconClassName}`}
+                                    />
                                 </div>
 
-                                {/* Content */}
-                                <div
-                                    className="
-                                        relative
-                                        z-10
-                                        flex
-                                        flex-col
-                                        gap-1.5
-                                    "
-                                >
+                                <div>
                                     <h3
-                                        className={`
-                                            text-xs
-                                            font-semibold
-                                            uppercase
-                                            leading-5
-                                            tracking-[0.6px]
-
-                                            sm:text-sm
-                                            sm:tracking-[0.7px]
-
-                                            lg:text-[15px]
-
-                                            2xl:text-base
-                                            2xl:tracking-[0.8px]
-
-                                            ${titleClassName}
-                                        `}
+                                        className={`mb-2 text-xl font-semibold ${stat.titleClassName}`}
                                     >
-                                        {title}
+                                        {stat.title}
                                     </h3>
 
                                     <p
-                                        className={`
-                                            max-w-xl
-                                            text-sm
-                                            font-normal
-                                            leading-5
-
-                                            sm:text-[15px]
-                                            sm:leading-6
-
-                                            lg:text-base
-
-                                            2xl:text-[17px]
-                                            2xl:leading-7
-
-                                            ${descriptionClassName}
-                                        `}
+                                        className={`text-sm leading-relaxed ${stat.descriptionClassName}`}
                                     >
-                                        {description}
+                                        {stat.description}
                                     </p>
                                 </div>
-                            </article>
-                        )
-                    )}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </section>

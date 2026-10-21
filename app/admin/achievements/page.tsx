@@ -17,6 +17,7 @@ import {
     FaCalendarAlt,
     FaBuilding,
     FaImage,
+    FaPlus,
 } from "react-icons/fa";
 
 export interface AchievementAward {
@@ -43,6 +44,16 @@ interface EditFormData {
     is_active: boolean;
 }
 
+interface AddFormData {
+    title: string;
+    type: string;
+    description: string;
+    award_date: string;
+    issuing_organization: string;
+    website_url: string;
+    is_active: boolean;
+}
+
 function AchievementsAwardsList() {
     const [achievements, setAchievements] =
         useState<AchievementAward[]>([]);
@@ -56,11 +67,44 @@ function AchievementsAwardsList() {
     const [success, setSuccess] =
         useState("");
 
+    // --------------------------------------------------
     // View
+    // --------------------------------------------------
+
     const [selectedAchievement, setSelectedAchievement] =
         useState<AchievementAward | null>(null);
 
+    // --------------------------------------------------
+    // Add
+    // --------------------------------------------------
+
+    const [showAddForm, setShowAddForm] =
+        useState(false);
+
+    const [addForm, setAddForm] =
+        useState<AddFormData>({
+            title: "",
+            type: "",
+            description: "",
+            award_date: "",
+            issuing_organization: "",
+            website_url: "",
+            is_active: true,
+        });
+
+    const [addImage, setAddImage] =
+        useState<File | null>(null);
+
+    const [addImagePreview, setAddImagePreview] =
+        useState<string | null>(null);
+
+    const [addLoading, setAddLoading] =
+        useState(false);
+
+    // --------------------------------------------------
     // Edit
+    // --------------------------------------------------
+
     const [editingAchievement, setEditingAchievement] =
         useState<AchievementAward | null>(null);
 
@@ -84,13 +128,15 @@ function AchievementsAwardsList() {
     const [editLoading, setEditLoading] =
         useState(false);
 
+    // --------------------------------------------------
     // Delete
+    // --------------------------------------------------
+
     const [deletingAchievement, setDeletingAchievement] =
         useState<AchievementAward | null>(null);
 
     const [deleteLoading, setDeleteLoading] =
         useState(false);
-
 
     // --------------------------------------------------
     // Fetch achievements
@@ -106,7 +152,7 @@ function AchievementsAwardsList() {
                     "/api/acheivement_awards"
                 );
 
-            console.log(response.data)
+            console.log(response.data);
 
             if (response.data.success) {
                 setAchievements(
@@ -139,11 +185,9 @@ function AchievementsAwardsList() {
         }
     }
 
-
     useEffect(() => {
         fetchAchievements();
     }, []);
-
 
     // --------------------------------------------------
     // View modal
@@ -159,93 +203,97 @@ function AchievementsAwardsList() {
         setSelectedAchievement(null);
     }
 
-
     // --------------------------------------------------
-    // Edit modal
+    // Add modal
     // --------------------------------------------------
 
-    function openEditModal(
-        achievement: AchievementAward
-    ) {
-        setEditingAchievement(achievement);
-
-        setEditForm({
-            title: achievement.title || "",
-            type: achievement.type || "",
-            description:
-                achievement.description || "",
-            award_date:
-                achievement.award_date
-                    ? achievement.award_date.slice(0, 10)
-                    : "",
-            issuing_organization:
-                achievement.issuing_organization ||
-                "",
-            website_url:
-                achievement.website_url || "",
-            is_active:
-                achievement.is_active,
+    function openAddModal() {
+        setAddForm({
+            title: "",
+            type: "",
+            description: "",
+            award_date: "",
+            issuing_organization: "",
+            website_url: "",
+            is_active: true,
         });
 
-        setEditImage(null);
-        setEditImagePreview(
-            achievement.image_url || null
-        );
+        setAddImage(null);
+        setAddImagePreview(null);
 
         setError("");
         setSuccess("");
+
+        setShowAddForm(true);
     }
 
-    function closeEditModal() {
+    function closeAddModal() {
+        if (addLoading) {
+            return;
+        }
+
         if (
-            editImagePreview &&
-            editImagePreview.startsWith("blob:")
+            addImagePreview &&
+            addImagePreview.startsWith("blob:")
         ) {
             URL.revokeObjectURL(
-                editImagePreview
+                addImagePreview
             );
         }
 
-        setEditingAchievement(null);
-        setEditImage(null);
-        setEditImagePreview(null);
+        setShowAddForm(false);
+
+        setAddForm({
+            title: "",
+            type: "",
+            description: "",
+            award_date: "",
+            issuing_organization: "",
+            website_url: "",
+            is_active: true,
+        });
+
+        setAddImage(null);
+        setAddImagePreview(null);
     }
 
-
-    function handleEditChange(
+    function handleAddChange(
         event: ChangeEvent<
             HTMLInputElement |
                 HTMLTextAreaElement |
                 HTMLSelectElement
         >
     ) {
-        const { name, value } = event.target;
+        const {
+            name,
+            value,
+        } = event.target;
 
-        setEditForm((previous) => ({
+        setAddForm((previous) => ({
             ...previous,
             [name]: value,
         }));
     }
 
-
-    function handleEditActiveChange(
+    function handleAddActiveChange(
         event: ChangeEvent<HTMLInputElement>
     ) {
-        setEditForm((previous) => ({
+        setAddForm((previous) => ({
             ...previous,
             is_active:
                 event.target.checked,
         }));
     }
 
-
-    function handleEditImageChange(
+    function handleAddImageChange(
         event: ChangeEvent<HTMLInputElement>
     ) {
         const file =
             event.target.files?.[0];
 
-        if (!file) return;
+        if (!file) {
+            return;
+        }
 
         // 5MB limit
         if (
@@ -260,7 +308,289 @@ function AchievementsAwardsList() {
             return;
         }
 
-        if (!file.type.startsWith("image/")) {
+        if (
+            !file.type.startsWith(
+                "image/"
+            )
+        ) {
+            alert(
+                "Please select a valid image."
+            );
+
+            event.target.value = "";
+            return;
+        }
+
+        // Remove old preview
+        if (
+            addImagePreview &&
+            addImagePreview.startsWith("blob:")
+        ) {
+            URL.revokeObjectURL(
+                addImagePreview
+            );
+        }
+
+        const objectUrl =
+            URL.createObjectURL(file);
+
+        setAddImage(file);
+        setAddImagePreview(objectUrl);
+    }
+
+    async function handleAddSubmit(
+        event: FormEvent<HTMLFormElement>
+    ) {
+        event.preventDefault();
+
+        if (!addForm.title.trim()) {
+            alert(
+                "Achievement/Award title is required."
+            );
+
+            return;
+        }
+
+        if (!addForm.type.trim()) {
+            alert(
+                "Achievement/Award type is required."
+            );
+
+            return;
+        }
+
+        try {
+            setAddLoading(true);
+            setError("");
+            setSuccess("");
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "title",
+                addForm.title.trim()
+            );
+
+            formData.append(
+                "type",
+                addForm.type.trim()
+            );
+
+            formData.append(
+                "description",
+                addForm.description.trim()
+            );
+
+            formData.append(
+                "award_date",
+                addForm.award_date
+            );
+
+            formData.append(
+                "issuing_organization",
+                addForm.issuing_organization.trim()
+            );
+
+            formData.append(
+                "website_url",
+                addForm.website_url.trim()
+            );
+
+            formData.append(
+                "is_active",
+                String(addForm.is_active)
+            );
+
+            if (addImage) {
+                formData.append(
+                    "image",
+                    addImage
+                );
+            }
+
+            const response =
+                await axios.post(
+                    "/api/acheivement_awards",
+                    formData
+                );
+
+            if (response.data.success) {
+                const newAchievement =
+                    response.data.data;
+
+                setAchievements(
+                    (previous) => [
+                        newAchievement,
+                        ...previous,
+                    ]
+                );
+
+                setSuccess(
+                    "Achievement/Award added successfully."
+                );
+
+                closeAddModal();
+            } else {
+                setError(
+                    response.data.message ||
+                        "Failed to add achievement."
+                );
+            }
+        } catch (error) {
+            console.error(
+                "Error adding achievement:",
+                error
+            );
+
+            if (
+                axios.isAxiosError(
+                    error
+                )
+            ) {
+                setError(
+                    error.response?.data
+                        ?.message ||
+                        "Failed to add achievement."
+                );
+            } else {
+                setError(
+                    "Failed to add achievement."
+                );
+            }
+        } finally {
+            setAddLoading(false);
+        }
+    }
+
+    // --------------------------------------------------
+    // Edit modal
+    // --------------------------------------------------
+
+    function openEditModal(
+        achievement: AchievementAward
+    ) {
+        setEditingAchievement(
+            achievement
+        );
+
+        setEditForm({
+            title:
+                achievement.title ||
+                "",
+
+            type:
+                achievement.type ||
+                "",
+
+            description:
+                achievement.description ||
+                "",
+
+            award_date:
+                achievement.award_date
+                    ? achievement.award_date.slice(
+                          0,
+                          10
+                      )
+                    : "",
+
+            issuing_organization:
+                achievement.issuing_organization ||
+                "",
+
+            website_url:
+                achievement.website_url ||
+                "",
+
+            is_active:
+                achievement.is_active,
+        });
+
+        setEditImage(null);
+
+        setEditImagePreview(
+            achievement.image_url ||
+                null
+        );
+
+        setError("");
+        setSuccess("");
+    }
+
+    function closeEditModal() {
+        if (
+            editImagePreview &&
+            editImagePreview.startsWith(
+                "blob:"
+            )
+        ) {
+            URL.revokeObjectURL(
+                editImagePreview
+            );
+        }
+
+        setEditingAchievement(null);
+        setEditImage(null);
+        setEditImagePreview(null);
+    }
+
+    function handleEditChange(
+        event: ChangeEvent<
+            HTMLInputElement |
+                HTMLTextAreaElement |
+                HTMLSelectElement
+        >
+    ) {
+        const {
+            name,
+            value,
+        } = event.target;
+
+        setEditForm((previous) => ({
+            ...previous,
+            [name]: value,
+        }));
+    }
+
+    function handleEditActiveChange(
+        event: ChangeEvent<HTMLInputElement>
+    ) {
+        setEditForm((previous) => ({
+            ...previous,
+            is_active:
+                event.target.checked,
+        }));
+    }
+
+    function handleEditImageChange(
+        event: ChangeEvent<HTMLInputElement>
+    ) {
+        const file =
+            event.target.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+        // 5MB limit
+        if (
+            file.size >
+            5 * 1024 * 1024
+        ) {
+            alert(
+                "Image must be less than 5MB."
+            );
+
+            event.target.value = "";
+            return;
+        }
+
+        if (
+            !file.type.startsWith(
+                "image/"
+            )
+        ) {
             alert(
                 "Please select a valid image."
             );
@@ -272,7 +602,9 @@ function AchievementsAwardsList() {
         // Remove previous blob preview
         if (
             editImagePreview &&
-            editImagePreview.startsWith("blob:")
+            editImagePreview.startsWith(
+                "blob:"
+            )
         ) {
             URL.revokeObjectURL(
                 editImagePreview
@@ -283,21 +615,25 @@ function AchievementsAwardsList() {
             URL.createObjectURL(file);
 
         setEditImage(file);
-        setEditImagePreview(objectUrl);
+        setEditImagePreview(
+            objectUrl
+        );
     }
-
 
     async function handleEditSubmit(
         event: FormEvent<HTMLFormElement>
     ) {
         event.preventDefault();
 
-        if (!editingAchievement) return;
+        if (!editingAchievement) {
+            return;
+        }
 
         if (!editForm.title.trim()) {
             alert(
                 "Achievement/Award title is required."
             );
+
             return;
         }
 
@@ -305,6 +641,7 @@ function AchievementsAwardsList() {
             alert(
                 "Achievement/Award type is required."
             );
+
             return;
         }
 
@@ -379,8 +716,6 @@ function AchievementsAwardsList() {
                         )
                 );
 
-                // Update currently selected
-                // achievement if it is open.
                 if (
                     selectedAchievement?.id ===
                     updatedAchievement.id
@@ -402,9 +737,14 @@ function AchievementsAwardsList() {
                 error
             );
 
-            if (axios.isAxiosError(error)) {
+            if (
+                axios.isAxiosError(
+                    error
+                )
+            ) {
                 setError(
-                    error.response?.data?.message ||
+                    error.response?.data
+                        ?.message ||
                         "Failed to update achievement."
                 );
             } else {
@@ -416,7 +756,6 @@ function AchievementsAwardsList() {
             setEditLoading(false);
         }
     }
-
 
     // --------------------------------------------------
     // Delete
@@ -437,9 +776,10 @@ function AchievementsAwardsList() {
         setDeletingAchievement(null);
     }
 
-
     async function handleDelete() {
-        if (!deletingAchievement) return;
+        if (!deletingAchievement) {
+            return;
+        }
 
         try {
             setDeleteLoading(true);
@@ -485,9 +825,14 @@ function AchievementsAwardsList() {
                 error
             );
 
-            if (axios.isAxiosError(error)) {
+            if (
+                axios.isAxiosError(
+                    error
+                )
+            ) {
                 setError(
-                    error.response?.data?.message ||
+                    error.response?.data
+                        ?.message ||
                         "Failed to delete achievement."
                 );
             } else {
@@ -500,7 +845,6 @@ function AchievementsAwardsList() {
         }
     }
 
-
     // --------------------------------------------------
     // Date formatting
     // --------------------------------------------------
@@ -508,7 +852,9 @@ function AchievementsAwardsList() {
     function formatDate(
         date: string | null
     ) {
-        if (!date) return "—";
+        if (!date) {
+            return "—";
+        }
 
         return new Date(
             date
@@ -521,7 +867,6 @@ function AchievementsAwardsList() {
             }
         );
     }
-
 
     // --------------------------------------------------
     // Type formatting
@@ -539,7 +884,6 @@ function AchievementsAwardsList() {
             );
     }
 
-
     // --------------------------------------------------
     // Loading
     // --------------------------------------------------
@@ -552,13 +896,16 @@ function AchievementsAwardsList() {
         );
     }
 
-
     return (
         <>
-            <div className="w-full p-6 rounded-xl border border-base-200 bg-white shadow-sm">
+            <div className="w-full rounded-xl border border-base-200 bg-white p-6 shadow-sm">
 
-                {/* Header */}
+                {/* =====================================================
+                    HEADER
+                ===================================================== */}
+
                 <div className="flex flex-col gap-4 border-b border-base-200 p-5 sm:flex-row sm:items-center sm:justify-between">
+
                     <div>
                         <h2 className="text-xl font-semibold text-[#584140]">
                             Achievements & Awards
@@ -570,16 +917,33 @@ function AchievementsAwardsList() {
                         </p>
                     </div>
 
-                    <div className="badge badge-lg border-[#911824]/20 bg-[#911824]/10 text-[#911824]">
-                        {achievements.length}{" "}
-                        {achievements.length === 1
-                            ? "Record"
-                            : "Records"}
+                    <div className="flex flex-wrap items-center gap-3">
+
+                        <div className="badge badge-lg border-[#911824]/20 bg-[#911824]/10 text-[#911824]">
+                            {achievements.length}{" "}
+                            {achievements.length ===
+                            1
+                                ? "Record"
+                                : "Records"}
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={
+                                openAddModal
+                            }
+                            className="btn border-[#911824] bg-[#911824] text-white hover:border-[#86000D] hover:bg-[#86000D]"
+                        >
+                            <FaPlus />
+                            Add Achievement
+                        </button>
                     </div>
                 </div>
 
+                {/* =====================================================
+                    MESSAGES
+                ===================================================== */}
 
-                {/* Messages */}
                 {error && (
                     <div className="mx-5 mt-5 rounded-lg border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
                         {error}
@@ -592,10 +956,14 @@ function AchievementsAwardsList() {
                     </div>
                 )}
 
+                {/* =====================================================
+                    EMPTY STATE / TABLE
+                ===================================================== */}
 
-                {/* Empty state */}
-                {achievements.length === 0 ? (
+                {achievements.length ===
+                0 ? (
                     <div className="flex min-h-60 flex-col items-center justify-center p-6 text-center">
+
                         <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#911824]/10 text-[#911824]">
                             <FaTrophyIcon />
                         </div>
@@ -608,30 +976,58 @@ function AchievementsAwardsList() {
                             Add your first achievement
                             or award to display it here.
                         </p>
+
+                        <button
+                            type="button"
+                            onClick={
+                                openAddModal
+                            }
+                            className="btn mt-5 border-[#911824] bg-[#911824] text-white hover:border-[#86000D] hover:bg-[#86000D]"
+                        >
+                            <FaPlus />
+                            Add Achievement
+                        </button>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
+
                         <table className="table w-full">
 
                             {/* Table Head */}
                             <thead>
                                 <tr className="border-b border-base-200 text-[#584140]">
-                                    <th>Achievement</th>
-                                    <th>Type</th>
-                                    <th>Organization</th>
-                                    <th>Award Date</th>
-                                    <th>Status</th>
+                                    <th>
+                                        Achievement
+                                    </th>
+
+                                    <th>
+                                        Type
+                                    </th>
+
+                                    <th>
+                                        Organization
+                                    </th>
+
+                                    <th>
+                                        Award Date
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
                                     <th className="text-right">
                                         Actions
                                     </th>
                                 </tr>
                             </thead>
 
-
                             {/* Table Body */}
                             <tbody>
                                 {achievements.map(
-                                    (achievement) => (
+                                    (
+                                        achievement
+                                    ) => (
                                         <tr
                                             key={
                                                 achievement.id
@@ -665,8 +1061,8 @@ function AchievementsAwardsList() {
                                                         )}
                                                     </div>
 
-
                                                     <div className="min-w-0">
+
                                                         <p className="truncate font-medium text-[#584140]">
                                                             {
                                                                 achievement.title
@@ -684,7 +1080,6 @@ function AchievementsAwardsList() {
                                                 </div>
                                             </td>
 
-
                                             {/* Type */}
                                             <td>
                                                 <span className="badge border-[#911824]/20 bg-[#911824]/5 text-[#911824]">
@@ -694,10 +1089,10 @@ function AchievementsAwardsList() {
                                                 </span>
                                             </td>
 
-
                                             {/* Organization */}
                                             <td>
                                                 <div className="flex items-center gap-2 text-sm text-[#584140]">
+
                                                     <FaBuilding className="text-[#911824]/60" />
 
                                                     <span>
@@ -709,10 +1104,10 @@ function AchievementsAwardsList() {
                                                 </div>
                                             </td>
 
-
                                             {/* Date */}
                                             <td>
                                                 <div className="flex items-center gap-2 text-sm text-[#584140]">
+
                                                     <FaCalendarAlt className="text-[#911824]/60" />
 
                                                     <span>
@@ -722,7 +1117,6 @@ function AchievementsAwardsList() {
                                                     </span>
                                                 </div>
                                             </td>
-
 
                                             {/* Status */}
                                             <td>
@@ -736,7 +1130,6 @@ function AchievementsAwardsList() {
                                                     </span>
                                                 )}
                                             </td>
-
 
                                             {/* Actions */}
                                             <td>
@@ -756,7 +1149,6 @@ function AchievementsAwardsList() {
                                                         <FaEye />
                                                     </button>
 
-
                                                     {/* Edit */}
                                                     <button
                                                         type="button"
@@ -771,7 +1163,6 @@ function AchievementsAwardsList() {
                                                         <FaEdit />
                                                     </button>
 
-
                                                     {/* Delete */}
                                                     <button
                                                         type="button"
@@ -785,20 +1176,395 @@ function AchievementsAwardsList() {
                                                     >
                                                         <FaTrash />
                                                     </button>
-
                                                 </div>
                                             </td>
-
                                         </tr>
                                     )
                                 )}
                             </tbody>
-
                         </table>
                     </div>
                 )}
             </div>
 
+            {/* =====================================================
+                ADD ACHIEVEMENT MODAL
+            ===================================================== */}
+
+            {showAddForm && (
+                <div className="modal modal-open">
+
+                    <div className="modal-box max-w-3xl">
+
+                        {/* Header */}
+                        <div className="flex items-start justify-between gap-4">
+
+                            <div>
+                                <div className="flex items-center gap-3">
+
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#911824]/10 text-[#911824]">
+                                        <FaPlus />
+                                    </div>
+
+                                    <div>
+                                        <h3 className="text-xl font-bold text-[#584140]">
+                                            Add Achievement
+                                        </h3>
+
+                                        <p className="mt-1 text-sm text-[#584140]/60">
+                                            Add a new hospital
+                                            achievement,
+                                            award or
+                                            recognition.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={
+                                    closeAddModal
+                                }
+                                disabled={
+                                    addLoading
+                                }
+                                className="btn btn-sm btn-circle btn-ghost"
+                            >
+                                <FaTimes />
+                            </button>
+                        </div>
+
+                        {/* Add Form */}
+                        <form
+                            onSubmit={
+                                handleAddSubmit
+                            }
+                            className="mt-6 space-y-5"
+                        >
+
+                            {/* Title + Type */}
+                            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                                <div className="form-control">
+
+                                    <label className="label">
+                                        <span className="label-text font-medium text-[#584140]">
+                                            Title
+                                            <span className="ml-1 text-error">
+                                                *
+                                            </span>
+                                        </span>
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        value={
+                                            addForm.title
+                                        }
+                                        onChange={
+                                            handleAddChange
+                                        }
+                                        placeholder="e.g. Best Hospital Award"
+                                        className="input input-bordered w-full focus:border-[#911824] focus:outline-none"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-control">
+
+                                    <label className="label">
+                                        <span className="label-text font-medium text-[#584140]">
+                                            Type
+                                            <span className="ml-1 text-error">
+                                                *
+                                            </span>
+                                        </span>
+                                    </label>
+
+                                    <select
+                                        name="type"
+                                        value={
+                                            addForm.type
+                                        }
+                                        onChange={
+                                            handleAddChange
+                                        }
+                                        className="select select-bordered w-full focus:border-[#911824] focus:outline-none"
+                                        required
+                                    >
+                                        <option value="">
+                                            Select type
+                                        </option>
+
+                                        <option value="award">
+                                            Award
+                                        </option>
+
+                                        <option value="achievement">
+                                            Achievement
+                                        </option>
+
+                                        <option value="recognition">
+                                            Recognition
+                                        </option>
+
+                                        <option value="certification">
+                                            Certification
+                                        </option>
+
+                                        <option value="accreditation">
+                                            Accreditation
+                                        </option>
+
+                                        <option value="milestone">
+                                            Milestone
+                                        </option>
+
+                                        <option value="other">
+                                            Other
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Organization + Date */}
+                            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                                <div className="form-control">
+
+                                    <label className="label">
+                                        <span className="label-text font-medium text-[#584140]">
+                                            Issuing
+                                            Organization
+                                        </span>
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="issuing_organization"
+                                        value={
+                                            addForm.issuing_organization
+                                        }
+                                        onChange={
+                                            handleAddChange
+                                        }
+                                        placeholder="e.g. Punjab Healthcare Commission"
+                                        className="input input-bordered w-full focus:border-[#911824] focus:outline-none"
+                                    />
+                                </div>
+
+                                <div className="form-control">
+
+                                    <label className="label">
+                                        <span className="label-text font-medium text-[#584140]">
+                                            Award Date
+                                        </span>
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        name="award_date"
+                                        value={
+                                            addForm.award_date
+                                        }
+                                        onChange={
+                                            handleAddChange
+                                        }
+                                        className="input input-bordered w-full focus:border-[#911824] focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Website */}
+                            <div className="form-control">
+
+                                <label className="label">
+                                    <span className="label-text font-medium text-[#584140]">
+                                        Website URL
+                                    </span>
+                                </label>
+
+                                <input
+                                    type="url"
+                                    name="website_url"
+                                    value={
+                                        addForm.website_url
+                                    }
+                                    onChange={
+                                        handleAddChange
+                                    }
+                                    placeholder="https://example.com"
+                                    className="input input-bordered w-full focus:border-[#911824] focus:outline-none"
+                                />
+                            </div>
+
+                            {/* Description */}
+                            <div className="form-control">
+
+                                <label className="label">
+                                    <span className="label-text font-medium text-[#584140]">
+                                        Description
+                                    </span>
+                                </label>
+
+                                <textarea
+                                    name="description"
+                                    value={
+                                        addForm.description
+                                    }
+                                    onChange={
+                                        handleAddChange
+                                    }
+                                    rows={4}
+                                    placeholder="Describe this achievement or award..."
+                                    className="textarea textarea-bordered w-full resize-y focus:border-[#911824] focus:outline-none"
+                                />
+                            </div>
+
+                            {/* Image */}
+                            <div className="form-control">
+
+                                <label className="label">
+                                    <span className="label-text font-medium text-[#584140]">
+                                        Achievement
+                                        Image
+                                    </span>
+                                </label>
+
+                                <input
+                                    type="file"
+                                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                                    onChange={
+                                        handleAddImageChange
+                                    }
+                                    className="file-input file-input-bordered w-full"
+                                />
+
+                                <p className="mt-2 text-xs text-[#584140]/50">
+                                    PNG, JPG, JPEG or
+                                    WebP. Maximum
+                                    size: 5MB.
+                                </p>
+
+                                {addImagePreview && (
+                                    <div className="mt-4">
+
+                                        <p className="mb-2 text-sm font-medium text-[#584140]">
+                                            Image Preview
+                                        </p>
+
+                                        <div className="relative h-36 w-full overflow-hidden rounded-xl border border-base-200 bg-[#FBF9F9] sm:w-52">
+
+                                            <img
+                                                src={
+                                                    addImagePreview
+                                                }
+                                                alt="Achievement preview"
+                                                className="h-full w-full object-contain p-3"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {!addImagePreview && (
+                                    <div className="mt-4 flex h-24 w-full items-center justify-center rounded-xl border border-dashed border-base-300 bg-[#FBF9F9] text-[#584140]/40 sm:w-52">
+
+                                        <div className="text-center">
+
+                                            <FaImage className="mx-auto text-xl" />
+
+                                            <p className="mt-1 text-xs">
+                                                No image
+                                                selected
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Active */}
+                            <div className="rounded-xl border border-base-200 bg-[#FBF9F9] p-4">
+
+                                <label className="flex cursor-pointer items-center justify-between gap-4">
+
+                                    <div>
+                                        <p className="font-medium text-[#584140]">
+                                            Active
+                                            Achievement
+                                        </p>
+
+                                        <p className="mt-1 text-sm text-[#584140]/60">
+                                            Active records
+                                            are displayed
+                                            on the public
+                                            website.
+                                        </p>
+                                    </div>
+
+                                    <input
+                                        type="checkbox"
+                                        checked={
+                                            addForm.is_active
+                                        }
+                                        onChange={
+                                            handleAddActiveChange
+                                        }
+                                        className="toggle border-[#911824] bg-white checked:bg-[#911824]"
+                                    />
+                                </label>
+                            </div>
+
+                            {/* Buttons */}
+                            <div className="flex flex-col-reverse gap-3 border-t border-base-200 pt-5 sm:flex-row sm:justify-end">
+
+                                <button
+                                    type="button"
+                                    onClick={
+                                        closeAddModal
+                                    }
+                                    disabled={
+                                        addLoading
+                                    }
+                                    className="btn btn-outline"
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    disabled={
+                                        addLoading
+                                    }
+                                    className="btn border-[#911824] bg-[#911824] text-white hover:border-[#86000D] hover:bg-[#86000D]"
+                                >
+                                    {addLoading ? (
+                                        <>
+                                            <span className="loading loading-spinner loading-sm" />
+                                            Adding...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FaPlus />
+                                            Add Achievement
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div
+                        className="modal-backdrop"
+                        onClick={() => {
+                            if (!addLoading) {
+                                closeAddModal();
+                            }
+                        }}
+                    />
+                </div>
+            )}
 
             {/* =====================================================
                 VIEW MODAL
@@ -806,10 +1572,12 @@ function AchievementsAwardsList() {
 
             {selectedAchievement && (
                 <div className="modal modal-open">
+
                     <div className="modal-box max-w-2xl">
 
                         {/* Header */}
                         <div className="flex items-start justify-between gap-4">
+
                             <div>
                                 <h3 className="text-xl font-bold text-[#584140]">
                                     {
@@ -834,10 +1602,10 @@ function AchievementsAwardsList() {
                             </button>
                         </div>
 
-
                         {/* Image */}
                         {selectedAchievement.image_url && (
                             <div className="relative mt-6 h-56 w-full overflow-hidden rounded-xl border border-base-200 bg-[#FBF9F9]">
+
                                 <Image
                                     src={
                                         selectedAchievement.image_url
@@ -852,11 +1620,11 @@ function AchievementsAwardsList() {
                             </div>
                         )}
 
-
                         {/* Details */}
                         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
 
                             <div className="rounded-lg bg-[#FBF9F9] p-4">
+
                                 <p className="text-xs text-[#584140]/50">
                                     Type
                                 </p>
@@ -868,8 +1636,8 @@ function AchievementsAwardsList() {
                                 </p>
                             </div>
 
-
                             <div className="rounded-lg bg-[#FBF9F9] p-4">
+
                                 <p className="text-xs text-[#584140]/50">
                                     Award Date
                                 </p>
@@ -881,8 +1649,8 @@ function AchievementsAwardsList() {
                                 </p>
                             </div>
 
-
                             <div className="rounded-lg bg-[#FBF9F9] p-4">
+
                                 <p className="text-xs text-[#584140]/50">
                                     Issuing Organization
                                 </p>
@@ -895,8 +1663,8 @@ function AchievementsAwardsList() {
                                 </p>
                             </div>
 
-
                             <div className="rounded-lg bg-[#FBF9F9] p-4">
+
                                 <p className="text-xs text-[#584140]/50">
                                     Status
                                 </p>
@@ -907,13 +1675,12 @@ function AchievementsAwardsList() {
                                         : "Inactive"}
                                 </p>
                             </div>
-
                         </div>
-
 
                         {/* Description */}
                         {selectedAchievement.description && (
                             <div className="mt-5">
+
                                 <p className="text-sm font-semibold text-[#584140]">
                                     Description
                                 </p>
@@ -926,10 +1693,10 @@ function AchievementsAwardsList() {
                             </div>
                         )}
 
-
                         {/* Website */}
                         {selectedAchievement.website_url && (
                             <div className="mt-5">
+
                                 <a
                                     href={
                                         selectedAchievement.website_url
@@ -939,14 +1706,15 @@ function AchievementsAwardsList() {
                                     className="inline-flex items-center gap-2 text-sm font-medium text-[#911824] hover:underline"
                                 >
                                     Visit Website
+
                                     <FaExternalLinkAlt className="text-xs" />
                                 </a>
                             </div>
                         )}
 
-
                         {/* Footer */}
                         <div className="modal-action">
+
                             <button
                                 type="button"
                                 onClick={
@@ -972,7 +1740,6 @@ function AchievementsAwardsList() {
                                 Edit
                             </button>
                         </div>
-
                     </div>
 
                     <div
@@ -984,17 +1751,18 @@ function AchievementsAwardsList() {
                 </div>
             )}
 
-
             {/* =====================================================
                 EDIT MODAL
             ===================================================== */}
 
             {editingAchievement && (
                 <div className="modal modal-open">
+
                     <div className="modal-box max-w-3xl">
 
                         {/* Header */}
                         <div className="flex items-start justify-between gap-4">
+
                             <div>
                                 <h3 className="text-xl font-bold text-[#584140]">
                                     Edit Achievement
@@ -1020,7 +1788,6 @@ function AchievementsAwardsList() {
                             </button>
                         </div>
 
-
                         <form
                             onSubmit={
                                 handleEditSubmit
@@ -1032,9 +1799,11 @@ function AchievementsAwardsList() {
                             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
 
                                 <div className="form-control">
+
                                     <label className="label">
                                         <span className="label-text font-medium text-[#584140]">
                                             Title
+
                                             <span className="ml-1 text-error">
                                                 *
                                             </span>
@@ -1055,11 +1824,12 @@ function AchievementsAwardsList() {
                                     />
                                 </div>
 
-
                                 <div className="form-control">
+
                                     <label className="label">
                                         <span className="label-text font-medium text-[#584140]">
                                             Type
+
                                             <span className="ml-1 text-error">
                                                 *
                                             </span>
@@ -1110,17 +1880,17 @@ function AchievementsAwardsList() {
                                         </option>
                                     </select>
                                 </div>
-
                             </div>
-
 
                             {/* Organization + Date */}
                             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
 
                                 <div className="form-control">
+
                                     <label className="label">
                                         <span className="label-text font-medium text-[#584140]">
-                                            Issuing Organization
+                                            Issuing
+                                            Organization
                                         </span>
                                     </label>
 
@@ -1138,8 +1908,8 @@ function AchievementsAwardsList() {
                                     />
                                 </div>
 
-
                                 <div className="form-control">
+
                                     <label className="label">
                                         <span className="label-text font-medium text-[#584140]">
                                             Award Date
@@ -1158,12 +1928,11 @@ function AchievementsAwardsList() {
                                         className="input input-bordered w-full focus:border-[#911824] focus:outline-none"
                                     />
                                 </div>
-
                             </div>
-
 
                             {/* Website */}
                             <div className="form-control">
+
                                 <label className="label">
                                     <span className="label-text font-medium text-[#584140]">
                                         Website URL
@@ -1184,9 +1953,9 @@ function AchievementsAwardsList() {
                                 />
                             </div>
 
-
                             {/* Description */}
                             <div className="form-control">
+
                                 <label className="label">
                                     <span className="label-text font-medium text-[#584140]">
                                         Description
@@ -1207,12 +1976,13 @@ function AchievementsAwardsList() {
                                 />
                             </div>
 
-
                             {/* Image */}
                             <div className="form-control">
+
                                 <label className="label">
                                     <span className="label-text font-medium text-[#584140]">
-                                        Achievement Image
+                                        Achievement
+                                        Image
                                     </span>
                                 </label>
 
@@ -1231,32 +2001,46 @@ function AchievementsAwardsList() {
                                     size: 5MB.
                                 </p>
 
-
                                 {editImagePreview && (
                                     <div className="mt-4">
+
                                         <p className="mb-2 text-sm font-medium text-[#584140]">
                                             Image Preview
                                         </p>
 
                                         <div className="relative h-36 w-full overflow-hidden rounded-xl border border-base-200 bg-[#FBF9F9] sm:w-52">
-                                            <Image
-                                                src={
-                                                    editImagePreview
-                                                }
-                                                alt="Achievement preview"
-                                                fill
-                                                sizes="208px"
-                                                className="object-contain p-3"
-                                            />
+
+                                            {editImagePreview.startsWith(
+                                                "blob:"
+                                            ) ? (
+                                                <img
+                                                    src={
+                                                        editImagePreview
+                                                    }
+                                                    alt="Achievement preview"
+                                                    className="h-full w-full object-contain p-3"
+                                                />
+                                            ) : (
+                                                <Image
+                                                    src={
+                                                        editImagePreview
+                                                    }
+                                                    alt="Achievement preview"
+                                                    fill
+                                                    sizes="208px"
+                                                    className="object-contain p-3"
+                                                />
+                                            )}
                                         </div>
                                     </div>
                                 )}
                             </div>
 
-
                             {/* Active */}
                             <div className="rounded-xl border border-base-200 bg-[#FBF9F9] p-4">
+
                                 <label className="flex cursor-pointer items-center justify-between gap-4">
+
                                     <div>
                                         <p className="font-medium text-[#584140]">
                                             Active Achievement
@@ -1282,7 +2066,6 @@ function AchievementsAwardsList() {
                                     />
                                 </label>
                             </div>
-
 
                             {/* Buttons */}
                             <div className="flex flex-col-reverse gap-3 border-t border-base-200 pt-5 sm:flex-row sm:justify-end">
@@ -1319,9 +2102,7 @@ function AchievementsAwardsList() {
                                         </>
                                     )}
                                 </button>
-
                             </div>
-
                         </form>
                     </div>
 
@@ -1336,13 +2117,13 @@ function AchievementsAwardsList() {
                 </div>
             )}
 
-
             {/* =====================================================
                 DELETE MODAL
             ===================================================== */}
 
             {deletingAchievement && (
                 <div className="modal modal-open">
+
                     <div className="modal-box max-w-md">
 
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-error/10 text-error">
@@ -1364,7 +2145,6 @@ function AchievementsAwardsList() {
                             ? This action cannot be
                             undone.
                         </p>
-
 
                         <div className="modal-action">
 
@@ -1403,9 +2183,7 @@ function AchievementsAwardsList() {
                                     </>
                                 )}
                             </button>
-
                         </div>
-
                     </div>
 
                     <div
@@ -1422,11 +2200,11 @@ function AchievementsAwardsList() {
     );
 }
 
-
 /*
  * Small trophy icon component.
  * Kept separate so the main component stays readable.
  */
+
 function FaTrophyIcon() {
     return (
         <span className="text-xl">
@@ -1434,6 +2212,5 @@ function FaTrophyIcon() {
         </span>
     );
 }
-
 
 export default AchievementsAwardsList;

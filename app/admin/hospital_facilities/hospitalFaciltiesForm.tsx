@@ -303,6 +303,8 @@ function HospitalFacilitiesForm({
         }
     };
 
+
+
     /*
     |--------------------------------------------------------------------------
     | Submit
@@ -424,7 +426,7 @@ function HospitalFacilitiesForm({
 
                 setError(
                     response.data.message ||
-                        "Failed to create hospital facility."
+                    "Failed to create hospital facility."
                 );
 
                 return;
@@ -454,7 +456,7 @@ function HospitalFacilitiesForm({
 
             setError(
                 response.data.message ||
-                    "Failed to update hospital facility."
+                "Failed to update hospital facility."
             );
         } catch (error: any) {
             console.error(
@@ -464,9 +466,9 @@ function HospitalFacilitiesForm({
 
             setError(
                 error?.response?.data?.message ||
-                    (isEditMode
-                        ? "Failed to update hospital facility."
-                        : "Failed to create hospital facility.")
+                (isEditMode
+                    ? "Failed to update hospital facility."
+                    : "Failed to create hospital facility.")
             );
         } finally {
             setLoading(false);
@@ -786,7 +788,7 @@ function HospitalFacilitiesForm({
                                             );
                                             setExistingImage(
                                                 editFacility?.image_url ||
-                                                    null
+                                                null
                                             );
                                         }}
                                         className="mt-2 text-xs font-medium text-[#911824] underline"

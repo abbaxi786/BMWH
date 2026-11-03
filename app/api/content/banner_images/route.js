@@ -161,10 +161,11 @@ export async function GET() {
 }
 
 
-// DELETE: Remove banner image from Cloudinary and database
+
+// DELETE: Remove banner image from Cloudinary (if applicable) and database
 export async function DELETE(request) {
     try {
-        // Authenticate admin
+        // 1. Authenticate admin
         const admin = await requireAdmin();
 
         if (!admin) {
@@ -177,7 +178,7 @@ export async function DELETE(request) {
             );
         }
 
-        // Read image ID from query string
+        // 2. Validate image ID
         const { searchParams } = new URL(request.url);
         const idParam = searchParams.get("id");
 
@@ -203,7 +204,7 @@ export async function DELETE(request) {
             );
         }
 
-        // Find the image before deleting anything
+        // 3. Find the existing banner image
         const existing = await sql`
             SELECT id, src
             FROM bannerImages
@@ -223,17 +224,31 @@ export async function DELETE(request) {
 
         const imageUrl = existing[0].src;
 
-        // Delete from Cloudinary first.
-        // This assumes your helper accepts the stored image URL.
-        const cloudinaryResult =
-            await deleteFileFromCloudinary(imageUrl);
+        // 4. Delete from Cloudinary only if this is a Cloudinary URL
+        const isCloudinaryUrl =
+            typeof imageUrl === "string" &&
+            /^https?:\/\/res\.cloudinary\.com\//i.test(imageUrl);
 
-        // If your helper returns false on failure, do not delete the DB row.
-        if (cloudinaryResult === false) {
-            throw new Error("Cloudinary image deletion failed");
+        if (isCloudinaryUrl) {
+            const cloudinaryResult =
+                await deleteFileFromCloudinary(imageUrl);
+
+            // Cloudinary destroy() returns result: "ok" or "not found".
+            // "not found" means the asset is already absent.
+            if (
+                cloudinaryResult &&
+                cloudinaryResult.result &&
+                !["ok", "not found"].includes(
+                    cloudinaryResult.result
+                )
+            ) {
+                throw new Error(
+                    `Cloudinary deletion failed: ${cloudinaryResult.result}`
+                );
+            }
         }
 
-        // Delete the database record after Cloudinary deletion succeeds
+        // 5. Delete the database row
         const deleted = await sql`
             DELETE FROM bannerImages
             WHERE id = ${id}
@@ -244,17 +259,19 @@ export async function DELETE(request) {
             return NextResponse.json(
                 {
                     success: false,
-                    message:
-                        "The Cloudinary image was deleted, but the database record could not be deleted.",
+                    message: "Failed to delete the banner image record",
                 },
                 { status: 500 }
             );
         }
 
+        // 6. Return success
         return NextResponse.json(
             {
                 success: true,
-                message: "Banner image deleted successfully",
+                message: isCloudinaryUrl
+                    ? "Banner image deleted successfully"
+                    : "Banner image record deleted successfully. The local image file was not deleted.",
                 data: {
                     id: deleted[0].id,
                 },

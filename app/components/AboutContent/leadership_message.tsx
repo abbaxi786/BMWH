@@ -1,539 +1,304 @@
-import Image from "next/image"
-import {
-    FaQuoteLeft,
-    FaHandHoldingHeart,
-} from "react-icons/fa"
+import Image from "next/image";
+import { getLeadershipMessages as fetchLeadershipMessages } from "@/lib/data/aboutSectionQuery/TopLearderShip";
+import { FaQuoteLeft, FaHandHoldingHeart } from "react-icons/fa";
 
-const chairmanMessage = {
-    name: "Sohail Iqbal",
-    designation: "Chairman, Bashir Memorial Welfare Hospital",
-    image: "/person/sohail-iqbal.jpg",
-    message: [
-        `Welcome to Bashir Memorial Welfare Hospital, where our commitment to excellence is matched by our dedication to serving humanity.`,
+export const dynamic = "force-static";
 
-        `Since its humble beginnings, Bashir Memorial Welfare Hospital has grown into a trusted healthcare institution. This progress reflects the vision of our founders, the trust of our community, and the unwavering dedication of our doctors, nurses, and staff, who work tirelessly to deliver safe, compassionate, and high-quality care.`,
+type LeaderKey = "chairman" | "president";
 
-        `As Chairman, my priority is to ensure that Bashir Memorial Welfare Hospital continues to evolve with the changing needs of healthcare. We are committed to strengthening our clinical services, investing in advanced medical technology, expanding specialized care, and upholding the highest standards of patient safety and excellence. Every step we take is guided by our belief that quality healthcare should be accessible, ethical, and patient-centered.`,
+type LeadershipMessage = {
+    id: number;
+    leader_key: LeaderKey;
+    name: string;
+    designation: string;
+    image: string;
+    section_label: string;
+    heading: string;
+    signature_text: string;
+    message: string[] | string;
+    quranic_verse: string | null;
+    quranic_translation: string | null;
+    quranic_reference: string | null;
+    is_active: boolean;
+};
 
-        `Our achievements would not have been possible without the confidence and generosity of our donors, partners, and well-wishers. Your continued support enables us to invest in better facilities, enhance our services, and extend quality healthcare to those who need it most.`,
+type DatabaseLeadershipRecord = Record<string, any>;
 
-        `As we look ahead, we remain focused on building a stronger, more innovative healthcare institution—one that continues to earn the trust of our patients while making a lasting contribution to the health and well-being of our communities.`,
+function normalizeMessage(
+    message: string[] | string | null | undefined
+): string[] {
+    if (Array.isArray(message)) {
+        return message.filter(
+            (paragraph): paragraph is string =>
+                typeof paragraph === "string" && paragraph.trim().length > 0
+        );
+    }
 
-        `Thank you for being part of this journey. Together, we will continue to build a healthier future with compassion, excellence, and purpose.`,
-    ],
+    if (typeof message === "string") {
+        try {
+            const parsed: unknown = JSON.parse(message);
+
+            if (Array.isArray(parsed)) {
+                return parsed.filter(
+                    (paragraph): paragraph is string =>
+                        typeof paragraph === "string" &&
+                        paragraph.trim().length > 0
+                );
+            }
+        } catch {
+            // Treat a regular string as a single paragraph.
+        }
+
+        return message.trim() ? [message] : [];
+    }
+
+    return [];
 }
 
-const presidentMessage = {
-    name: "Sohaib Afzal",
-    designation: "President, Bashir Memorial Welfare Hospital",
-    image: "/images/about/president.jpg",
-    message: [
-        `It is a privilege to welcome you to Bashir Memorial Welfare Hospital, where faith, compassion, and service come together to bring hope and healing to those in need.`,
+function normalizeLeaderKey(value: unknown): LeaderKey | null {
+    if (value === "chairman" || value === "president") {
+        return value;
+    }
 
-        `Our institution was founded on an inspiring vision of serving humanity, believing that quality healthcare should never be beyond the reach of anyone because of financial hardship. This enduring legacy continues to guide our mission of delivering care with dignity, compassion, and excellence.`,
-
-        `Every day, our dedicated doctors, nurses, and healthcare professionals care for patients with the understanding that while we provide treatment, true healing comes from Allah.`,
-    ],
+    return null;
 }
 
-const containerClass = `
-    mx-auto
-    w-full
-    max-w-7xl
-    px-5
-    sm:px-8
-    lg:px-10
-    xl:px-12
-    2xl:max-w-[1440px]
-    2xl:px-16
-    3xl:max-w-[1600px]
-`
+async function getPublicLeadershipMessages(): Promise<LeadershipMessage[]> {
+    try {
+        const records: DatabaseLeadershipRecord[] =
+            await fetchLeadershipMessages(false);
 
-export default function LeadershipMessages() {
+        return records
+            .filter(
+                (leader) =>
+                    leader.is_active === true &&
+                    normalizeLeaderKey(leader.leader_key) !== null
+            )
+            .map((leader): LeadershipMessage => ({
+                id: Number(leader.id),
+                leader_key: normalizeLeaderKey(leader.leader_key)!,
+                name: String(leader.name ?? ""),
+                designation: String(leader.designation ?? ""),
+                image: String(leader.image ?? ""),
+                section_label: String(leader.section_label ?? ""),
+                heading: String(leader.heading ?? ""),
+                signature_text: String(leader.signature_text ?? ""),
+                message: normalizeMessage(leader.message),
+                quranic_verse: leader.quranic_verse ?? null,
+                quranic_translation: leader.quranic_translation ?? null,
+                quranic_reference: leader.quranic_reference ?? null,
+                is_active: leader.is_active === true,
+            }));
+    } catch (error) {
+        console.error("Error fetching leadership messages:", error);
+        return [];
+    }
+}
+
+function getImagePath(image: string | null | undefined): string {
+    return image?.trim() || "/images/founder.jpeg";
+}
+
+function ChairmanCard({ leader }: { leader: LeadershipMessage }) {
+    const paragraphs = normalizeMessage(leader.message);
+
     return (
-        <section
-            id="leadership-messages"
-            className="
-                scroll-mt-28
-                w-full
-                bg-white
-                py-16
-                sm:py-20
-                lg:py-24
-                xl:py-28
-                2xl:py-32
-            "
-        >
-            <div className={containerClass}>
+        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
+            {/* Chairman Image */}
+            <div className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl bg-[#F7ECEE]">
+                <Image
+                    src={getImagePath(leader.image)}
+                    alt={leader.name || "Chairman"}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover object-top"
+                />
+            </div>
 
-                {/* ==================================================
-                    SECTION HEADER
-                ================================================== */}
+            {/* Chairman Message */}
+            <div className="py-2">
+                <div className="mb-5 flex items-center gap-3">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F7E8EA] text-[#911824]">
+                        <FaQuoteLeft size={18} />
+                    </span>
 
-                <div
-                    className="
-                        mx-auto
-                        mb-12
-                        max-w-3xl
-                        text-center
-                        sm:mb-14
-                        lg:mb-16
-                        xl:mb-18
-                        2xl:mb-20
-                    "
-                >
-                    <div className="mb-4 flex items-center justify-center gap-3 text-xs font-bold uppercase tracking-[0.15em] text-[#911824] sm:text-sm">
-                        <span className="h-0.5 w-7 bg-[#911824] sm:w-8" />
+                    <span className="text-sm font-semibold uppercase tracking-wider text-[#911824]">
+                        {leader.section_label || "Chairman's Message"}
+                    </span>
+                </div>
 
-                        Leadership Messages
+                <h2 className="mb-5 text-2xl font-bold leading-snug text-black sm:text-3xl">
+                    {leader.heading || "A Message from Our Chairman"}
+                </h2>
 
-                        <span className="h-0.5 w-7 bg-[#911824] sm:w-8" />
+                <div className="space-y-4 text-base leading-8 text-gray-600">
+                    {paragraphs.map((paragraph, index) => (
+                        <p key={`${leader.id}-paragraph-${index}`}>
+                            {paragraph}
+                        </p>
+                    ))}
+                </div>
+
+                <div className="mt-7 border-l-4 border-[#911824] pl-4">
+                    <p className="font-semibold text-[#421017]">
+                        {leader.name}
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                        {leader.designation || "Chairman"}
+                    </p>
+
+                    {leader.signature_text && (
+                        <p className="mt-3 font-serif text-xl italic text-[#911824]">
+                            {leader.signature_text}
+                        </p>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function PresidentCard({ leader }: { leader: LeadershipMessage }) {
+    const paragraphs = normalizeMessage(leader.message);
+
+    const hasQuranicContent = Boolean(
+        leader.quranic_verse ||
+            leader.quranic_translation ||
+            leader.quranic_reference
+    );
+
+    return (
+        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
+            {/* President Message */}
+            <div className="order-2 py-2 lg:order-1">
+                <div className="mb-5 flex items-center gap-3">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F7E8EA] text-[#911824]">
+                        <FaHandHoldingHeart size={20} />
+                    </span>
+
+                    <span className="text-sm font-semibold uppercase tracking-wider text-[#911824]">
+                        {leader.section_label || "President's Message"}
+                    </span>
+                </div>
+
+                <h2 className="mb-5 text-2xl font-bold leading-snug text-[#421017] sm:text-3xl">
+                    {leader.heading || "A Message from Our President"}
+                </h2>
+
+                <div className="space-y-4 text-base leading-8 text-gray-600">
+                    {paragraphs.map((paragraph, index) => (
+                        <p key={`${leader.id}-paragraph-${index}`}>
+                            {paragraph}
+                        </p>
+                    ))}
+                </div>
+
+                {/* Quranic Content */}
+                {hasQuranicContent && (
+                    <div className="mt-7 rounded-xl border border-[#EBD4D7] bg-[#FCF6F6] p-5">
+                        {leader.quranic_verse && (
+                            <p
+                                dir="rtl"
+                                lang="ar"
+                                className="text-right font-serif text-2xl leading-loose text-[#911824]"
+                            >
+                                {leader.quranic_verse}
+                            </p>
+                        )}
+
+                        {leader.quranic_translation && (
+                            <p className="mt-3 text-sm italic leading-7 text-gray-600">
+                                “{leader.quranic_translation}”
+                            </p>
+                        )}
+
+                        {leader.quranic_reference && (
+                            <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-[#911824]">
+                                {leader.quranic_reference}
+                            </p>
+                        )}
                     </div>
+                )}
 
-                    <h2
-                        className="
-                            text-3xl
-                            font-bold
-                            leading-tight
-                            text-[#1B1C1C]
-                            sm:text-4xl
-                            lg:text-5xl
-                            xl:text-[3.25rem]
-                            2xl:text-[3.5rem]
-                        "
-                    >
-                        A Message From Our Leadership
-                    </h2>
+                <div className="mt-7 border-l-4 border-[#911824] pl-4">
+                    <p className="font-semibold text-[#421017]">
+                        {leader.name}
+                    </p>
 
-                    <p
-                        className="
-                            mx-auto
-                            mt-5
-                            max-w-2xl
-                            text-sm
-                            leading-7
-                            text-[#5B403D]
-                            sm:text-base
-                            lg:mt-6
-                            lg:leading-8
-                        "
-                    >
-                        Our leadership remains committed to strengthening
-                        healthcare services while keeping compassion,
-                        integrity, and patient welfare at the heart of
-                        everything we do.
+                    <p className="mt-1 text-sm text-gray-500">
+                        {leader.designation || "President"}
+                    </p>
+
+                    {leader.signature_text && (
+                        <p className="mt-3 font-serif text-xl italic text-[#911824]">
+                            {leader.signature_text}
+                        </p>
+                    )}
+                </div>
+            </div>
+
+            {/* President Image */}
+            <div className="relative order-1 mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl bg-[#F7ECEE] lg:order-2">
+                <Image
+                    src={getImagePath(leader.image)}
+                    alt={leader.name || "President"}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover object-top"
+                />
+            </div>
+        </div>
+    );
+}
+
+export default async function LeadershipMessages() {
+    const leaders = await getPublicLeadershipMessages();
+
+    const chairman = leaders.find(
+        (leader) => leader.leader_key === "chairman"
+    );
+
+    const president = leaders.find(
+        (leader) => leader.leader_key === "president"
+    );
+
+    if (!chairman && !president) {
+        return null;
+    }
+
+    return (
+        <section className="w-full bg-[#FFFBFB] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+            <div className="mx-auto max-w-7xl">
+                {/* Section Heading */}
+                <div className="mx-auto mb-14 max-w-3xl text-center sm:mb-20">
+                    <span className="text-sm font-semibold uppercase tracking-[0.2em] text-[#911824]">
+                        Our Leadership
+                    </span>
+
+                    <h1 className="mt-4 text-3xl font-bold leading-tight text-black sm:text-4xl lg:text-5xl">
+                        Messages from Our Leadership
+                    </h1>
+
+                    <div className="mx-auto mt-5 h-1 w-20 rounded-full bg-[#911824]" />
+
+                    <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg sm:leading-8">
+                        Our leadership is committed to compassionate service,
+                        accessible healthcare, and improving the well-being of
+                        our community.
                     </p>
                 </div>
 
-                {/* ==================================================
-                    CHAIRMAN MESSAGE
-                ================================================== */}
-
-                <article
-                    id="chairman-message"
-                    className="
-                        mb-8
-                        overflow-hidden
-                        rounded-2xl
-                        border
-                        border-[#E4BEBA]/40
-                        bg-[#FBF9F9]
-                        shadow-[0_8px_35px_rgba(134,0,13,0.06)]
-                        sm:mb-10
-                        sm:rounded-3xl
-                        lg:mb-12
-                        xl:mb-14
-                    "
-                >
-                    <div
-                        className="
-                            grid
-                            items-start
-                            lg:grid-cols-[0.42fr_0.58fr]
-                        "
-                    >
-
-                        {/* ==================================================
-                            CHAIRMAN IMAGE - STICKY
-                        ================================================== */}
-
-                        <div
-                            className="
-                                p-4
-                                sm:p-6
-                                lg:sticky
-                                lg:top-28
-                                lg:self-start
-                                lg:p-8
-                                xl:p-10
-                                2xl:p-12
-                            "
-                        >
-                            <div
-                                className="
-                                    relative
-                                    mx-auto
-                                    aspect-square
-                                    w-full
-                                    max-w-[430px]
-                                    overflow-hidden
-                                    rounded-2xl
-                                    bg-gray-100
-                                    shadow-sm
-                                    lg:max-w-[440px]
-                                    xl:max-w-[470px]
-                                    2xl:max-w-[500px]
-                                "
-                            >
-                                <Image
-                                    src={chairmanMessage.image}
-                                    alt={chairmanMessage.name}
-                                    fill
-                                    sizes="
-                                        (max-width: 640px) 100vw,
-                                        (max-width: 1024px) 90vw,
-                                        (max-width: 1280px) 38vw,
-                                        (max-width: 1536px) 36vw,
-                                        34vw
-                                    "
-                                    className="
-                                        object-cover
-                                        transition-transform
-                                        duration-500
-                                        hover:scale-105
-                                    "
-                                />
-
-                                {/* Image Overlay */}
-
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-
-                                {/* Chairman Info */}
-
-                                <div className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-5">
-                                    <div className="rounded-xl bg-black/35 p-3 backdrop-blur-md sm:p-4">
-                                        <h3 className="text-lg font-bold text-white sm:text-xl">
-                                            {chairmanMessage.name}
-                                        </h3>
-
-                                        <p className="mt-1 text-xs text-white/80 sm:text-sm">
-                                            {chairmanMessage.designation}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* ==================================================
-                            CHAIRMAN CONTENT
-                        ================================================== */}
-
-                        <div
-                            className="
-                                p-6
-                                sm:p-8
-                                lg:px-10
-                                lg:py-10
-                                xl:px-12
-                                xl:py-12
-                                2xl:px-14
-                                2xl:py-14
-                            "
-                        >
-                            <div className="mb-6 flex items-start gap-3 sm:mb-7 sm:gap-4">
-
-                                <div
-                                    className="
-                                        flex
-                                        h-11
-                                        w-11
-                                        shrink-0
-                                        items-center
-                                        justify-center
-                                        rounded-xl
-                                        bg-[#911824]/10
-                                        text-[#911824]
-                                        sm:h-12
-                                        sm:w-12
-                                    "
-                                >
-                                    <FaQuoteLeft aria-hidden="true" />
-                                </div>
-
-                                <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#911824] sm:text-xs">
-                                        Chairman's Message
-                                    </p>
-
-                                    <h3
-                                        className="
-                                            mt-1
-                                            text-xl
-                                            font-bold
-                                            leading-tight
-                                            text-[#1B1C1C]
-                                            sm:text-2xl
-                                            lg:text-3xl
-                                        "
-                                    >
-                                        A Vision for Better Healthcare
-                                    </h3>
-                                </div>
-                            </div>
-
-                            {/* Message */}
-
-                            <div
-                                className="
-                                    space-y-4
-                                    text-sm
-                                    leading-7
-                                    text-[#5B403D]
-                                    sm:text-[15px]
-                                    lg:space-y-5
-                                    lg:leading-7
-                                    xl:leading-8
-                                "
-                            >
-                                {chairmanMessage.message.map(
-                                    (paragraph, index) => (
-                                        <p key={index}>
-                                            {paragraph}
-                                        </p>
-                                    )
-                                )}
-                            </div>
-
-                            {/* Signature */}
-
-                            <div className="mt-7 border-t border-[#E4BEBA]/40 pt-5 sm:mt-8">
-                                <p className="text-sm font-medium text-gray-500">
-                                    With sincere appreciation,
-                                </p>
-
-                                <p className="mt-1 text-lg font-bold text-[#911824]">
-                                    {chairmanMessage.name}
-                                </p>
-
-                                <p className="text-sm text-gray-500">
-                                    Chairman
-                                </p>
-                            </div>
-                        </div>
+                {/* Chairman */}
+                {chairman && (
+                    <div className="mb-16 sm:mb-20 lg:mb-24">
+                        <ChairmanCard leader={chairman} />
                     </div>
-                </article>
+                )}
 
-                {/* ==================================================
-                    PRESIDENT MESSAGE
-                ================================================== */}
-
-                <article
-                    id="president-message"
-                    className="
-                        overflow-hidden
-                        rounded-2xl
-                        bg-[#911824]
-                        text-white
-                        shadow-[0_12px_40px_rgba(134,0,13,0.15)]
-                        sm:rounded-3xl
-                    "
-                >
-                    <div className="grid lg:grid-cols-[0.62fr_0.38fr]">
-
-                        {/* President Content */}
-
-                        <div
-                            className="
-                                p-6
-                                sm:p-8
-                                lg:p-10
-                                xl:p-12
-                                2xl:p-14
-                            "
-                        >
-                            <div className="mb-6 flex items-center gap-3 sm:mb-7 sm:gap-4">
-
-                                <div
-                                    className="
-                                        flex
-                                        h-11
-                                        w-11
-                                        shrink-0
-                                        items-center
-                                        justify-center
-                                        rounded-xl
-                                        bg-white/10
-                                        sm:h-12
-                                        sm:w-12
-                                    "
-                                >
-                                    <FaHandHoldingHeart aria-hidden="true" />
-                                </div>
-
-                                <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-white/60 sm:text-xs">
-                                        President's Message
-                                    </p>
-
-                                    <h3 className="mt-1 text-xl font-bold sm:text-2xl lg:text-3xl">
-                                        Serving Humanity With Faith
-                                    </h3>
-                                </div>
-                            </div>
-
-                            <div
-                                className="
-                                    space-y-4
-                                    text-sm
-                                    leading-7
-                                    text-white/80
-                                    sm:text-[15px]
-                                    lg:space-y-5
-                                    lg:leading-8
-                                "
-                            >
-                                {presidentMessage.message.map(
-                                    (paragraph, index) => (
-                                        <p key={index}>
-                                            {paragraph}
-                                        </p>
-                                    )
-                                )}
-
-                                {/* Quranic Verse */}
-
-                                <div
-                                    className="
-                                        my-7
-                                        rounded-2xl
-                                        border
-                                        border-white/10
-                                        bg-white/10
-                                        p-5
-                                        sm:my-8
-                                        sm:p-6
-                                    "
-                                >
-                                    <p
-                                        dir="rtl"
-                                        className="
-                                            text-center
-                                            text-xl
-                                            leading-9
-                                            text-white
-                                            sm:text-2xl
-                                            sm:leading-10
-                                        "
-                                    >
-                                        وَإِذَا مَرِضْتُ فَهُوَ يَشْفِينِ
-                                    </p>
-
-                                    <p className="mt-4 text-center text-xs italic text-white/75 sm:text-sm">
-                                        "And when I am ill, it is He (Allah)
-                                        who cures me."
-                                    </p>
-
-                                    <p className="mt-2 text-center text-[10px] font-semibold uppercase tracking-wider text-white/50 sm:text-xs">
-                                        Surah Ash-Shu‘ara — 26:80
-                                    </p>
-                                </div>
-
-                                <p>
-                                    This belief reminds us that healthcare is
-                                    not only a profession but also a
-                                    responsibility and a trust. Through the
-                                    generosity of our donors, the support of
-                                    our well-wishers, and the dedication of
-                                    our team, we are able to provide
-                                    compassionate care and bring hope to
-                                    thousands of patients and their families
-                                    each year.
-                                </p>
-
-                                <p>
-                                    I extend my heartfelt gratitude to everyone
-                                    who supports Bashir Memorial Welfare
-                                    Hospital. Your trust, generosity, and
-                                    prayers empower us to continue this noble
-                                    mission and make a meaningful difference in
-                                    countless lives.
-                                </p>
-
-                                <p>
-                                    Together, we remain committed to serving
-                                    humanity with compassion, integrity, and
-                                    faith. May Allah (SWT) bless our collective
-                                    efforts and reward all those who contribute
-                                    to this mission.
-                                </p>
-                            </div>
-
-                            {/* Signature */}
-
-                            <div className="mt-8 border-t border-white/15 pt-5 sm:mt-9 sm:pt-6">
-                                <p className="text-sm font-medium text-white/75">
-                                    With heartfelt gratitude,
-                                </p>
-
-                                <p className="mt-1 text-lg font-bold sm:mt-2">
-                                    {presidentMessage.name}
-                                </p>
-
-                                <p className="text-sm text-white/60">
-                                    President
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* President Image */}
-
-                        <div
-                            className="
-                                relative
-                                min-h-[380px]
-                                overflow-hidden
-                                bg-[#78000b]
-                                sm:min-h-[450px]
-                                lg:min-h-full
-                                lg:order-last
-                                xl:min-h-[700px]
-                                2xl:min-h-[760px]
-                            "
-                        >
-                            <Image
-                                src={presidentMessage.image}
-                                alt={presidentMessage.name}
-                                fill
-                                sizes="
-                                    (max-width: 1024px) 100vw,
-                                    (max-width: 1280px) 38vw,
-                                    (max-width: 1536px) 36vw,
-                                    34vw
-                                "
-                                className="
-                                    object-cover
-                                    transition-transform
-                                    duration-500
-                                    hover:scale-105
-                                "
-                            />
-
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-
-                            <div className="absolute bottom-6 left-6 right-6 sm:bottom-7 sm:left-7 sm:right-7">
-                                <p className="text-xl font-bold sm:text-2xl">
-                                    {presidentMessage.name}
-                                </p>
-
-                                <p className="mt-1 text-xs text-white/75 sm:text-sm">
-                                    {presidentMessage.designation}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-
+                {/* President */}
+                {president && <PresidentCard leader={president} />}
             </div>
         </section>
-    )
+    );
 }

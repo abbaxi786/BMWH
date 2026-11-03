@@ -1,208 +1,15 @@
-
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-
-export async function PATCH(request) {
-    try {
-        const admin = await requireAdmin();
-
-        if (!admin) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Unauthorized access",
-                },
-                { status: 401 }
-            );
-        }
-
-        const body = await request.json();
-        const { id } = body;
-
-        if (
-            !Number.isInteger(Number(id)) ||
-            Number(id) < 1
-        ) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Valid card ID is required",
-                },
-                { status: 400 }
-            );
-        }
-
-        const allowedFields = [
-            "target",
-            "suffix",
-            "title",
-            "description",
-            "is_active",
-        ];
-
-        const updates = {};
-
-        for (const field of allowedFields) {
-            if (Object.prototype.hasOwnProperty.call(body, field)) {
-                updates[field] = body[field];
-            }
-        }
-
-        if (Object.keys(updates).length === 0) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "No editable fields provided",
-                },
-                { status: 400 }
-            );
-        }
-
-        // Validate only the fields provided
-        if (
-            "target" in updates &&
-            (!Number.isInteger(updates.target) || updates.target < 0)
-        ) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Target must be a non-negative integer",
-                },
-                { status: 400 }
-            );
-        }
-
-        if (
-            "suffix" in updates &&
-            (typeof updates.suffix !== "string" ||
-                updates.suffix.length > 20)
-        ) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Suffix must be a string of up to 20 characters",
-                },
-                { status: 400 }
-            );
-        }
-
-        if (
-            "title" in updates &&
-            (typeof updates.title !== "string" ||
-                !updates.title.trim() ||
-                updates.title.trim().length > 150)
-        ) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Title is required and must not exceed 150 characters",
-                },
-                { status: 400 }
-            );
-        }
-
-        if (
-            "description" in updates &&
-            typeof updates.description !== "string"
-        ) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Description must be a string",
-                },
-                { status: 400 }
-            );
-        }
-
-        if (
-            "is_active" in updates &&
-            typeof updates.is_active !== "boolean"
-        ) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "is_active must be a boolean",
-                },
-                { status: 400 }
-            );
-        }
-
-        // Trim text fields
-        if ("suffix" in updates) {
-            updates.suffix = updates.suffix.trim();
-        }
-
-        if ("title" in updates) {
-            updates.title = updates.title.trim();
-        }
-
-        if ("description" in updates) {
-            updates.description = updates.description.trim();
-        }
-
-        // Build a parameterized UPDATE query
-        const columns = {
-            target: (value) => sql`target = ${value}`,
-            suffix: (value) => sql`suffix = ${value}`,
-            title: (value) => sql`title = ${value}`,
-            description: (value) => sql`description = ${value}`,
-            is_active: (value) => sql`is_active = ${value}`,
-        };
-
-        const setClauses = Object.entries(updates).map(
-            ([field, value]) => columns[field](value)
-        );
-
-        const result = await sql`
-            UPDATE impact_stats
-            SET
-                ${sql.join(setClauses, sql`, `)},
-                updated_at = NOW()
-            WHERE id = ${Number(id)}
-            RETURNING
-                id,
-                target,
-                suffix,
-                title,
-                description,
-                display_order,
-                is_active,
-                created_at,
-                updated_at
-        `;
-
-        if (result.length === 0) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Impact statistic not found",
-                },
-                { status: 404 }
-            );
-        }
-
-        return NextResponse.json({
-            success: true,
-            message: "Impact statistic updated successfully",
-            data: result[0],
-        });
-    } catch (error) {
-        console.error("PATCH impact stats error:", error);
-
-        return NextResponse.json(
-            {
-                success: false,
-                message: "Failed to update impact statistic",
-            },
-            { status: 500 }
-        );
-    }
-}
-
+const noCacheHeaders = {
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+    Pragma: "no-cache",
+    Expires: "0",
+};
 
 export async function GET() {
     try {
@@ -213,25 +20,173 @@ export async function GET() {
                 suffix,
                 title,
                 description,
-                display_order
+                display_order,
+                is_active
             FROM impact_stats
             WHERE is_active = TRUE
             ORDER BY display_order ASC
         `;
 
-        return NextResponse.json({
-            success: true,
-            data: result,
-        });
+        return NextResponse.json(
+            {
+                success: true,
+                data: result,
+            },
+            {
+                status: 200,
+                headers: noCacheHeaders,
+            }
+        );
     } catch (error) {
-        console.error("Public impact stats error:", error);
+        console.error("GET /api/content/stats error:", error);
 
         return NextResponse.json(
             {
                 success: false,
                 message: "Failed to fetch impact statistics",
             },
-            { status: 500 }
+            {
+                status: 500,
+                headers: noCacheHeaders,
+            }
+        );
+    }
+}
+
+export async function PATCH(request) {
+    try {
+        const admin = await requireAdmin();
+
+        if (!admin) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Unauthorized access. Please log in as an admin.",
+                },
+                { status: 401, headers: noCacheHeaders }
+            );
+        }
+
+        const body = await request.json();
+
+        const id = Number(body.id);
+        const target = Number(body.target);
+        const { suffix, title, description, is_active } = body;
+
+        if (!Number.isInteger(id) || id < 1) {
+            return NextResponse.json(
+                { success: false, message: "A valid statistic ID is required." },
+                { status: 400, headers: noCacheHeaders }
+            );
+        }
+
+        if (!Number.isInteger(target) || target < 0) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Target must be a non-negative integer.",
+                },
+                { status: 400, headers: noCacheHeaders }
+            );
+        }
+
+        if (typeof suffix !== "string" || suffix.length > 20) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Suffix must be a string of up to 20 characters.",
+                },
+                { status: 400, headers: noCacheHeaders }
+            );
+        }
+
+        if (
+            typeof title !== "string" ||
+            !title.trim() ||
+            title.trim().length > 150
+        ) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Title is required and must not exceed 150 characters.",
+                },
+                { status: 400, headers: noCacheHeaders }
+            );
+        }
+
+        if (typeof description !== "string") {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Description must be a string.",
+                },
+                { status: 400, headers: noCacheHeaders }
+            );
+        }
+
+        if (typeof is_active !== "boolean") {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Active status must be true or false.",
+                },
+                { status: 400, headers: noCacheHeaders }
+            );
+        }
+
+        const result = await sql`
+            UPDATE impact_stats
+            SET
+                target = ${target},
+                suffix = ${suffix.trim()},
+                title = ${title.trim()},
+                description = ${description.trim()},
+                is_active = ${is_active},
+                updated_at = NOW()
+            WHERE id = ${id}
+            RETURNING
+                id,
+                target,
+                suffix,
+                title,
+                description,
+                display_order,
+                is_active
+        `;
+
+        if (result.length === 0) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: `No impact statistic found with ID ${id}.`,
+                },
+                { status: 404, headers: noCacheHeaders }
+            );
+        }
+
+        return NextResponse.json(
+            {
+                success: true,
+                message: "Impact statistic updated successfully.",
+                data: result[0],
+            },
+            { status: 200, headers: noCacheHeaders }
+        );
+    } catch (error) {
+        console.error("PATCH /api/content/stats error:", error);
+
+        const message =
+            error instanceof Error ? error.message : "Unknown server error";
+
+        return NextResponse.json(
+            {
+                success: false,
+                message: "Failed to update impact statistic",
+                ...(process.env.NODE_ENV !== "production"
+                    ? { detail: message }
+                    : {}),
+            },
+            { status: 500, headers: noCacheHeaders }
         );
     }
 }

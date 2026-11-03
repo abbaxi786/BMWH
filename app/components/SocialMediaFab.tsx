@@ -48,7 +48,7 @@ export default function SocialMediaFab() {
                                 href="#socialCircle"
                                 startOffset="0%"
                             >
-                                Let's Get Social
+                                Let's Socialize!
                             </textPath>
                         </text>
                     </svg>

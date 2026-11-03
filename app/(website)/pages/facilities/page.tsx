@@ -183,7 +183,7 @@ export default async function HospitalFacilitiesPage() {
 
                                         <div className="mt-6">
                                             <Link
-                                                href={`/pages/hospital-facilities/${facility.id}`}
+                                                href={`/pages/facilities/${facility.id}`}
                                                 className="inline-flex items-center gap-2 text-sm font-semibold text-[#911824] transition-all hover:gap-3"
                                             >
                                                 View Facility

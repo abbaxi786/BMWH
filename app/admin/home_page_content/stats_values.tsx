@@ -1,7 +1,7 @@
-
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import axios from "axios";
 import {
     FaUsers,
     FaHandHoldingHeart,
@@ -20,6 +20,12 @@ interface ImpactStat {
     description: string;
     display_order: number;
     is_active: boolean;
+}
+
+interface ApiResponse<T> {
+    success: boolean;
+    data: T;
+    message?: string;
 }
 
 const FIXED_CARDS = [
@@ -43,6 +49,18 @@ const FIXED_CARDS = [
     },
 ];
 
+function getErrorMessage(error: unknown, fallback: string) {
+    if (axios.isAxiosError(error)) {
+        return (
+            error.response?.data?.message ||
+            error.message ||
+            fallback
+        );
+    }
+
+    return error instanceof Error ? error.message : fallback;
+}
+
 export default function ImpactStatsSettings() {
     const [stats, setStats] = useState<ImpactStat[]>([]);
     const [loading, setLoading] = useState(true);
@@ -50,37 +68,45 @@ export default function ImpactStatsSettings() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
+    // Load the latest statistics from the API.
     const loadStats = useCallback(async () => {
         setLoading(true);
         setError("");
 
         try {
-            const response = await fetch("/api/content/stats", {
-                method: "GET",
-                credentials: "include",
-                cache: "no-store",
-            });
+            const response = await axios.get<ApiResponse<ImpactStat[]>>(
+                "/api/content/stats",
+                {
+                    withCredentials: true,
+                    headers: {
+                        "Cache-Control": "no-cache",
+                        Pragma: "no-cache",
+                    },
+                    params: {
+                        _t: Date.now(),
+                    },
+                }
+            );
 
-            const result = await response.json();
-
-            if (!response.ok || !result.success) {
+            if (!response.data.success || !Array.isArray(response.data.data)) {
                 throw new Error(
-                    result.message || "Failed to load impact statistics."
+                    response.data.message ||
+                        "The statistics API returned invalid data."
                 );
             }
 
-            const data: ImpactStat[] = result.data;
-
-            setStats(
-                [...data].sort(
-                    (a, b) => a.display_order - b.display_order
-                )
+            const sortedStats = [...response.data.data].sort(
+                (a, b) => a.display_order - b.display_order
             );
+
+            setStats(sortedStats);
         } catch (err) {
+            console.error("Failed to load impact statistics:", err);
             setError(
-                err instanceof Error
-                    ? err.message
-                    : "Failed to load impact statistics."
+                getErrorMessage(
+                    err,
+                    "Failed to load impact statistics."
+                )
             );
         } finally {
             setLoading(false);
@@ -101,9 +127,7 @@ export default function ImpactStatsSettings() {
     ) => {
         setStats((current) =>
             current.map((stat) =>
-                stat.id === id
-                    ? { ...stat, [field]: value }
-                    : stat
+                stat.id === id ? { ...stat, [field]: value } : stat
             )
         );
 
@@ -111,48 +135,53 @@ export default function ImpactStatsSettings() {
         setSuccess("");
     };
 
+    // Save changes to the database.
     const saveStat = async (stat: ImpactStat) => {
         setSavingId(stat.id);
         setError("");
         setSuccess("");
 
         try {
-            const response = await fetch("/api/admin/impact-stats", {
-                method: "PATCH",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
+            const response = await axios.patch<ApiResponse<ImpactStat>>(
+                "/api/content/stats",
+                {
                     id: stat.id,
                     target: stat.target,
                     suffix: stat.suffix,
                     title: stat.title,
                     description: stat.description,
                     is_active: stat.is_active,
-                }),
-            });
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Cache-Control": "no-cache",
+                    },
+                }
+            );
 
-            const result = await response.json();
-
-            if (!response.ok || !result.success) {
+            if (!response.data.success || !response.data.data) {
                 throw new Error(
-                    result.message || "Failed to save impact statistic."
+                    response.data.message ||
+                        "Failed to save impact statistic."
                 );
             }
 
-            setStats((current) =>
-                current.map((item) =>
-                    item.id === stat.id ? result.data : item
-                )
-            );
+            // Reload from the database-backed GET endpoint rather than
+            // relying only on the PATCH response.
+            await loadStats();
 
-            setSuccess(`"${result.data.title}" saved successfully.`);
+            setSuccess(
+                `"${response.data.data.title}" saved successfully.`
+            );
         } catch (err) {
+            console.error("Failed to save impact statistic:", err);
             setError(
-                err instanceof Error
-                    ? err.message
-                    : "Failed to save impact statistic."
+                getErrorMessage(
+                    err,
+                    "Failed to save impact statistic."
+                )
             );
         } finally {
             setSavingId(null);
@@ -170,7 +199,6 @@ export default function ImpactStatsSettings() {
 
     return (
         <section className="w-full space-y-6">
-            {/* Header */}
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
                     <h2 className="text-2xl font-bold text-zinc-900">
@@ -193,7 +221,6 @@ export default function ImpactStatsSettings() {
                 </button>
             </div>
 
-            {/* Error message */}
             {error && (
                 <div
                     role="alert"
@@ -204,7 +231,6 @@ export default function ImpactStatsSettings() {
                 </div>
             )}
 
-            {/* Success message */}
             {success && (
                 <div
                     role="status"
@@ -221,8 +247,8 @@ export default function ImpactStatsSettings() {
                         No impact statistics found
                     </h3>
                     <p className="mt-2 text-sm text-zinc-500">
-                        Insert the three initial records into the impact_stats
-                        table, then refresh this section.
+                        Check that the impact_stats table contains records
+                        and that the GET API returns them.
                     </p>
                 </div>
             ) : (
@@ -233,15 +259,13 @@ export default function ImpactStatsSettings() {
                         );
 
                         const Icon = fixed?.icon ?? FaUsers;
-                        const cardColor =
-                            fixed?.color ?? "bg-zinc-100";
+                        const cardColor = fixed?.color ?? "bg-zinc-100";
 
                         return (
                             <article
                                 key={stat.id}
                                 className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm"
                             >
-                                {/* Fixed-style preview */}
                                 <div
                                     className={`${cardColor} flex items-center justify-between gap-4 p-5 ${
                                         stat.display_order === 2
@@ -260,7 +284,7 @@ export default function ImpactStatsSettings() {
                                             {stat.suffix}
                                         </p>
 
-                                        <h3 className="mt-1 break-words text-lg font-semibold">
+                                        <h3 className="mt-1 wrap-break-words text-lg font-semibold">
                                             {stat.title || "Untitled statistic"}
                                         </h3>
 
@@ -273,7 +297,6 @@ export default function ImpactStatsSettings() {
                                     <Icon className="shrink-0 text-3xl" />
                                 </div>
 
-                                {/* Editable fields */}
                                 <div className="space-y-4 p-5">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
@@ -296,9 +319,7 @@ export default function ImpactStatsSettings() {
                                                         "target",
                                                         event.target.value === ""
                                                             ? 0
-                                                            : Number(
-                                                                  event.target.value
-                                                              )
+                                                            : Number(event.target.value)
                                                     )
                                                 }
                                                 className="w-full rounded-lg border border-zinc-300 px-3 py-2.5 outline-none transition focus:border-[#86000D] focus:ring-2 focus:ring-[#86000D]/10"
@@ -379,7 +400,6 @@ export default function ImpactStatsSettings() {
                                         />
                                     </div>
 
-                                    {/* Active status */}
                                     <label
                                         htmlFor={`active-${stat.id}`}
                                         className="flex cursor-pointer items-center justify-between gap-3 rounded-lg bg-zinc-50 p-3"
@@ -409,13 +429,10 @@ export default function ImpactStatsSettings() {
                                         />
                                     </label>
 
-                                    {/* Save button */}
                                     <div className="flex justify-end border-t border-zinc-100 pt-4">
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                void saveStat(stat)
-                                            }
+                                            onClick={() => void saveStat(stat)}
                                             disabled={
                                                 savingId !== null ||
                                                 !stat.title.trim() ||

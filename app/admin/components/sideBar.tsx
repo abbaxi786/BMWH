@@ -6,8 +6,8 @@ import Image from "next/image";
 
 import { useAuth } from "@/app/context/context";
 import { useRouter } from "next/navigation";
-
-
+import { HiOutlineInformationCircle } from "react-icons/hi";
+import { CiHome } from "react-icons/ci";
 import { FiGrid, FiUsers, FiUser, FiBriefcase, FiActivity, FiImage, FiFileText, FiCalendar, FiHeart, FiAward, FiUserCheck, FiSettings, FiLogOut, FiExternalLink, FiClipboard, } from "react-icons/fi";
 
 type NavItem = {
@@ -123,9 +123,14 @@ const sections: NavSection[] = [
         title: "Website",
         items: [
             {
-                label: "Website Settings",
-                href: "/admin/website_setting",
-                icon: <FiSettings size={18} />,
+                label: "Home Page Content",
+                href: "/admin/home_page_content",
+                icon: <CiHome size={18} />,
+            },
+            {
+                label: "About Page Content",
+                href: "/admin/about_page_content",
+                icon: <HiOutlineInformationCircle size={18} />,
             },
             {
                 label: "Admin Profile",

@@ -2,12 +2,14 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import type { IconType } from "react-icons";
+import axios from "axios";
 import {
     FaUserGroup,
     FaHandHoldingHeart,
     FaClock,
 } from "react-icons/fa6";
+
+import { ImpactStatsSkeleton } from "./heroAndStatsSkeleton";
 
 interface ImpactStat {
     id: number;
@@ -19,16 +21,19 @@ interface ImpactStat {
     is_active?: boolean;
 }
 
-interface ImpactStatDisplay extends ImpactStat {
-    icon: IconType;
-    className: string;
-    iconClassName: string;
-    titleClassName: string;
-    descriptionClassName: string;
+interface ImpactStatsApiResponse {
+    success: boolean;
+    data: ImpactStat[] | null;
+    message?: string;
 }
 
-// Fixed frontend presentation; content comes from PostgreSQL.
-const FIXED_PRESENTATION = [
+interface RunningNumberProps {
+    target: number;
+    duration?: number;
+}
+
+// Original visual styles, kept separate from API content.
+const CARD_PRESENTATION = [
     {
         icon: FaUserGroup,
         className: "bg-[#86000D] text-white",
@@ -52,11 +57,6 @@ const FIXED_PRESENTATION = [
     },
 ];
 
-interface RunningNumberProps {
-    target: number;
-    duration?: number;
-}
-
 function RunningNumber({
     target,
     duration = 1500,
@@ -66,6 +66,7 @@ function RunningNumber({
 
     useEffect(() => {
         const element = elementRef.current;
+
         if (!element) return;
 
         let hasAnimated = false;
@@ -76,6 +77,7 @@ function RunningNumber({
                 if (!entry.isIntersecting || hasAnimated) return;
 
                 hasAnimated = true;
+
                 let startTime: number | null = null;
 
                 const animate = (timestamp: number) => {
@@ -113,66 +115,76 @@ function RunningNumber({
 }
 
 export default function ImpactStats() {
-    const [stats, setStats] = useState<ImpactStatDisplay[]>([]);
+    const [stats, setStats] = useState<ImpactStat[]>([]);
     const [loading, setLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
 
     useEffect(() => {
-        const controller = new AbortController();
+        let active = true;
 
         async function fetchImpactStats() {
             try {
-                const response = await fetch("/api/content/stats", {
-                    method: "GET",
-                    cache: "no-store",
-                    signal: controller.signal,
-                });
+                const response =
+                    await axios.get<ImpactStatsApiResponse>(
+                        "/api/content/stats",
+                        {
+                            headers: {
+                                "Cache-Control": "no-cache",
+                                Pragma: "no-cache",
+                            },
+                            params: {
+                                _t: Date.now(),
+                            },
+                        }
+                    );
 
-                if (!response.ok) {
+                if (!active) return;
+
+                const result = response.data;
+
+
+                if (
+                    !result.success ||
+                    !Array.isArray(result.data)
+                ) {
                     throw new Error(
-                        "Failed to fetch impact statistics"
+                        result.message ||
+                        "Invalid impact statistics response"
                     );
                 }
 
-                const result = await response.json();
-
-                if (!result.success || !Array.isArray(result.data)) {
-                    throw new Error("Invalid impact statistics response");
-                }
-
-                const mappedStats: ImpactStatDisplay[] = result.data
+                const validStats = result.data
                     .filter(
-                        (stat: ImpactStat) =>
-                            Number.isInteger(stat.display_order) &&
-                            stat.display_order >= 1 &&
-                            stat.display_order <= 3 &&
+                        (stat) =>
+                            Number.isInteger(stat.id) &&
                             Number.isInteger(stat.target) &&
                             stat.target >= 0 &&
+                            Number.isInteger(stat.display_order) &&
+                            stat.display_order >= 1 &&
                             typeof stat.title === "string" &&
                             typeof stat.suffix === "string" &&
                             typeof stat.description === "string"
                     )
-                    .map((stat: ImpactStat) => ({
-                        ...stat,
-                        ...FIXED_PRESENTATION[stat.display_order - 1],
-                    }))
                     .sort(
-                        (a:any, b:any) => a.display_order - b.display_order
+                        (a, b) =>
+                            a.display_order - b.display_order
                     );
 
-                setStats(mappedStats);
+                setStats(validStats);
             } catch (error) {
-                if (
-                    error instanceof Error &&
-                    error.name === "AbortError"
-                ) {
-                    return;
-                }
+                if (!active) return;
 
-                console.error("Impact stats API error:", error);
+                console.error(
+                    "Impact stats API error:",
+                    axios.isAxiosError(error)
+                        ? error.response?.data?.message ||
+                        error.message
+                        : error
+                );
+
                 setHasError(true);
             } finally {
-                if (!controller.signal.aborted) {
+                if (active) {
                     setLoading(false);
                 }
             }
@@ -180,11 +192,16 @@ export default function ImpactStats() {
 
         void fetchImpactStats();
 
-        return () => controller.abort();
+        return () => {
+            active = false;
+        };
     }, []);
 
-    // Avoid showing outdated hardcoded content if the API fails.
-    if (loading || hasError || stats.length === 0) {
+    if (loading) {
+        return <ImpactStatsSkeleton />;
+    }
+
+    if (hasError || stats.length === 0) {
         return null;
     }
 
@@ -193,19 +210,26 @@ export default function ImpactStats() {
             aria-labelledby="impact-stats-heading"
             className="relative z-20 w-full"
         >
-            <h2 id="impact-stats-heading" className="sr-only">
+            <h2
+                id="impact-stats-heading"
+                className="sr-only"
+            >
                 Our Impact
             </h2>
 
             <div className="mx-auto max-w-7xl px-4 py-12">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                    {stats.map((stat) => {
-                        const IconComponent = stat.icon;
+                    {stats.map((stat, index) => {
+                        // Cycle through the three original styles.
+                        const presentation =
+                            CARD_PRESENTATION[index % CARD_PRESENTATION.length];
+
+                        const IconComponent = presentation.icon;
 
                         return (
                             <div
                                 key={stat.id}
-                                className={`flex flex-col gap-4 rounded-xl border border-[#E4BEBA]/40 p-8 shadow-[0_18px_40px_rgba(0,0,0,0.05)] transition-transform duration-300 hover:-translate-y-1 ${stat.className}`}
+                                className={`flex flex-col gap-4 rounded-xl border border-[#E4BEBA]/40 p-8 shadow-[0_18px_40px_rgba(0,0,0,0.05)] transition-transform duration-300 hover:-translate-y-1 ${presentation.className}`}
                             >
                                 <div className="flex items-center justify-between">
                                     <span className="text-4xl font-bold tracking-tight">
@@ -218,19 +242,19 @@ export default function ImpactStats() {
 
                                     <IconComponent
                                         aria-hidden="true"
-                                        className={`text-3xl ${stat.iconClassName}`}
+                                        className={`text-3xl ${presentation.iconClassName}`}
                                     />
                                 </div>
 
                                 <div>
                                     <h3
-                                        className={`mb-2 text-xl font-semibold ${stat.titleClassName}`}
+                                        className={`mb-2 text-xl font-semibold ${presentation.titleClassName}`}
                                     >
                                         {stat.title}
                                     </h3>
 
                                     <p
-                                        className={`text-sm leading-relaxed ${stat.descriptionClassName}`}
+                                        className={`text-sm leading-relaxed ${presentation.descriptionClassName}`}
                                     >
                                         {stat.description}
                                     </p>

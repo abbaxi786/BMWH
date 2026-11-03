@@ -199,14 +199,15 @@ async function Doctors() {
                                             ================================= */}
 
                                             <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
-                                                {departmentDoctors.map(
-                                                    (doctor) => (
-                                                        <DoctorCard
-                                                            key={doctor.id}
-                                                            doctor={doctor}
-                                                        />
-                                                    )
-                                                )}
+                                                {departmentDoctors.map((doctor) => (
+                                                    <Link
+                                                        key={doctor.id}
+                                                        href={`/pages/doctors/doctor_view/${doctor.id}`}
+                                                        className="block"
+                                                    >
+                                                        <DoctorCard doctor={doctor} />
+                                                    </Link>
+                                                ))}
                                             </div>
                                         </section>
                                     );

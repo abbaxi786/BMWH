@@ -668,41 +668,34 @@ async function Department({ params }: PageProps) {
 
                     </div>
 
+
                     {/* Doctors */}
-
                     {department.doctors.length > 0 ? (
-
                         <div
                             className="mt-12 grid grid-cols-1
-                                       sm:grid-cols-2 lg:grid-cols-3
-                                       gap-7"
+                   sm:grid-cols-2 lg:grid-cols-3
+                   gap-7"
                         >
-
                             {department.doctors.map((doctor) => (
-
-                                <DoctorCard
+                                <Link
                                     key={doctor.id}
-                                    doctor={doctor}
-                                />
-
+                                    href={`/pages/doctors/doctor_view/${doctor.id}`}
+                                    className="block"
+                                >
+                                    <DoctorCard doctor={doctor} />
+                                </Link>
                             ))}
-
                         </div>
-
                     ) : (
-
                         <div
-                            className="mt-10 py-12
-                                       text-center
-                                       border border-dashed
-                                       border-gray-300
-                                       rounded-xl"
+                            className="mt-10 py-12 text-center
+                   border border-dashed border-gray-300
+                   rounded-xl"
                         >
                             <p className="text-gray-500">
                                 No doctors are currently available.
                             </p>
                         </div>
-
                     )}
 
                 </div>

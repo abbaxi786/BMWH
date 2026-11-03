@@ -19,10 +19,6 @@ import { MdOutlineMessage } from "react-icons/md";
 import { RiContactsLine } from "react-icons/ri";
 import { CiHeart } from "react-icons/ci";
 
-/* =========================================================
-   TYPES
-========================================================= */
-
 interface MobileNavChild {
   label: string;
   href: string;
@@ -33,10 +29,6 @@ interface MobileNavItem {
   href: string;
   children: MobileNavChild[];
 }
-
-/* =========================================================
-   NAVIGATION DATA
-========================================================= */
 
 const utilityLinks = [
   {
@@ -71,416 +63,141 @@ const utilityLinks = [
   },
 ];
 
-/* =========================================================
-   MOBILE NAVIGATION
-========================================================= */
-
 const mobileNavLinks: MobileNavItem[] = [
-  /* =====================================================
-      ABOUT US
-  ===================================================== */
-
   {
     label: "About Us",
     href: "/pages/about",
     children: [
-      {
-        label: "Mission & Vision",
-        href: "/pages/about#mission-vision",
-      },
-      {
-        label: "Our Mission",
-        href: "/pages/about#mission",
-      },
-      {
-        label: "Our Vision",
-        href: "/pages/about#vision",
-      },
-      {
-        label: "Our Journey",
-        href: "/pages/about#our-journey",
-      },
-      {
-        label: "Our Compliance",
-        href: "/pages/about#compliance",
-      },
-      {
-        label: "Who We Are",
-        href: "/pages/about#who-we-are",
-      },
-      {
-        label: "Our Founders",
-        href: "/pages/about#founder",
-      },
-      {
-        label: "Patient Welfare",
-        href: "/pages/about#patient-welfare",
-      },
-      {
-        label: "Our Friends / Supporters",
-        href: "/pages/about#supporters",
-      },
-      {
-        label: "Success Stories",
-        href: "/pages/about#success-stories",
-      },
-      {
-        label: "Health Partners",
-        href: "/pages/about#health-partners",
-      },
-      {
-        label: "Events",
-        href: "/pages/about#events",
-      },
-      {
-        label: "News & Updates",
-        href: "/pages/all_news_updates#all-news-updates",
-      },
+      { label: "Mission & Vision", href: "/pages/about#mission-vision" },
+      { label: "Our Mission", href: "/pages/about#mission" },
+      { label: "Our Vision", href: "/pages/about#vision" },
+      { label: "Our Journey", href: "/pages/about#our-journey" },
+      { label: "Our Compliance", href: "/pages/about#compliance" },
+      { label: "Who We Are", href: "/pages/about#who-we-are" },
+      { label: "Our Founders", href: "/pages/about#founder" },
+      { label: "Patient Welfare", href: "/pages/about#patient-welfare" },
+      { label: "Our Friends / Supporters", href: "/pages/about#supporters" },
+      { label: "Success Stories", href: "/pages/about#success-stories" },
+      { label: "Health Partners", href: "/pages/about#health-partners" },
+      { label: "Events", href: "/pages/about#events" },
+      { label: "News & Updates", href: "/pages/all_news_updates#all-news-updates" },
     ],
   },
-
-  /* =====================================================
-      CLINICAL DEPARTMENTS
-  ===================================================== */
-
   {
     label: "Clinical Depts",
     href: "/pages/departments",
     children: [
-      {
-        label: "All Departments",
-        href: "/pages/departments#departments",
-      },
-      {
-        label: "Department Overview",
-        href: "/pages/departments#department-overview",
-      },
-      {
-        label: "Surgery & Allied",
-        href: "/pages/departments#surgery-and-allied",
-      },
-      {
-        label: "Internal Medicine & Allied",
-        href: "/pages/departments#internal-medicine-and-allied",
-      },
-      {
-        label: "Specialized Care",
-        href: "/pages/departments#specialized-care",
-      },
-      {
-        label: "Dentistry",
-        href: "/pages/departments/department/dentistry",
-      },
-      {
-        label: "Eye",
-        href: "/pages/departments/department/eye",
-      },
-      {
-        label: "Contact Department",
-        href: "/pages/departments#department-contact",
-      },
+      { label: "All Departments", href: "/pages/departments#departments" },
+      { label: "Department Overview", href: "/pages/departments#department-overview" },
+      { label: "Surgery & Allied", href: "/pages/departments#surgery-and-allied" },
+      { label: "Internal Medicine & Allied", href: "/pages/departments#internal-medicine-and-allied" },
+      { label: "Specialized Care", href: "/pages/departments#specialized-care" },
+      { label: "Dentistry", href: "/pages/departments/department/dentistry" },
+      { label: "Eye", href: "/pages/departments/department/eye" },
+      { label: "Contact Department", href: "/pages/departments#department-contact" },
     ],
   },
-
-  /* =====================================================
-      PATIENT CARE
-  ===================================================== */
-
   {
     label: "Patient Care",
     href: "/pages/patient_care",
     children: [
-      {
-        label: "Patient Care Overview",
-        href: "/pages/patient_care#patient-care-overview",
-      },
-      {
-        label: "Hospital Facilities",
-        href: "/pages/patient_care#hospital-facilities",
-      },
-      {
-        label: "Outpatient Department",
-        href: "/pages/patient_care/opd",
-      },
-      {
-        label: "Inpatient Department",
-        href: "/pages/patient_care/ipd",
-      },
-      {
-        label: "Operation Theater",
-        href: "/pages/patient_care/operation-theater",
-      },
-      {
-        label: "Support Services",
-        href: "/pages/patient_care#support-services",
-      },
-      {
-        label: "Pharmacy",
-        href: "/pages/patient_care/pharmacy",
-      },
-      {
-        label: "Cafeteria",
-        href: "/pages/patient_care/cafeteria",
-      },
-      {
-        label: "Your Healthcare Journey",
-        href: "/pages/patient_care#care-journey",
-      },
-      {
-        label: "Patient Care Contact",
-        href: "/pages/patient_care#patient-care-contact",
-      },
+      { label: "Patient Care Overview", href: "/pages/patient_care#patient-care-overview" },
+      { label: "Hospital Facilities", href: "/pages/patient_care#hospital-facilities" },
+      { label: "Outpatient Department", href: "/pages/patient_care/opd" },
+      { label: "Inpatient Department", href: "/pages/patient_care/ipd" },
+      { label: "Operation Theater", href: "/pages/patient_care/operation-theater" },
+      { label: "Support Services", href: "/pages/patient_care#support-services" },
+      { label: "Pharmacy", href: "/pages/patient_care/pharmacy" },
+      { label: "Cafeteria", href: "/pages/patient_care/cafeteria" },
+      { label: "Your Healthcare Journey", href: "/pages/patient_care#care-journey" },
+      { label: "Patient Care Contact", href: "/pages/patient_care#patient-care-contact" },
     ],
   },
-
-  /* =====================================================
-      DIAGNOSTICS
-  ===================================================== */
-
   {
     label: "Diagnostics",
     href: "/pages/diagnostic",
     children: [
-      {
-        label: "Biochemistry",
-        href: "/pages/diagnostic#pathology",
-      },
-      {
-        label: "Hematology",
-        href: "/pages/diagnostic#pathology",
-      },
-      {
-        label: "Microbiology",
-        href: "/pages/diagnostic#pathology",
-      },
-      {
-        label: "Histopathology",
-        href: "/pages/diagnostic#pathology",
-      },
-      {
-        label: "X-Ray",
-        href: "/pages/diagnostic#radiology-and-imaging",
-      },
-      {
-        label: "ECG",
-        href: "/pages/diagnostic#cardiac",
-      },
-      {
-        label: "Diagnostics Overview",
-        href: "/pages/diagnostic#diagnostic-overview",
-      },
-      {
-        label: "All Diagnostic Services",
-        href: "/pages/diagnostic#diagnostic-services",
-      },
-      {
-        label: "Diagnostic Assistance",
-        href: "/pages/diagnostic#diagnostic-contact",
-      },
+      { label: "Biochemistry", href: "/pages/diagnostic#pathology" },
+      { label: "Hematology", href: "/pages/diagnostic#pathology" },
+      { label: "Microbiology", href: "/pages/diagnostic#pathology" },
+      { label: "Histopathology", href: "/pages/diagnostic#pathology" },
+      { label: "X-Ray", href: "/pages/diagnostic#radiology-and-imaging" },
+      { label: "ECG", href: "/pages/diagnostic#cardiac" },
+      { label: "Diagnostics Overview", href: "/pages/diagnostic#diagnostic-overview" },
+      { label: "All Diagnostic Services", href: "/pages/diagnostic#diagnostic-services" },
+      { label: "Diagnostic Assistance", href: "/pages/diagnostic#diagnostic-contact" },
     ],
   },
-
-  /* =====================================================
-      DOCTORS
-  ===================================================== */
-
   {
     label: "Doctors",
     href: "/pages/doctors",
     children: [
-      {
-        label: "Find a Doctor",
-        href: "/pages/doctors#all-doctors",
-      },
-      {
-        label: "Doctors Overview",
-        href: "/pages/doctors#doctors-overview",
-      },
-      {
-        label: "Our Consultants",
-        href: "/pages/doctors#all-doctors",
-      },
-      {
-        label: "Visiting Consultants",
-        href: "/pages/doctors#all-doctors",
-      },
-      {
-        label: "Volunteer Consultants",
-        href: "/pages/doctors#all-doctors",
-      },
-      {
-        label: "Head of Departments",
-        href: "/pages/doctors#all-doctors",
-      },
-      {
-        label: "Book an Appointment",
-        href: "/book-appointment",
-      },
-      {
-        label: "View Doctor Profiles",
-        href: "/pages/doctors#all-doctors",
-      },
+      { label: "Find a Doctor", href: "/pages/doctors#all-doctors" },
+      { label: "Doctors Overview", href: "/pages/doctors#doctors-overview" },
+      { label: "Our Consultants", href: "/pages/doctors#all-doctors" },
+      { label: "Visiting Consultants", href: "/pages/doctors#all-doctors" },
+      { label: "Volunteer Consultants", href: "/pages/doctors#all-doctors" },
+      { label: "Head of Departments", href: "/pages/doctors#all-doctors" },
+      { label: "Book an Appointment", href: "/book-appointment" },
+      { label: "View Doctor Profiles", href: "/pages/doctors#all-doctors" },
     ],
   },
-
-  /* =====================================================
-      WELFARE
-  ===================================================== */
-
   {
     label: "Welfare",
     href: "/pages/patient-welfare",
     children: [
-      {
-        label: "Zakat & Financial Assistance",
-        href: "/pages/patient-welfare#zakat-financial-assistance",
-      },
-      {
-        label: "Free Medicines",
-        href: "/pages/patient-welfare#free-medicines",
-      },
-      {
-        label: "Free Meals",
-        href: "/pages/patient-welfare#free-meals",
-      },
-      {
-        label: "Admission Process",
-        href: "/pages/patient-welfare#admission-process",
-      },
-      {
-        label: "Patient Rights & Responsibilities",
-        href: "/pages/patient-welfare#patient-rights-responsibilities",
-      },
-      {
-        label: "Information Guides",
-        href: "/pages/patient-welfare#information-guides",
-      },
-      {
-        label: "Forms & Resources",
-        href: "/pages/patient-welfare#forms-resources",
-      },
-      {
-        label: "Billing & Fees",
-        href: "/pages/patient-welfare#billing-fees",
-      },
-      {
-        label: "FAQs",
-        href: "/pages/patient-welfare#faqs",
-      },
-      {
-        label: "Request an Appointment",
-        href: "/pages/patient-welfare#request-appointment",
-      },
-      {
-        label: "View Lab Reports",
-        href: "/pages/patient-welfare#view-lab-reports",
-      },
-      {
-        label: "Patient Success Stories",
-        href: "/pages/patient-welfare#patient-success-stories",
-      },
-      {
-        label: "Patient Assistance",
-        href: "/pages/patient-welfare#patient-assistance",
-      },
+      { label: "Zakat & Financial Assistance", href: "/pages/patient-welfare#zakat-financial-assistance" },
+      { label: "Free Medicines", href: "/pages/patient-welfare#free-medicines" },
+      { label: "Free Meals", href: "/pages/patient-welfare#free-meals" },
+      { label: "Admission Process", href: "/pages/patient-welfare#admission-process" },
+      { label: "Patient Rights & Responsibilities", href: "/pages/patient-welfare#patient-rights-responsibilities" },
+      { label: "Information Guides", href: "/pages/patient-welfare#information-guides" },
+      { label: "Forms & Resources", href: "/pages/patient-welfare#forms-resources" },
+      { label: "Billing & Fees", href: "/pages/patient-welfare#billing-fees" },
+      { label: "FAQs", href: "/pages/patient-welfare#faqs" },
+      { label: "Request an Appointment", href: "/pages/patient-welfare#request-appointment" },
+      { label: "View Lab Reports", href: "/pages/patient-welfare#view-lab-reports" },
+      { label: "Patient Success Stories", href: "/pages/patient-welfare#patient-success-stories" },
+      { label: "Patient Assistance", href: "/pages/patient-welfare#patient-assistance" },
     ],
   },
-
-  /* =====================================================
-      DONATE
-  ===================================================== */
-
   {
     label: "Donate",
     href: "/pages/donate",
     children: [
-      {
-        label: "Zakat",
-        href: "/pages/donate#ways-to-donate",
-      },
-      {
-        label: "General Donation",
-        href: "/pages/donate#ways-to-donate",
-      },
-      {
-        label: "Sadaqah",
-        href: "/pages/donate#ways-to-donate",
-      },
-      {
-        label: "Fitrana",
-        href: "/pages/donate#ways-to-donate",
-      },
-      {
-        label: "Donate a Meal",
-        href: "/pages/donate#what-you-can-support",
-      },
-      {
-        label: "Donate in Kind",
-        href: "/pages/donate#what-you-can-support",
-      },
-      {
-        label: "Sponsor a Patient",
-        href: "/pages/donate#what-you-can-support",
-      },
-      {
-        label: "Sponsor Free Surgeries",
-        href: "/pages/donate#what-you-can-support",
-      },
-      {
-        label: "Support a Project",
-        href: "/pages/donate#what-you-can-support",
-      },
-      {
-        label: "Online Donation",
-        href: "/pages/donate#ways-to-donate",
-      },
-      {
-        label: "Bank Transfer",
-        href: "/pages/donate#ways-to-donate",
-      },
-      {
-        label: "Cheque or Bank Draft",
-        href: "/pages/donate#ways-to-donate",
-      },
+      { label: "Zakat", href: "/pages/donate#ways-to-donate" },
+      { label: "General Donation", href: "/pages/donate#ways-to-donate" },
+      { label: "Sadaqah", href: "/pages/donate#ways-to-donate" },
+      { label: "Fitrana", href: "/pages/donate#ways-to-donate" },
+      { label: "Donate a Meal", href: "/pages/donate#what-you-can-support" },
+      { label: "Donate in Kind", href: "/pages/donate#what-you-can-support" },
+      { label: "Sponsor a Patient", href: "/pages/donate#what-you-can-support" },
+      { label: "Sponsor Free Surgeries", href: "/pages/donate#what-you-can-support" },
+      { label: "Support a Project", href: "/pages/donate#what-you-can-support" },
+      { label: "Online Donation", href: "/pages/donate#ways-to-donate" },
+      { label: "Bank Transfer", href: "/pages/donate#ways-to-donate" },
+      { label: "Cheque or Bank Draft", href: "/pages/donate#ways-to-donate" },
     ],
   },
 ];
-
-/* =========================================================
-   MOBILE MENU
-========================================================= */
 
 export default function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
 
-  /* =====================================================
-     BODY SCROLL LOCK
-  ===================================================== */
-
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "";
 
     return () => {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
 
-  /* =====================================================
-     ESCAPE KEY
-  ===================================================== */
-
   useEffect(() => {
     if (!isOpen) return;
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        closeMenu();
-      }
+      if (event.key === "Escape") closeMenu();
     };
 
     document.addEventListener("keydown", handleEscape);
@@ -490,58 +207,32 @@ export default function MobileMenu() {
     };
   }, [isOpen]);
 
-  /* =====================================================
-     CLOSE MENU
-  ===================================================== */
-
   const closeMenu = () => {
     setIsOpen(false);
     setOpenSection(null);
   };
 
-  /* =====================================================
-     TOGGLE SECTION
-  ===================================================== */
-
   const toggleSection = (label: string) => {
-    setOpenSection((current) =>
-      current === label ? null : label
-    );
+    setOpenSection((current) => (current === label ? null : label));
   };
 
   return (
     <>
-      {/* =====================================================
-          MOBILE CONTROLS
-      ===================================================== */}
-
-      <div className="flex shrink-0 items-center gap-2">
-        {/* Profile */}
-
+      {/* Mobile Controls */}
+      <div className="flex shrink-0 items-center gap-1.5 min-[380px]:gap-2">
         <Link
           href="/profile"
           aria-label="Profile"
           className="
-            flex
-            h-9
-            w-9
-            shrink-0
-            items-center
-            justify-center
-            rounded-lg
-            bg-[#86000D]
-            text-white
-            shadow-sm
-            transition-opacity
-            hover:opacity-90
-            sm:h-10
-            sm:w-10
+            flex h-8 w-8 shrink-0 items-center justify-center
+            rounded-lg bg-[#86000D] text-white shadow-sm
+            transition-opacity hover:opacity-90
+            min-[380px]:h-9 min-[380px]:w-9
+            sm:h-10 sm:w-10
           "
         >
           <IoPersonOutline size={14} />
         </Link>
-
-        {/* Hamburger */}
 
         <button
           type="button"
@@ -550,328 +241,195 @@ export default function MobileMenu() {
           aria-expanded={isOpen}
           aria-controls="mobile-navigation"
           className="
-            flex
-            h-9
-            w-9
-            shrink-0
-            items-center
-            justify-center
-            rounded-lg
-            border-0
-            bg-white
-            p-0
-            text-[#86000D]
-            shadow-sm
-            transition-colors
-            hover:bg-gray-100
-            sm:h-10
-            sm:w-10
+            flex h-8 w-8 shrink-0 items-center justify-center
+            rounded-lg bg-white p-0 text-[#86000D] shadow-sm
+            transition-colors hover:bg-gray-100
+            min-[380px]:h-9 min-[380px]:w-9
+            sm:h-10 sm:w-10
           "
         >
           <HiMenuAlt3 size={20} />
         </button>
       </div>
 
-      {/* =====================================================
-          OVERLAY
-      ===================================================== */}
-
+      {/* Overlay */}
       <div
         onClick={closeMenu}
         aria-hidden="true"
         className={`
-          fixed
-          inset-0
-          z-[140]
-          bg-black/40
-          transition-opacity
-          duration-300
-          ${isOpen
-            ? "pointer-events-auto opacity-100"
-            : "pointer-events-none opacity-0"
-          }
+          fixed inset-0 z-[140] bg-black/40
+          transition-opacity duration-300
+          ${isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}
         `}
       />
 
-      {/* =====================================================
-          MOBILE SIDEBAR
-      ===================================================== */}
-
+      {/* Sidebar */}
       <aside
         id="mobile-navigation"
         aria-label="Mobile navigation"
+        aria-hidden={!isOpen}
         className={`
-          fixed
-          right-0
-          top-0
-          z-[150]
-          flex
-          h-[100dvh]
-          w-[min(88vw,390px)]
-          max-w-full
-          flex-col
-          bg-white
-          shadow-2xl
-          transition-transform
-          duration-300
-          ease-in-out
-          ${isOpen
-            ? "translate-x-0"
-            : "translate-x-full"
-          }
+          fixed right-0 top-0 z-[150] flex h-[100dvh]
+          w-[min(88vw,390px)] max-w-full flex-col
+          bg-white shadow-2xl transition-transform
+          duration-300 ease-in-out
+          ${isOpen ? "translate-x-0" : "translate-x-full"}
         `}
       >
-        {/* =================================================
-            HEADER
-        ================================================= */}
-
+        {/* Header */}
         <div
           className="
-            flex
-            h-20
-            shrink-0
-            items-center
-            justify-between
-            border-b
-            border-gray-100
-            px-4
-            sm:px-5
+            flex h-20 shrink-0 items-center justify-between
+            gap-3 border-b border-gray-100
+            px-3 min-[380px]:px-4 sm:px-5
           "
         >
           {/* Logo */}
 
-          <Link
-            href="/"
-            onClick={closeMenu}
-            className="
-              flex
-              min-w-0
-              items-center
-              gap-3
-            "
-          >
-            <Image
-              src="/logo.png"
-              alt="Bashir Memorial Welfare Hospital Logo"
-              width={42}
-              height={42}
-              priority
-              className="h-9 w-9 shrink-0 object-contain"
-            />
+<Link
+  href="/"
+  onClick={closeMenu}
+  className="flex min-w-0 items-center gap-3"
+>
+  <Image
+    src="/logo.png"
+    alt="Bashir Memorial Welfare Hospital Logo"
+    width={48}
+    height={48}
+    priority
+    className="h-9 w-9 shrink-0 object-contain sm:h-12 sm:w-12"
+  />
 
-            <div className="flex min-w-0 flex-col">
-              <span
-                className="
-                  text-sm
-                  font-bold
-                  leading-4
-                  text-[#86000D]
-                "
-              >
-                Bashir Memorial
-              </span>
+  <div className="min-w-0">
+    <h1
+      className="
+        whitespace-nowrap
+        text-[12px]
+        font-bold
+        leading-3.5
+        text-[#86000D]
+        min-[321px]:text-sm
+        min-[321px]:leading-4
+        sm:text-base
+        sm:leading-5
+      "
+    >
+      Bashir Memorial
+    </h1>
 
-              <span
-                className="
-                  text-sm
-                  font-bold
-                  leading-4
-                  text-[#86000D]
-                "
-              >
-                Welfare Hospital
-              </span>
-
-              <span
-                className="
-                  mt-1
-                  text-[9px]
-                  font-medium
-                  uppercase
-                  tracking-[1px]
-                  text-[#5F5E5E]
-                "
-              >
-                Hospital & Welfare
-              </span>
-            </div>
-          </Link>
-
-          {/* Close */}
+    <h2
+      className="
+        mt-0.5
+        whitespace-nowrap
+        text-[8px]
+        font-medium
+        uppercase
+        leading-3
+        tracking-[0.7px]
+        text-[#5F5E5E]
+        min-[321px]:text-[9px]
+        min-[321px]:tracking-[1px]
+        sm:text-xs
+        sm:tracking-[1.2px]
+      "
+    >
+      Welfare Hospital
+    </h2>
+  </div>
+</Link> 
 
           <button
             type="button"
             onClick={closeMenu}
             aria-label="Close navigation menu"
             className="
-              flex
-              h-9
-              w-9
-              shrink-0
-              items-center
-              justify-center
-              rounded-xl
-              bg-[#F5F3F3]
-              text-[#5B403D]
-              transition-colors
-              hover:bg-[#86000D]
-              hover:text-white
+              flex h-9 w-9 shrink-0 items-center justify-center
+              rounded-xl bg-[#F5F3F3] text-[#5B403D]
+              transition-colors hover:bg-[#86000D] hover:text-white
             "
           >
             <FaTimes size={15} />
           </button>
         </div>
 
-        {/* =================================================
-            SCROLLABLE CONTENT
-
-            This is the only element responsible for
-            scrolling inside the mobile drawer.
-        ================================================= */}
-
+        {/* Scrollable Content */}
         <div
           className="
-            min-h-0
-            flex-1
-            overflow-y-auto
-            overflow-x-hidden
-            overscroll-contain
-            touch-pan-y
+            min-h-0 flex-1 overflow-y-auto overflow-x-hidden
+            overscroll-contain touch-pan-y
             [-webkit-overflow-scrolling:touch]
           "
         >
-          {/* =================================================
-              MAIN NAVIGATION
-          ================================================= */}
-
+          {/* Main Navigation */}
           <div className="px-4 py-5">
-            <p
-              className="
-                mb-3
-                px-3
-                text-[10px]
-                font-bold
-                uppercase
-                tracking-[1.5px]
-                text-gray-400
-              "
-            >
+            <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[1.5px] text-gray-400">
               Main Navigation
             </p>
 
             <ul className="flex flex-col gap-1">
               {mobileNavLinks.map((item) => {
-                const isSectionOpen =
-                  openSection === item.label;
+                const isSectionOpen = openSection === item.label;
 
                 return (
                   <li key={item.label}>
                     <div className="overflow-hidden rounded-xl">
-                      {/* Parent row */}
-
                       <div className="flex items-center">
                         <Link
                           href={item.href}
                           onClick={closeMenu}
                           className="
-                            flex
-                            min-h-[46px]
-                            min-w-0
-                            flex-1
-                            items-center
-                            px-3
-                            py-3
-                            text-sm
-                            font-medium
-                            text-[#5B403D]
-                            transition-colors
-                            hover:bg-[#86000D]/5
+                            flex min-h-[46px] min-w-0 flex-1
+                            items-center px-3 py-3 text-sm
+                            font-medium text-[#5B403D]
+                            transition-colors hover:bg-[#86000D]/5
                             hover:text-[#86000D]
                           "
                         >
-                          <span className="truncate">
-                            {item.label}
-                          </span>
+                          <span className="truncate">{item.label}</span>
                         </Link>
 
                         <button
                           type="button"
                           aria-label={`Toggle ${item.label}`}
                           aria-expanded={isSectionOpen}
-                          onClick={() =>
-                            toggleSection(item.label)
-                          }
+                          onClick={() => toggleSection(item.label)}
                           className="
-                            flex
-                            h-[46px]
-                            w-12
-                            shrink-0
-                            items-center
-                            justify-center
-                            text-[#86000D]
+                            flex h-[46px] w-12 shrink-0
+                            items-center justify-center text-[#86000D]
                           "
                         >
                           <FaChevronDown
                             className={`
-                              text-xs
-                              transition-transform
-                              duration-200
-                              ${isSectionOpen
-                                ? "rotate-180"
-                                : ""
-                              }
+                              text-xs transition-transform duration-200
+                              ${isSectionOpen ? "rotate-180" : ""}
                             `}
                           />
                         </button>
                       </div>
 
-                      {/* Children */}
-
                       <div
                         className={`
-                          grid
-                          transition-[grid-template-rows]
-                          duration-200
-                          ease-in-out
-                          ${isSectionOpen
-                            ? "grid-rows-[1fr]"
-                            : "grid-rows-[0fr]"
-                          }
+                          grid transition-[grid-template-rows]
+                          duration-200 ease-in-out
+                          ${isSectionOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}
                         `}
                       >
                         <div className="overflow-hidden">
-                          <div
-                            className="
-                              ml-3
-                              border-l
-                              border-[#E4BEBA]/40
-                              pb-2
-                              pl-3
-                            "
-                          >
+                          <div className="ml-3 border-l border-[#E4BEBA]/40 pb-2 pl-3">
                             {item.children.map((child) => (
                               <Link
                                 key={`${child.href}-${child.label}`}
                                 href={child.href}
                                 onClick={closeMenu}
                                 className="
-                                  flex
-                                  min-h-[40px]
-                                  items-center
-                                  rounded-lg
-                                  px-3
-                                  py-2
-                                  text-xs
-                                  font-medium
-                                  text-[#5B403D]
-                                  transition-colors
-                                  hover:bg-[#86000D]/5
+                                  flex min-h-[40px] items-center
+                                  rounded-lg px-3 py-2 text-xs
+                                  font-medium text-[#5B403D]
+                                  transition-colors hover:bg-[#86000D]/5
                                   hover:text-[#86000D]
                                 "
                               >
-                                <span className="min-w-0">
-                                  {child.label}
-                                </span>
+                                <span className="min-w-0">{child.label}</span>
                               </Link>
                             ))}
                           </div>
@@ -884,113 +442,54 @@ export default function MobileMenu() {
             </ul>
           </div>
 
-          {/* =================================================
-              DIVIDER
-          ================================================= */}
-
           <div className="mx-5 border-t border-gray-100" />
 
-          {/* =================================================
-              QUICK ACCESS
-          ================================================= */}
-
+          {/* Quick Access */}
           <div className="px-4 py-5">
-            <p
-              className="
-                mb-3
-                px-3
-                text-[10px]
-                font-bold
-                uppercase
-                tracking-[1.5px]
-                text-gray-400
-              "
-            >
+            <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[1.5px] text-gray-400">
               Quick Access
             </p>
 
             <ul className="flex flex-col gap-1">
-              {utilityLinks.map(
-                ({ label, href, icon: Icon }) => (
-                  <li key={href}>
-                    <Link
-                      href={href}
-                      onClick={closeMenu}
-                      className="
-                        flex
-                        min-h-[46px]
-                        w-full
-                        items-center
-                        gap-3
-                        rounded-xl
-                        px-3
-                        py-3
-                        text-sm
-                        font-medium
-                        text-[#5B403D]
-                        transition-colors
-                        hover:bg-[#86000D]/5
-                        hover:text-[#86000D]
-                        active:bg-[#86000D]/10
-                      "
-                    >
-                      <span
-                        className="
-                          flex
-                          h-8
-                          w-8
-                          shrink-0
-                          items-center
-                          justify-center
-                          rounded-lg
-                          bg-[#86000D]/5
-                          text-[#86000D]
-                        "
-                      >
-                        <Icon size={15} />
-                      </span>
+              {utilityLinks.map(({ label, href, icon: Icon }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    onClick={closeMenu}
+                    className="
+                      flex min-h-[46px] w-full items-center gap-3
+                      rounded-xl px-3 py-3 text-sm font-medium
+                      text-[#5B403D] transition-colors
+                      hover:bg-[#86000D]/5 hover:text-[#86000D]
+                      active:bg-[#86000D]/10
+                    "
+                  >
+                    <span className="
+                      flex h-8 w-8 shrink-0 items-center justify-center
+                      rounded-lg bg-[#86000D]/5 text-[#86000D]
+                    ">
+                      <Icon size={15} />
+                    </span>
 
-                      <span className="truncate">
-                        {label}
-                      </span>
-                    </Link>
-                  </li>
-                )
-              )}
+                    <span className="truncate">{label}</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* =================================================
-              DIVIDER
-          ================================================= */}
-
           <div className="mx-5 border-t border-gray-100" />
 
-          {/* =================================================
-              FOOTER ACTIONS
-          ================================================= */}
-
+          {/* Footer Actions */}
           <div className="p-5">
             <Link
               href="/pages/donate"
               onClick={closeMenu}
               className="
-                flex
-                min-h-[46px]
-                w-full
-                items-center
-                justify-center
-                gap-2
-                rounded-xl
-                bg-[#86000D]
-                px-5
-                py-3
-                text-sm
-                font-semibold
-                text-white
-                transition-opacity
-                hover:opacity-90
-                active:opacity-80
+                flex min-h-[46px] w-full items-center justify-center
+                gap-2 rounded-xl bg-[#86000D] px-5 py-3
+                text-sm font-semibold text-white transition-opacity
+                hover:opacity-90 active:opacity-80
               "
             >
               <CiHeart size={19} />
@@ -1001,23 +500,10 @@ export default function MobileMenu() {
               href="/profile"
               onClick={closeMenu}
               className="
-                mt-3
-                flex
-                min-h-[46px]
-                w-full
-                items-center
-                justify-center
-                gap-2
-                rounded-xl
-                border
-                border-[#86000D]/20
-                px-5
-                py-3
-                text-sm
-                font-medium
-                text-[#86000D]
-                transition-colors
-                hover:bg-[#86000D]/5
+                mt-3 flex min-h-[46px] w-full items-center justify-center
+                gap-2 rounded-xl border border-[#86000D]/20
+                px-5 py-3 text-sm font-medium text-[#86000D]
+                transition-colors hover:bg-[#86000D]/5
               "
             >
               <IoPersonOutline size={17} />

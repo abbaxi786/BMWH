@@ -18,7 +18,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  allowedDevOrigins: ['192.168.18.47'],
+  // allowedDevOrigins: ['192.168.18.47'],
+   serverExternalPackages: ["@ngrok/ngrok"],
+
+  allowedDevOrigins: ["poet-thigh-capitol.ngrok-free.dev"],
     // allowedDevOrigins:  ['192.168.0.111'],
 };
 

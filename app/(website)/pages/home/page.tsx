@@ -10,6 +10,8 @@ import HeroBanner from "@/app/components/landingPageComponents/HeroBanner";
 
 import { getTopThreeNews } from "@/lib/data/news/news.js";
 
+export const revalidate = 21600;
+
 interface NewsUpdate {
     id: number;
     title: string;

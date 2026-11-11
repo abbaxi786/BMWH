@@ -16,6 +16,10 @@ import { MdEmail, MdPhone } from "react-icons/md";
 import DoctorSchedule from "@/app/components/doctors/schedule";
 import { getActiveDoctorById } from "@/lib/data/doctors/doctors";
 
+
+export const revalidate = 86400;
+
+
 type Doctor = {
     id: number;
     department_id: number;

@@ -14,6 +14,8 @@ import {
     getActiveHospitalFacilityById,
 } from "@/lib/data/hospitalFacilities/hospitalFacilties";
 
+export const revalidate = 86400;// 24 hours in seconds
+
 interface PageProps {
     params: Promise<{ id: string }>;
 }

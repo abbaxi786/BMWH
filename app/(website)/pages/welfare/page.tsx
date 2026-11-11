@@ -17,6 +17,8 @@ import {
     FaFileMedical,
 } from "react-icons/fa";
 
+export const revalidate = 86400;
+
 /* =========================
    FINANCIAL & COMMUNITY SUPPORT
 ========================= */

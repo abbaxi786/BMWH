@@ -13,6 +13,7 @@ import { requireAdmin } from "@/lib/auth";
 import {
     getDiagnosticServiceById,
 } from "@/lib/data/diagnostic/diagnostic";
+import { revalidatePath } from "next/cache";
 
 
 // ============================================================
@@ -240,15 +241,19 @@ export async function PUT(request, { params }) {
             SET
                 name = ${name},
                 category = ${category},
-                description = ${
-                    description || null
-                },
+                description = ${description || null
+            },
                 image_url = ${image_url},
                 is_active = ${is_active},
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = ${ds_id}
             RETURNING *;
         `;
+
+        revalidatePath(
+            `/pages/diagnostic/${ds_id}`,
+            "page"
+        );
 
 
         return NextResponse.json(
@@ -393,7 +398,11 @@ export async function DELETE(
             );
         }
 
-
+        revalidatePath(
+            `/pages/diagnostic/${ds_id}`,
+            "page"
+        );
+        
         // --------------------------------------------------------
         // Response
         // --------------------------------------------------------

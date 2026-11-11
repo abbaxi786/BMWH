@@ -11,6 +11,8 @@ import {
     FaUserMd,
 } from "react-icons/fa";
 
+export const revalidate = 86400;
+
 const hospitalFacilities = [
     {
         title: "Outpatient Department",

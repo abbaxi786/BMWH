@@ -1,10 +1,15 @@
 
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+
 import {
     getLeadershipMessages,
     patchLeadershipMessage,
 } from "../../../../../lib/data/aboutSectionQuery/TopLearderShip";
+
+import {
+    uploadFileToCloudinary,
+} from "../../../../../lib/uploadToCloudinary";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,9 +18,19 @@ function isLeaderKey(value) {
     return value === "chairman" || value === "president";
 }
 
+function isValidImageUrl(value) {
+    try {
+        const url = new URL(value);
+        return (
+            url.protocol === "https:" ||
+            url.protocol === "http:"
+        );
+    } catch {
+        return false;
+    }
+}
+
 // GET /api/content/leadership_messages
-// GET /api/content/leadership_messages?includeInactive=true
-// GET /api/content/leadership_messages?leader_key=chairman
 export async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
@@ -63,6 +78,7 @@ export async function GET(request) {
             success: true,
             data,
         });
+
     } catch (error) {
         console.error("GET leadership messages error:", error);
 
@@ -92,17 +108,76 @@ export async function PATCH(request) {
         }
 
         let body;
+        let imageFile = null;
 
-        try {
-            body = await request.json();
-        } catch {
-            return NextResponse.json(
-                {
-                    success: false,
-                    message: "Invalid JSON request body.",
-                },
-                { status: 400 }
-            );
+        const contentType =
+            request.headers.get("content-type") || "";
+
+        // Support both JSON and FormData
+        if (contentType.includes("multipart/form-data")) {
+            const formData = await request.formData();
+
+            body = {};
+
+            for (const [key, value] of formData.entries()) {
+                if (key === "image") {
+                    if (
+                        typeof value !== "string" &&
+                        value.size > 0
+                    ) {
+                        imageFile = value;
+                    } else if (typeof value === "string") {
+                        body.image = value;
+                    }
+                } else {
+                    body[key] = value;
+                }
+            }
+
+            // Convert FormData values into their proper types
+            if (typeof body.message === "string") {
+                try {
+                    body.message = JSON.parse(body.message);
+                } catch {
+                    return NextResponse.json(
+                        {
+                            success: false,
+                            message: "Invalid message JSON.",
+                        },
+                        { status: 400 }
+                    );
+                }
+            }
+
+            if (typeof body.is_active === "string") {
+                if (
+                    body.is_active !== "true" &&
+                    body.is_active !== "false"
+                ) {
+                    return NextResponse.json(
+                        {
+                            success: false,
+                            message: "is_active must be a boolean.",
+                        },
+                        { status: 400 }
+                    );
+                }
+
+                body.is_active = body.is_active === "true";
+            }
+
+        } else {
+            try {
+                body = await request.json();
+            } catch {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Invalid JSON request body.",
+                    },
+                    { status: 400 }
+                );
+            }
         }
 
         if (
@@ -149,13 +224,27 @@ export async function PATCH(request) {
         const fields = Object.keys(updates);
 
         if (
-            fields.length === 0 ||
-            fields.some((field) => !allowedFields.includes(field))
+            fields.length === 0 &&
+            !imageFile
         ) {
             return NextResponse.json(
                 {
                     success: false,
                     message: "Provide valid fields to update.",
+                },
+                { status: 400 }
+            );
+        }
+
+        if (
+            fields.some(
+                (field) => !allowedFields.includes(field)
+            )
+        ) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: "Invalid fields provided.",
                 },
                 { status: 400 }
             );
@@ -238,6 +327,53 @@ export async function PATCH(request) {
             );
         }
 
+        // Handle optional Cloudinary image upload
+        if (imageFile) {
+            if (!imageFile.type.startsWith("image/")) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Only image files are allowed.",
+                    },
+                    { status: 400 }
+                );
+            }
+
+            if (imageFile.size > 5 * 1024 * 1024) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Image size must not exceed 5MB.",
+                    },
+                    { status: 400 }
+                );
+            }
+
+            const uploadedImage = await uploadFileToCloudinary(
+                imageFile,
+                "bmh/leadership"
+            );
+
+            updates.image = uploadedImage.secure_url;
+        }
+
+        // Handle manually provided image URL
+        if (
+            "image" in updates &&
+            updates.image.trim() !== ""
+        ) {
+            if (!isValidImageUrl(updates.image)) {
+                return NextResponse.json(
+                    {
+                        success: false,
+                        message: "Invalid image URL.",
+                    },
+                    { status: 400 }
+                );
+            }
+        }
+
+        // If image is omitted, existing database image remains unchanged
         const data = await patchLeadershipMessage(
             leader_key,
             updates
@@ -258,8 +394,12 @@ export async function PATCH(request) {
             message: "Leadership message updated successfully.",
             data,
         });
+
     } catch (error) {
-        console.error("PATCH leadership messages error:", error);
+        console.error(
+            "PATCH leadership messages error:",
+            error
+        );
 
         return NextResponse.json(
             {

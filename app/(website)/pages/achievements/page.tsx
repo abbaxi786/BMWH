@@ -10,6 +10,8 @@ import {
     FaBuilding,
 } from "react-icons/fa";
 
+export const revalidate = 86400;
+
 interface AchievementAward {
     id: number;
     title: string;

@@ -2,29 +2,19 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
+import { getHeroSection } from "../../../../lib/data/home_page/home_page";
+import { revalidateTag } from "next/cache";
 
 export const runtime = "nodejs";
 
 // GET: Fetch hero section content
 export async function GET() {
     try {
-        const result = await sql`
-            SELECT
-                id,
-                badge_text,
-                heading,
-                description,
-                button_text,
-                button_url
-            FROM hero_section_content
-            WHERE is_active = TRUE
-            ORDER BY id DESC
-            LIMIT 1
-        `;
+        const result = await getHeroSection();
 
         return NextResponse.json({
             success: true,
-            data: result[0] || null,
+            data: result,
         });
     } catch (error) {
         console.error("GET hero section error:", error);
@@ -152,6 +142,8 @@ export async function PATCH(request) {
                 button_text,
                 button_url
         `;
+
+        revalidateTag("hero-section", "max");
 
         return NextResponse.json({
             success: true,

@@ -17,6 +17,8 @@ interface DepartmentData {
   is_active: boolean;
 }
 
+export const revalidate = 86400;
+
 function groupDepartmentsByCategory(
   departments: DepartmentData[]
 ): Record<string, DepartmentData[]> {

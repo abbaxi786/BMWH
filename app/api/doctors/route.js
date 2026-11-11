@@ -9,6 +9,7 @@ import { requireAdmin } from "@/lib/auth";
 import {
     getDoctorById,
 } from "@/lib/data/doctors/doctors";
+import { revalidatePath } from "next/cache";
 
 
 // ============================================================
@@ -118,6 +119,10 @@ export async function POST(request) {
             )
             RETURNING *;
         `;
+
+        revalidatePath("/pages/doctors","page")
+        revalidatePath("/pages/departments/departments/[slug]","page")
+        revalidatePath("/pages/doctors/doctors_view/[id]","page")
 
         return NextResponse.json(
             {
@@ -430,6 +435,10 @@ export async function PUT(request) {
             }
         }
 
+        revalidatePath("/pages/doctors","page")
+        revalidatePath("/pages/departments/departments/[slug]","page")
+        revalidatePath("/pages/doctors/doctors_view/[id]","page")
+
         return NextResponse.json(
             {
                 success: true,
@@ -557,6 +566,10 @@ export async function DELETE(request) {
                 );
             }
         }
+
+        revalidatePath("/pages/doctors","page")
+        revalidatePath("/pages/departments/departments/[slug]","page")
+        revalidatePath("/pages/doctors/doctors_view/[id]","page")
 
         return NextResponse.json(
             {

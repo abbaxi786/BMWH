@@ -23,6 +23,9 @@ import ComplianceCertificates from "@/app/components/AboutContent/complaince";
 import TimelineHistory from "@/app/components/AboutContent/timeline_history";
 
 
+export const revalidate = 86400;
+
+
 // ============================================================
 // SHARED CONTAINER
 // ============================================================

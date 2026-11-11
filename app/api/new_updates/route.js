@@ -15,6 +15,7 @@ import {
 } from "@/lib/uploadToCloudinary";
 
 import { requireAdmin } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 
 // ======================================================
@@ -131,6 +132,10 @@ export async function POST(request) {
             )
             RETURNING *
         `;
+
+        revalidatePath("pages/new_update/[slug]","page")
+        revalidatePath("pages/all_news_updates","page")
+        revalidatePath("/","page")
 
         return NextResponse.json(
             {

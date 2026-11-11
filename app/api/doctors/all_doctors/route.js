@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getActiveDoctors } from "@/lib/data/doctors/doctors";
 
+
 export async function GET() {
     try {
         const doctors = await getActiveDoctors();

@@ -2,7 +2,14 @@ import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
 import { requireAdmin } from "../../../../lib/auth";
-import {getAchievementById} from "@/lib/data/achievment/achievements";
+import { getAchievementById } from "@/lib/data/achievment/achievements";
+import { revalidatePath } from "next/cache";
+
+// Revalidate achievement frontend pages
+function revalidateAchievementPages(id) {
+    revalidatePath("/achievements");
+    revalidatePath(`/achievements/${id}`);
+}
 
 // GET - Get single achievement/award
 export async function GET(request, { params }) {
@@ -21,24 +28,8 @@ export async function GET(request, { params }) {
             );
         }
 
-        // const result = await sql`
-        //     SELECT
-        //         id,
-        //         title,
-        //         type,
-        //         description,
-        //         image_url,
-        //         award_date,
-        //         issuing_organization,
-        //         website_url,
-        //         is_active,
-        //         created_at,
-        //         updated_at
-        //     FROM achievements_awards
-        //     WHERE id = ${achievementId}
-        //     LIMIT 1
-        // `;
         const result = await getAchievementById(achievementId);
+
         if (result.length === 0) {
             return NextResponse.json(
                 {
@@ -121,38 +112,18 @@ export async function PUT(request, { params }) {
             );
         }
 
-        const existingAchievement =
-            existingResult[0];
+        const existingAchievement = existingResult[0];
 
-        const formData =
-            await request.formData();
+        const formData = await request.formData();
 
-        const title =
-            formData.get("title");
-
-        const type =
-            formData.get("type");
-
-        const description =
-            formData.get("description");
-
-        const award_date =
-            formData.get("award_date");
-
-        const issuing_organization =
-            formData.get(
-                "issuing_organization"
-            );
-
-        const website_url =
-            formData.get("website_url");
-
-        const is_active =
-            formData.get("is_active");
-
-        const image =
-            formData.get("image");
-
+        const title = formData.get("title");
+        const type = formData.get("type");
+        const description = formData.get("description");
+        const award_date = formData.get("award_date");
+        const issuing_organization = formData.get("issuing_organization");
+        const website_url = formData.get("website_url");
+        const is_active = formData.get("is_active");
+        const image = formData.get("image");
 
         // Required fields
         if (
@@ -170,11 +141,8 @@ export async function PUT(request, { params }) {
             );
         }
 
-
         // Keep existing image by default
-        let image_url =
-            existingAchievement.image_url;
-
+        let image_url = existingAchievement.image_url;
 
         // Upload replacement image
         if (
@@ -182,24 +150,18 @@ export async function PUT(request, { params }) {
             image instanceof File &&
             image.size > 0
         ) {
-            const uploaded =
-                await uploadFileToCloudinary(
-                    image,
-                    "bmwh/achievements-awards"
-                );
+            const uploaded = await uploadFileToCloudinary(
+                image,
+                "bmwh/achievements-awards"
+            );
 
-            image_url =
-                uploaded.secure_url;
+            image_url = uploaded.secure_url;
         }
 
-
         // Keep existing active status
-        let activeValue =
-            existingAchievement.is_active;
+        let activeValue = existingAchievement.is_active;
 
-
-        // If is_active was sent, convert it
-        // from FormData string to boolean.
+        // Convert FormData value to boolean
         if (is_active !== null) {
             activeValue =
                 is_active === true ||
@@ -207,7 +169,6 @@ export async function PUT(request, { params }) {
                 is_active === "1" ||
                 is_active === "on";
         }
-
 
         // Update database
         const result = await sql`
@@ -246,12 +207,13 @@ export async function PUT(request, { params }) {
             RETURNING *;
         `;
 
+        // Revalidate cached frontend pages
+        revalidateAchievementPages(achievementId);
 
         return NextResponse.json(
             {
                 success: true,
-                message:
-                    "Achievement/Award updated successfully",
+                message: "Achievement/Award updated successfully",
                 data: result[0],
             },
             { status: 200 }
@@ -266,8 +228,7 @@ export async function PUT(request, { params }) {
         return NextResponse.json(
             {
                 success: false,
-                message:
-                    "Failed to update achievement/award",
+                message: "Failed to update achievement/award",
             },
             { status: 500 }
         );
@@ -276,10 +237,7 @@ export async function PUT(request, { params }) {
 
 
 // DELETE - Delete achievement/award
-export async function DELETE(
-    request,
-    { params }
-) {
+export async function DELETE(request, { params }) {
     try {
         // Admin only
         await requireAdmin(request);
@@ -297,7 +255,6 @@ export async function DELETE(
                 { status: 400 }
             );
         }
-
 
         // Check if achievement exists
         const existingResult = await sql`
@@ -320,7 +277,6 @@ export async function DELETE(
             );
         }
 
-
         // Delete database record
         const result = await sql`
             DELETE FROM achievements_awards
@@ -328,12 +284,13 @@ export async function DELETE(
             RETURNING *;
         `;
 
+        // Revalidate cached frontend pages
+        revalidateAchievementPages(achievementId);
 
         return NextResponse.json(
             {
                 success: true,
-                message:
-                    "Achievement/Award deleted successfully",
+                message: "Achievement/Award deleted successfully",
                 data: result[0],
             },
             { status: 200 }
@@ -348,8 +305,7 @@ export async function DELETE(
         return NextResponse.json(
             {
                 success: false,
-                message:
-                    "Failed to delete achievement/award",
+                message: "Failed to delete achievement/award",
             },
             { status: 500 }
         );

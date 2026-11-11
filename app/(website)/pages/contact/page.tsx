@@ -18,6 +18,8 @@ import {
 // import ContactForm from "@/app/components/contact/ContactForm";
 import Map from "@/app/components/map";
 
+export const revalidate = 86400;
+
 const contactInfo = [
     {
         icon: FaMapMarkerAlt,

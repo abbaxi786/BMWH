@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
+import { getBannerImages } from "../../../../lib/data/home_page/home_page";
 import {
     uploadFileToCloudinary,
     deleteFileFromCloudinary,
 } from "@/lib/uploadToCloudinary";
+import { revalidateTag } from "next/cache";
 
 
 export const runtime = "nodejs";
@@ -110,6 +112,8 @@ export async function POST(request) {
             RETURNING id, alt, src
         `;
 
+        revalidateTag("banner-images", "max");
+
         return NextResponse.json(
             {
                 success: true,
@@ -134,11 +138,7 @@ export async function POST(request) {
 // Get all banner images
 export async function GET() {
     try {
-        const result = await sql`
-            SELECT id, alt, src
-            FROM bannerImages
-            ORDER BY id ASC
-        `;
+        const result = await getBannerImages();
 
         return NextResponse.json(
             {
@@ -159,7 +159,6 @@ export async function GET() {
         );
     }
 }
-
 
 
 // DELETE: Remove banner image from Cloudinary (if applicable) and database
@@ -264,6 +263,8 @@ export async function DELETE(request) {
                 { status: 500 }
             );
         }
+
+        revalidateTag("banner-images", "max");
 
         // 6. Return success
         return NextResponse.json(

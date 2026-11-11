@@ -12,6 +12,8 @@ import EventGallery from "@/app/components/eventPart/gallery";
 
 import { getActiveEventById } from "@/lib/data/events/events";
 
+export const revalidate = 86400;// 24 hours in seconds
+
 interface Event {
     id: number;
     title: string;

@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
+import { getImpactStats } from "../../../../lib/data/home_page/home_page";
+
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+import { revalidateTag } from "next/cache";
 
 const noCacheHeaders = {
     "Cache-Control": "no-store, no-cache, must-revalidate",
@@ -13,45 +16,25 @@ const noCacheHeaders = {
 
 export async function GET() {
     try {
-        const result = await sql`
-            SELECT
-                id,
-                target,
-                suffix,
-                title,
-                description,
-                display_order,
-                is_active
-            FROM impact_stats
-            WHERE is_active = TRUE
-            ORDER BY display_order ASC
-        `;
+        const result = await getImpactStats();
 
-        return NextResponse.json(
-            {
-                success: true,
-                data: result,
-            },
-            {
-                status: 200,
-                headers: noCacheHeaders,
-            }
-        );
+        return NextResponse.json({
+            success: true,
+            data: result,
+        });
     } catch (error) {
-        console.error("GET /api/content/stats error:", error);
+        console.error("GET stats error:", error);
 
         return NextResponse.json(
             {
                 success: false,
                 message: "Failed to fetch impact statistics",
             },
-            {
-                status: 500,
-                headers: noCacheHeaders,
-            }
+            { status: 500 }
         );
     }
 }
+
 
 export async function PATCH(request) {
     try {
@@ -163,6 +146,8 @@ export async function PATCH(request) {
                 { status: 404, headers: noCacheHeaders }
             );
         }
+
+        revalidateTag("impact-stats", "max");
 
         return NextResponse.json(
             {

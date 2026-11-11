@@ -3,6 +3,8 @@ import DonationHero from "@/app/components/donate/overlayCard";
 import AdoptYourCause from "@/app/components/donate/adoptYourCause";
 import DonationPart from "@/app/components/donate/donationPart";
 
+export const revalidate = 86400;
+
 function Donate() {
     return (
         <main

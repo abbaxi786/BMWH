@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { requireAdmin } from "../../../lib/auth";
+import { revalidatePath } from "next/cache";
 
 
 
@@ -88,6 +89,8 @@ export async function POST(request) {
             )
             RETURNING *;
         `;
+
+        revalidatePath("pages/doctors/doctor_view/[id]","page")
 
         return NextResponse.json(
             {

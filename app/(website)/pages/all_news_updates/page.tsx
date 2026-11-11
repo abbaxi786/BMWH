@@ -16,6 +16,8 @@ interface AllNewsUpdate {
   published_at: string;
 }
 
+export const revalidate = 86400;
+
 export default async function AllNewsUpdates() {
   let newsAndUpdates: any[] = [];
 

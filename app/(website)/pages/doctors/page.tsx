@@ -21,6 +21,8 @@ export interface Doctor {
     department_name: string;
 }
 
+export const revalidate = 86400;
+
 function createDepartmentId(department: string) {
     return department
         .toLowerCase()

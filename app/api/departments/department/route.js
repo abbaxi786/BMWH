@@ -1,4 +1,6 @@
+
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 import { sql } from "@/lib/db";
 
@@ -16,6 +18,26 @@ import {
 
 /*
 |--------------------------------------------------------------------------
+| Cache Revalidation
+|--------------------------------------------------------------------------
+| Revalidate homepage, department listing and department detail page.
+*/
+
+function revalidateDepartmentPages(slug) {
+    revalidatePath("/", "page");
+    revalidatePath("/pages/departments", "page");
+
+    if (slug) {
+        revalidatePath(
+            `/pages/department/departments/${slug}`,
+            "page"
+        );
+    }
+}
+
+
+/*
+|--------------------------------------------------------------------------
 | GET
 |--------------------------------------------------------------------------
 | Get a department by slug along with doctors and services.
@@ -23,11 +45,9 @@ import {
 
 export async function GET(request) {
     try {
-        const { searchParams } =
-            new URL(request.url);
+        const { searchParams } = new URL(request.url);
 
-        const slug =
-            searchParams.get("slug");
+        const slug = searchParams.get("slug");
 
         /*
         |--------------------------------------------------------------------------
@@ -39,12 +59,9 @@ export async function GET(request) {
             return NextResponse.json(
                 {
                     success: false,
-                    message:
-                        "Department slug is required",
+                    message: "Department slug is required",
                 },
-                {
-                    status: 400,
-                }
+                { status: 400 }
             );
         }
 
@@ -55,9 +72,7 @@ export async function GET(request) {
         */
 
         const department =
-            await getDepartmentDetailsBySlug(
-                slug
-            );
+            await getDepartmentDetailsBySlug(slug);
 
         /*
         |--------------------------------------------------------------------------
@@ -69,12 +84,9 @@ export async function GET(request) {
             return NextResponse.json(
                 {
                     success: false,
-                    message:
-                        "Department not found",
+                    message: "Department not found",
                 },
-                {
-                    status: 404,
-                }
+                { status: 404 }
             );
         }
 
@@ -89,9 +101,7 @@ export async function GET(request) {
                 success: true,
                 data: department,
             },
-            {
-                status: 200,
-            }
+            { status: 200 }
         );
 
     } catch (error) {
@@ -103,12 +113,9 @@ export async function GET(request) {
         return NextResponse.json(
             {
                 success: false,
-                message:
-                    "Failed to fetch department",
+                message: "Failed to fetch department",
             },
-            {
-                status: 500,
-            }
+            { status: 500 }
         );
     }
 }
@@ -129,8 +136,7 @@ export async function PUT(request) {
         |--------------------------------------------------------------------------
         */
 
-        const admin =
-            await requireAdmin();
+        const admin = await requireAdmin();
 
         if (!admin) {
             return NextResponse.json(
@@ -138,28 +144,21 @@ export async function PUT(request) {
                     success: false,
                     message: "Unauthorized",
                 },
-                {
-                    status: 401,
-                }
+                { status: 401 }
             );
         }
 
-        const { searchParams } =
-            new URL(request.url);
+        const { searchParams } = new URL(request.url);
 
-        const currentSlug =
-            searchParams.get("slug");
+        const currentSlug = searchParams.get("slug");
 
         if (!currentSlug) {
             return NextResponse.json(
                 {
                     success: false,
-                    message:
-                        "Current department slug is required",
+                    message: "Current department slug is required",
                 },
-                {
-                    status: 400,
-                }
+                { status: 400 }
             );
         }
 
@@ -169,31 +168,24 @@ export async function PUT(request) {
         |--------------------------------------------------------------------------
         */
 
-        const existingDepartment =
-            await sql`
-                SELECT *
-                FROM departments
-                WHERE slug = ${currentSlug}
-                LIMIT 1;
-            `;
+        const existingDepartment = await sql`
+            SELECT *
+            FROM departments
+            WHERE slug = ${currentSlug}
+            LIMIT 1;
+        `;
 
-        if (
-            existingDepartment.length === 0
-        ) {
+        if (existingDepartment.length === 0) {
             return NextResponse.json(
                 {
                     success: false,
-                    message:
-                        "Department not found",
+                    message: "Department not found",
                 },
-                {
-                    status: 404,
-                }
+                { status: 404 }
             );
         }
 
-        const department =
-            existingDepartment[0];
+        const department = existingDepartment[0];
 
         /*
         |--------------------------------------------------------------------------
@@ -201,26 +193,17 @@ export async function PUT(request) {
         |--------------------------------------------------------------------------
         */
 
-        const formData =
-            await request.formData();
+        const formData = await request.formData();
 
-        const name =
-            formData.get("name");
-
-        const category =
-            formData.get("category");
-
-        const description =
-            formData.get("description");
-
-        const slug =
-            formData.get("slug");
+        const name = formData.get("name");
+        const category = formData.get("category");
+        const description = formData.get("description");
+        const slug = formData.get("slug");
 
         const is_active =
             formData.get("is_active") === "true";
 
-        const image =
-            formData.get("image");
+        const image = formData.get("image");
 
         const removeImage =
             formData.get("remove_image") === "true";
@@ -231,53 +214,43 @@ export async function PUT(request) {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            !name ||
-            !String(name).trim()
-        ) {
+        if (!name || !String(name).trim()) {
             return NextResponse.json(
                 {
                     success: false,
-                    message:
-                        "Department name is required",
+                    message: "Department name is required",
                 },
-                {
-                    status: 400,
-                }
+                { status: 400 }
             );
         }
 
-        if (
-            !category ||
-            !String(category).trim()
-        ) {
+        if (!category || !String(category).trim()) {
             return NextResponse.json(
                 {
                     success: false,
-                    message:
-                        "Department category is required",
+                    message: "Department category is required",
                 },
-                {
-                    status: 400,
-                }
+                { status: 400 }
             );
         }
 
-        if (
-            !slug ||
-            !String(slug).trim()
-        ) {
+        if (!slug || !String(slug).trim()) {
             return NextResponse.json(
                 {
                     success: false,
-                    message:
-                        "Department slug is required",
+                    message: "Department slug is required",
                 },
-                {
-                    status: 400,
-                }
+                { status: 400 }
             );
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Normalize new slug
+        |--------------------------------------------------------------------------
+        */
+
+        const newSlug = String(slug).trim();
 
         /*
         |--------------------------------------------------------------------------
@@ -285,27 +258,22 @@ export async function PUT(request) {
         |--------------------------------------------------------------------------
         */
 
-        const duplicateSlug =
-            await sql`
-                SELECT id
-                FROM departments
-                WHERE slug = ${String(slug).trim()}
-                  AND id != ${department.id}
-                LIMIT 1;
-            `;
+        const duplicateSlug = await sql`
+            SELECT id
+            FROM departments
+            WHERE slug = ${newSlug}
+              AND id != ${department.id}
+            LIMIT 1;
+        `;
 
-        if (
-            duplicateSlug.length > 0
-        ) {
+        if (duplicateSlug.length > 0) {
             return NextResponse.json(
                 {
                     success: false,
                     message:
                         "A department with this slug already exists",
                 },
-                {
-                    status: 409,
-                }
+                { status: 409 }
             );
         }
 
@@ -315,11 +283,9 @@ export async function PUT(request) {
         |--------------------------------------------------------------------------
         */
 
-        const oldImageUrl =
-            department.image_url;
+        const oldImageUrl = department.image_url;
 
-        let image_url =
-            oldImageUrl;
+        let image_url = oldImageUrl;
 
         /*
         |--------------------------------------------------------------------------
@@ -332,14 +298,12 @@ export async function PUT(request) {
             typeof image.arrayBuffer === "function" &&
             image.size > 0
         ) {
-            const uploaded =
-                await uploadFileToCloudinary(
-                    image,
-                    "bmh/departments"
-                );
+            const uploaded = await uploadFileToCloudinary(
+                image,
+                "bmh/departments"
+            );
 
-            image_url =
-                uploaded.secure_url;
+            image_url = uploaded.secure_url;
         }
 
         /*
@@ -348,10 +312,7 @@ export async function PUT(request) {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            removeImage &&
-            !image
-        ) {
+        if (removeImage && !image) {
             image_url = null;
         }
 
@@ -361,24 +322,47 @@ export async function PUT(request) {
         |--------------------------------------------------------------------------
         */
 
-        const updatedDepartment =
-            await sql`
-                UPDATE departments
-                SET
-                    name = ${String(name).trim()},
-                    category = ${String(category).trim()},
-                    description = ${
-                        description
-                            ? String(description).trim()
-                            : null
-                    },
-                    slug = ${String(slug).trim()},
-                    image_url = ${image_url},
-                    is_active = ${is_active},
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE id = ${department.id}
-                RETURNING *;
-            `;
+        const updatedDepartment = await sql`
+            UPDATE departments
+            SET
+                name = ${String(name).trim()},
+                category = ${String(category).trim()},
+                description = ${
+                    description
+                        ? String(description).trim()
+                        : null
+                },
+                slug = ${newSlug},
+                image_url = ${image_url},
+                is_active = ${is_active},
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ${department.id}
+            RETURNING *;
+        `;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Revalidate cached frontend pages
+        |--------------------------------------------------------------------------
+        */
+
+        // Always revalidate the homepage and department listing.
+        revalidatePath("/", "page");
+        revalidatePath("/pages/departments", "page");
+
+        // Revalidate the old department URL.
+        revalidatePath(
+            `/pages/department/departments/${currentSlug}`,
+            "page"
+        );
+
+        // If slug changed, also revalidate the new department URL.
+        if (currentSlug !== newSlug) {
+            revalidatePath(
+                `/pages/department/departments/${newSlug}`,
+                "page"
+            );
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -386,14 +370,9 @@ export async function PUT(request) {
         |--------------------------------------------------------------------------
         */
 
-        if (
-            oldImageUrl &&
-            oldImageUrl !== image_url
-        ) {
+        if (oldImageUrl && oldImageUrl !== image_url) {
             try {
-                await deleteFileFromCloudinary(
-                    oldImageUrl
-                );
+                await deleteFileFromCloudinary(oldImageUrl);
             } catch (cloudinaryError) {
                 console.error(
                     "Failed to delete old Cloudinary image:",
@@ -402,17 +381,19 @@ export async function PUT(request) {
             }
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Success
+        |--------------------------------------------------------------------------
+        */
+
         return NextResponse.json(
             {
                 success: true,
-                message:
-                    "Department updated successfully",
-                data:
-                    updatedDepartment[0],
+                message: "Department updated successfully",
+                data: updatedDepartment[0],
             },
-            {
-                status: 200,
-            }
+            { status: 200 }
         );
 
     } catch (error) {
@@ -428,9 +409,7 @@ export async function PUT(request) {
                     error?.message ||
                     "Failed to update department",
             },
-            {
-                status: 500,
-            }
+            { status: 500 }
         );
     }
 }
@@ -451,8 +430,7 @@ export async function DELETE(request) {
         |--------------------------------------------------------------------------
         */
 
-        const admin =
-            await requireAdmin();
+        const admin = await requireAdmin();
 
         if (!admin) {
             return NextResponse.json(
@@ -460,17 +438,13 @@ export async function DELETE(request) {
                     success: false,
                     message: "Unauthorized",
                 },
-                {
-                    status: 401,
-                }
+                { status: 401 }
             );
         }
 
-        const { searchParams } =
-            new URL(request.url);
+        const { searchParams } = new URL(request.url);
 
-        const slug =
-            searchParams.get("slug");
+        const slug = searchParams.get("slug");
 
         /*
         |--------------------------------------------------------------------------
@@ -482,12 +456,9 @@ export async function DELETE(request) {
             return NextResponse.json(
                 {
                     success: false,
-                    message:
-                        "Department slug is required",
+                    message: "Department slug is required",
                 },
-                {
-                    status: 400,
-                }
+                { status: 400 }
             );
         }
 
@@ -497,31 +468,24 @@ export async function DELETE(request) {
         |--------------------------------------------------------------------------
         */
 
-        const existingDepartment =
-            await sql`
-                SELECT *
-                FROM departments
-                WHERE slug = ${slug}
-                LIMIT 1;
-            `;
+        const existingDepartment = await sql`
+            SELECT *
+            FROM departments
+            WHERE slug = ${slug}
+            LIMIT 1;
+        `;
 
-        if (
-            existingDepartment.length === 0
-        ) {
+        if (existingDepartment.length === 0) {
             return NextResponse.json(
                 {
                     success: false,
-                    message:
-                        "Department not found",
+                    message: "Department not found",
                 },
-                {
-                    status: 404,
-                }
+                { status: 404 }
             );
         }
 
-        const department =
-            existingDepartment[0];
+        const department = existingDepartment[0];
 
         /*
         |--------------------------------------------------------------------------
@@ -533,6 +497,14 @@ export async function DELETE(request) {
             DELETE FROM departments
             WHERE id = ${department.id};
         `;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Revalidate cached frontend pages
+        |--------------------------------------------------------------------------
+        */
+
+        revalidateDepartmentPages(slug);
 
         /*
         |--------------------------------------------------------------------------
@@ -553,15 +525,18 @@ export async function DELETE(request) {
             }
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Success
+        |--------------------------------------------------------------------------
+        */
+
         return NextResponse.json(
             {
                 success: true,
-                message:
-                    "Department deleted successfully",
+                message: "Department deleted successfully",
             },
-            {
-                status: 200,
-            }
+            { status: 200 }
         );
 
     } catch (error) {
@@ -577,9 +552,7 @@ export async function DELETE(request) {
                     error?.message ||
                     "Failed to delete department",
             },
-            {
-                status: 500,
-            }
+            { status: 500 }
         );
     }
 }

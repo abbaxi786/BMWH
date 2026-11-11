@@ -13,6 +13,8 @@ import {
     getActiveDiagnosticServiceById,
 } from "@/lib/data/diagnostic/diagnostic.js";
 
+export const revalidate = 86400;
+
 interface DiagnosticService {
     id: number;
     name: string;

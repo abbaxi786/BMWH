@@ -1,8 +1,8 @@
 import React from "react";
-import axios from "axios";
 import Link from "next/link";
 import DoctorCard from "@/app/components/departmentPageComponents/DoctorCard";
 import Image from "next/image";
+import { getDepartmentDetailsBySlug } from "../../../../../../lib/data/department/all_department";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -30,6 +30,8 @@ interface Service {
     is_active: boolean;
 }
 
+export const revalidate = 86400;
+
 interface Department {
     department_id: number;
     department_name: string;
@@ -42,32 +44,15 @@ interface Department {
     services: Service[];
 }
 
-interface ApiResponse {
-    success: boolean;
-    data: Department;
-    message?: string;
-}
-
 async function Department({ params }: PageProps) {
     const { slug } = await params;
 
     let department: Department | null = null;
 
     try {
-        const response = await axios.get<ApiResponse>(
-            "http://localhost:3000/api/departments/department/",
-            {
-                params: {
-                    slug: slug,
-                },
-            }
-        );
-
-        if (response.data.success) {
-            department = response.data.data;
-        }
+        department = (await getDepartmentDetailsBySlug(slug)) as Department | null;
     } catch (error) {
-        console.error("Failed to fetch department:", error);
+        console.error("Failed to fetch department details:", error);
     }
 
     // =========================================================
@@ -668,15 +653,18 @@ async function Department({ params }: PageProps) {
 
                     </div>
 
-
                     {/* Doctors */}
+
                     {department.doctors.length > 0 ? (
+
                         <div
                             className="mt-12 grid grid-cols-1
-                   sm:grid-cols-2 lg:grid-cols-3
-                   gap-7"
+                                       sm:grid-cols-2 lg:grid-cols-3
+                                       gap-7"
                         >
+
                             {department.doctors.map((doctor) => (
+
                                 <Link
                                     key={doctor.id}
                                     href={`/pages/doctors/doctor_view/${doctor.id}`}
@@ -684,18 +672,23 @@ async function Department({ params }: PageProps) {
                                 >
                                     <DoctorCard doctor={doctor} />
                                 </Link>
+
                             ))}
+
                         </div>
+
                     ) : (
+
                         <div
                             className="mt-10 py-12 text-center
-                   border border-dashed border-gray-300
-                   rounded-xl"
+                                       border border-dashed border-gray-300
+                                       rounded-xl"
                         >
                             <p className="text-gray-500">
                                 No doctors are currently available.
                             </p>
                         </div>
+
                     )}
 
                 </div>

@@ -11,6 +11,8 @@ import {
 
 import { getNewsBySlug } from "@/lib/data/news/news";
 
+export const revalidate = 86400;
+
 interface NewsUpdate {
     id: number;
     title: string;

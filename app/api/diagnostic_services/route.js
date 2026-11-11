@@ -3,6 +3,8 @@ import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
 import { requireAdmin } from "@/lib/auth";
 
+import { revalidatePath } from "next/cache";
+
 import {
     getDiagnosticServices,
 } from "@/lib/data/diagnostic/diagnostic";
@@ -75,6 +77,13 @@ export async function POST(request) {
             )
             RETURNING *;
         `;
+
+        revalidatePath(
+            `/pages/diagnostic/${result[0].id}`,
+            "page"
+        );
+
+        revalidatePath(`/`,"page");
 
         return NextResponse.json(
             {

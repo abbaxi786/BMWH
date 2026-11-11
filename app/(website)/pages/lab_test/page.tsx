@@ -23,6 +23,7 @@ export interface LabTest {
     updated_at?: string;
 }
 
+
 function LabTests() {
     const [labTests, setLabTests] = useState<LabTest[]>([]);
     const [loading, setLoading] = useState(true);

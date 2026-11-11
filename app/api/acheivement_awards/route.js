@@ -3,7 +3,18 @@ import { sql } from "@/lib/db";
 import { uploadFileToCloudinary } from "@/lib/uploadToCloudinary";
 import { requireAdmin } from "../../../lib/auth";
 import { getAchievements } from "@/lib/data/achievment/achievements";
+import { revalidatePath } from "next/cache";
 
+// Revalidate achievement frontend pages
+function revalidateAchievementPages(id) {
+    revalidatePath("/achievements");
+    revalidatePath(`/achievements/${id}`);
+
+    // Uncomment if homepage displays achievements
+    // revalidatePath("/");
+}
+
+// GET - Get all achievements and awards
 export async function GET() {
     try {
         const result = await getAchievements();
@@ -15,6 +26,7 @@ export async function GET() {
             },
             { status: 200 }
         );
+
     } catch (error) {
         console.error(
             "Error fetching achievements and awards:",
@@ -31,20 +43,23 @@ export async function GET() {
     }
 }
 
+
 // POST - Create achievement/award
 export async function POST(request) {
-
-    const admin = await requireAdmin()
-    if(!admin){
-        return new NextResponse({
-            message:"Unauthorized person",
-            success:false,
-        },{
-            status:401
-        })
-    }
-
     try {
+        // Admin only
+        const admin = await requireAdmin(request);
+
+        if (!admin) {
+            return NextResponse.json(
+                {
+                    message: "Unauthorized person",
+                    success: false,
+                },
+                { status: 401 }
+            );
+        }
+
         const formData = await request.formData();
 
         const title = formData.get("title");
@@ -56,7 +71,12 @@ export async function POST(request) {
         const image = formData.get("image");
 
         // Required fields
-        if (!title || !type) {
+        if (
+            typeof title !== "string" ||
+            !title.trim() ||
+            typeof type !== "string" ||
+            !type.trim()
+        ) {
             return NextResponse.json(
                 {
                     success: false,
@@ -67,14 +87,18 @@ export async function POST(request) {
         }
 
         let image_url = null;
-        let uploaded = null
 
         // Upload image to Cloudinary
-        if (image && image instanceof File && image.size > 0) {
-            uploaded = await uploadFileToCloudinary(
+        if (
+            image &&
+            image instanceof File &&
+            image.size > 0
+        ) {
+            const uploaded = await uploadFileToCloudinary(
                 image,
                 "bmwh/achievements-awards"
             );
+
             image_url = uploaded.secure_url;
         }
 
@@ -90,16 +114,41 @@ export async function POST(request) {
                 website_url
             )
             VALUES (
-                ${title},
-                ${type},
-                ${description || null},
+                ${title.trim()},
+                ${type.trim()},
+                ${
+                    typeof description === "string" &&
+                    description.trim()
+                        ? description.trim()
+                        : null
+                },
                 ${image_url},
-                ${award_date || null},
-                ${issuing_organization || null},
-                ${website_url || null}
+                ${
+                    typeof award_date === "string" &&
+                    award_date.trim()
+                        ? award_date.trim()
+                        : null
+                },
+                ${
+                    typeof issuing_organization === "string" &&
+                    issuing_organization.trim()
+                        ? issuing_organization.trim()
+                        : null
+                },
+                ${
+                    typeof website_url === "string" &&
+                    website_url.trim()
+                        ? website_url.trim()
+                        : null
+                }
             )
             RETURNING *;
         `;
+
+        // Revalidate cached frontend pages
+        const newAchievementId = result[0].id;
+
+        revalidateAchievementPages(newAchievementId);
 
         return NextResponse.json(
             {
@@ -111,7 +160,10 @@ export async function POST(request) {
         );
 
     } catch (error) {
-        console.error("Error creating achievement/award:", error);
+        console.error(
+            "Error creating achievement/award:",
+            error
+        );
 
         return NextResponse.json(
             {

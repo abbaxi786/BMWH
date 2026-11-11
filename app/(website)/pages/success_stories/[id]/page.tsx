@@ -10,6 +10,8 @@ import {
 
 import { getActiveSuccessStoryById } from "@/lib/data/successStories/successStories";
 
+export const revalidate = 86400;
+
 interface SuccessStory {
     id: number;
     title: string;

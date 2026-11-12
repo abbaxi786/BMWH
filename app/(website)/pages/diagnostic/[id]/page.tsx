@@ -1,5 +1,10 @@
+
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { cache } from "react";
+import type { Metadata } from "next";
+
 import {
     FaArrowLeft,
     FaCalendarCheck,
@@ -7,13 +12,22 @@ import {
     FaPhoneAlt,
     FaArrowRight,
 } from "react-icons/fa";
+
 import ContactUsCard from "@/app/components/contactCard/contactCard";
 
 import {
     getActiveDiagnosticServiceById,
-} from "@/lib/data/diagnostic/diagnostic.js";
+} from "@/lib/data/diagnostic/diagnostic";
+
+/* =====================================================
+   ISR CACHING
+===================================================== */
 
 export const revalidate = 86400;
+
+/* =====================================================
+   TYPES
+===================================================== */
 
 interface DiagnosticService {
     id: number;
@@ -30,68 +44,182 @@ interface PageProps {
     }>;
 }
 
+/* =====================================================
+   SITE URL
+===================================================== */
+
+const SITE_URL =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") || "";
+
+const PAGE_PATH = "/pages/diagnostic";
+
+/* =====================================================
+   CACHED DATA FETCHING
+===================================================== */
+
+const getCachedDiagnosticService = cache(
+    async (id: string): Promise<DiagnosticService | null> => {
+        return (await getActiveDiagnosticServiceById(
+            id
+        )) as DiagnosticService | null;
+    }
+);
+
+/* =====================================================
+   SEO METADATA
+===================================================== */
+
+export async function generateMetadata({
+    params,
+}: PageProps): Promise<Metadata> {
+    const { id } = await params;
+
+    const service = await getCachedDiagnosticService(id);
+
+    if (!service) {
+        return {
+            title: "Diagnostic Service Not Found | Bashir Memorial Welfare Hospital",
+            description:
+                "The requested diagnostic service could not be found or is no longer available.",
+            robots: {
+                index: false,
+                follow: true,
+            },
+        };
+    }
+
+    const title = `${service.name} | Diagnostic Services | Bashir Memorial Welfare Hospital`;
+
+    const description =
+        service.description?.trim() ||
+        `Learn more about ${service.name}, part of the diagnostic services available at Bashir Memorial Welfare Hospital.`;
+
+    const canonicalUrl = `${SITE_URL}${PAGE_PATH}/${service.id}`;
+
+    return {
+        title,
+        description,
+
+        alternates: {
+            canonical: SITE_URL
+                ? canonicalUrl
+                : `${PAGE_PATH}/${service.id}`,
+        },
+
+        openGraph: {
+            title,
+            description,
+            url: SITE_URL
+                ? canonicalUrl
+                : `${PAGE_PATH}/${service.id}`,
+            siteName: "Bashir Memorial Welfare Hospital",
+            type: "website",
+
+            ...(service.image_url && {
+                images: [
+                    {
+                        url: service.image_url,
+                        alt: service.name,
+                    },
+                ],
+            }),
+        },
+
+        twitter: {
+            card: service.image_url
+                ? "summary_large_image"
+                : "summary",
+            title,
+            description,
+
+            ...(service.image_url && {
+                images: [service.image_url],
+            }),
+        },
+
+        robots: {
+            index: true,
+            follow: true,
+        },
+    };
+}
+
+/* =====================================================
+   PAGE
+===================================================== */
+
 export default async function DiagnosticServicePage({
     params,
 }: PageProps) {
     const { id } = await params;
 
-    let service: DiagnosticService | null = null;
-
-    try {
-        service =
-            (await getActiveDiagnosticServiceById(
-                id
-            )) as DiagnosticService | null;
-    } catch (error) {
-        console.error(
-            "Error fetching diagnostic service:",
-            error
-        );
-    }
+    const service = await getCachedDiagnosticService(id);
 
     if (!service) {
-        return (
-            <main className="min-h-screen bg-[#FBF9F9] animate-fade-in-up">
-                <div className="mx-auto flex min-h-[60vh] max-w-7xl flex-col items-center justify-center px-6 text-center">
-                    <h1 className="mb-3 text-3xl font-bold text-[#1B1C1C]">
-                        Diagnostic Service Not Found
-                    </h1>
-
-                    <p className="mb-6 max-w-lg text-[#5B403D]">
-                        The diagnostic service you are looking for
-                        could not be found or may no longer be
-                        available.
-                    </p>
-
-                    <Link
-                        href="/pages/diagnostic"
-                        className="
-                            inline-flex
-                            items-center
-                            gap-2
-                            rounded-xs
-                            bg-[#86000D]
-                            px-6
-                            py-3
-                            text-sm
-                            font-semibold
-                            text-white
-                            transition
-                            hover:bg-[#6d000a]
-                        "
-                    >
-                        <FaArrowLeft size={12} />
-                        Back to Diagnostic Services
-                    </Link>
-                </div>
-            </main>
-        );
+        notFound();
     }
+
+    /* =====================================================
+       STRUCTURED DATA
+    ===================================================== */
+
+    const canonicalUrl = SITE_URL
+        ? `${SITE_URL}${PAGE_PATH}/${service.id}`
+        : `${PAGE_PATH}/${service.id}`;
+
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "MedicalProcedure",
+
+        name: service.name,
+
+        description:
+            service.description ||
+            `Diagnostic service available at Bashir Memorial Welfare Hospital.`,
+
+        url: canonicalUrl,
+
+        procedureType: "Diagnostic",
+
+        ...(service.image_url && {
+            image: service.image_url,
+        }),
+
+        relevantSpecialty: service.category,
+
+        provider: {
+            "@type": "Hospital",
+            name: "Bashir Memorial Welfare Hospital",
+            ...(SITE_URL && {
+                url: SITE_URL,
+            }),
+        },
+
+        mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": canonicalUrl,
+        },
+    };
 
     return (
         <main className="bg-[#FBF9F9] animate-fade-in-up">
 
+            {/* =====================================================
+                STRUCTURED DATA
+            ===================================================== */}
+
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(structuredData).replace(
+                        /</g,
+                        "\\u003c"
+                    ),
+                }}
+            />
+
             {/* ================= BREADCRUMB ================= */}
+
             <section className="border-b border-[#E5E2E2] bg-white">
                 <div className="mx-auto max-w-7xl px-6 py-4 sm:px-8 lg:px-10">
                     <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -135,6 +263,7 @@ export default async function DiagnosticServicePage({
             </section>
 
             {/* ================= HERO ================= */}
+
             <section className="bg-[#F5F3F3]">
                 <div
                     className="
@@ -145,9 +274,7 @@ export default async function DiagnosticServicePage({
                         gap-10
                         px-6
                         py-14
-
                         sm:px-8
-
                         lg:grid-cols-2
                         lg:items-center
                         lg:gap-16
@@ -157,9 +284,11 @@ export default async function DiagnosticServicePage({
                 >
 
                     {/* Content */}
+
                     <div>
 
                         {/* Category */}
+
                         <div className="mb-5">
                             <span
                                 className="
@@ -180,6 +309,7 @@ export default async function DiagnosticServicePage({
                         </div>
 
                         {/* Heading */}
+
                         <h1
                             className="
                                 mb-6
@@ -188,9 +318,7 @@ export default async function DiagnosticServicePage({
                                 leading-tight
                                 tracking-[-0.8px]
                                 text-[#1B1C1C]
-
                                 sm:text-5xl
-
                                 lg:text-[52px]
                                 lg:leading-[3.75rem]
                             "
@@ -199,6 +327,7 @@ export default async function DiagnosticServicePage({
                         </h1>
 
                         {/* Description */}
+
                         <p
                             className="
                                 max-w-[600px]
@@ -212,6 +341,7 @@ export default async function DiagnosticServicePage({
                         </p>
 
                         {/* Buttons */}
+
                         <div className="mt-8 flex flex-wrap gap-4">
 
                             <Link
@@ -264,15 +394,14 @@ export default async function DiagnosticServicePage({
                     </div>
 
                     {/* Image */}
+
                     <div
                         className="
                             relative
                             h-80
                             overflow-hidden
                             rounded-xl
-
                             sm:h-[400px]
-
                             lg:h-[460px]
                         "
                     >
@@ -310,6 +439,7 @@ export default async function DiagnosticServicePage({
             </section>
 
             {/* ================= DETAILS ================= */}
+
             <section className="bg-white py-16 lg:py-20">
 
                 <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-10">
@@ -319,12 +449,12 @@ export default async function DiagnosticServicePage({
                             grid
                             grid-cols-1
                             gap-12
-
                             lg:grid-cols-[1fr_360px]
                         "
                     >
 
                         {/* Main Content */}
+
                         <div>
 
                             <span
@@ -345,7 +475,6 @@ export default async function DiagnosticServicePage({
                                     text-3xl
                                     font-bold
                                     text-[#1B1C1C]
-
                                     sm:text-4xl
                                 "
                             >
@@ -388,6 +517,7 @@ export default async function DiagnosticServicePage({
                             </div>
 
                             {/* Benefits */}
+
                             <div className="mt-8 grid gap-4 sm:grid-cols-2">
 
                                 <div className="flex items-start gap-3">
@@ -463,13 +593,13 @@ export default async function DiagnosticServicePage({
                         </div>
 
                         {/* Sidebar Card */}
+
                         <aside
                             className="
                                 h-fit
                                 rounded-xl
                                 bg-[#F5F3F3]
                                 p-6
-
                                 lg:p-7
                             "
                         >

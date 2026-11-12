@@ -2,6 +2,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
+import type { Metadata } from "next";
+
 import {
     FaArrowLeft,
     FaArrowRight,
@@ -14,43 +17,187 @@ import {
     getActiveHospitalFacilityById,
 } from "@/lib/data/hospitalFacilities/hospitalFacilties";
 
-export const revalidate = 86400;// 24 hours in seconds
+export const revalidate = 86400;
+export const dynamic = "force-static";
+
+const SITE_URL = process.env.BACKEND_URL?.replace(/\/+$/, "") || "";
+
+const HOSPITAL_NAME = "Bashir Memorial Welfare Hospital";
+
+const getFacilityUrl = (id: string) => {
+    const path = `/pages/facilities/${id}`;
+    return SITE_URL ? `${SITE_URL}${path}` : path;
+};
+
+interface HospitalFacility {
+    id: number;
+    name: string;
+    category: string | null;
+    description: string | null;
+    image_url: string | null;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
 
 interface PageProps {
     params: Promise<{ id: string }>;
 }
 
-export const dynamic = "force-static";
+/* =========================
+   CACHED FACILITY FETCH
+========================= */
+
+const getCachedFacility = cache(async (id: string) => {
+    const facilityId = Number(id);
+
+    if (!Number.isInteger(facilityId) || facilityId <= 0) {
+        return null;
+    }
+
+    return (await getActiveHospitalFacilityById(
+        facilityId
+    )) as HospitalFacility | null;
+});
+
+/* =========================
+   SEO METADATA
+========================= */
+
+export async function generateMetadata({
+    params,
+}: PageProps): Promise<Metadata> {
+    const { id } = await params;
+    const facility = await getCachedFacility(id);
+
+    if (!facility) {
+        return {
+            title: "Facility Not Found",
+            robots: {
+                index: false,
+                follow: false,
+            },
+        };
+    }
+
+    const title = `${facility.name} | Hospital Facilities`;
+    const description = (
+        facility.description ||
+        `${facility.name} at ${HOSPITAL_NAME}. Explore our hospital facilities and healthcare services.`
+    )
+        .replace(/\s+/g, " ")
+        .slice(0, 160);
+
+    const canonicalUrl = getFacilityUrl(id);
+
+    return {
+        title,
+        description,
+
+        alternates: {
+            canonical: canonicalUrl,
+        },
+
+        openGraph: {
+            type: "website",
+            title,
+            description,
+            url: canonicalUrl,
+            siteName: HOSPITAL_NAME,
+            images: facility.image_url
+                ? [
+                      {
+                          url: facility.image_url,
+                          alt: facility.name,
+                      },
+                  ]
+                : [],
+        },
+
+        twitter: {
+            card: facility.image_url
+                ? "summary_large_image"
+                : "summary",
+            title,
+            description,
+            images: facility.image_url
+                ? [facility.image_url]
+                : [],
+        },
+
+        robots: {
+            index: true,
+            follow: true,
+        },
+    };
+}
+
+/* =========================
+   PAGE
+========================= */
 
 export default async function FacilityDetailPage({
     params,
 }: PageProps) {
     const { id } = await params;
+
     const facilityId = Number(id);
 
     if (!Number.isInteger(facilityId) || facilityId <= 0) {
         notFound();
     }
 
-    let facility;
-
-    try {
-        facility = await getActiveHospitalFacilityById(facilityId);
-    } catch (error) {
-        console.error("Error fetching hospital facility:", error);
-        throw new Error("Unable to load hospital facility.");
-    }
+    const facility = await getCachedFacility(id);
 
     if (!facility) {
         notFound();
     }
 
+    /* =========================
+       STRUCTURED DATA
+    ========================== */
+
+    const facilitySchema = {
+        "@context": "https://schema.org",
+        "@type": "Place",
+        "@id": `${getFacilityUrl(id)}#facility`,
+        name: facility.name,
+        description: facility.description || undefined,
+        image: facility.image_url || undefined,
+        url: getFacilityUrl(id),
+        containedInPlace: {
+            "@type": "Hospital",
+            name: HOSPITAL_NAME,
+            url: SITE_URL || undefined,
+        },
+        additionalProperty: facility.category
+            ? {
+                  "@type": "PropertyValue",
+                  name: "Facility Category",
+                  value: facility.category,
+              }
+            : undefined,
+    };
+
     return (
         <main className="min-h-screen bg-white">
+
+            {/* STRUCTURED DATA */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(facilitySchema).replace(
+                        /</g,
+                        "\\u003c"
+                    ),
+                }}
+            />
+
             {/* HERO */}
             <section className="bg-linear-to-r from-white via-[#FBF9F9] to-[#911824]/15">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="py-12 sm:py-16 lg:py-20">
+
                         {/* Breadcrumb */}
                         <nav
                             aria-label="Breadcrumb"
@@ -117,12 +264,13 @@ export default async function FacilityDetailPage({
             <section className="py-14 sm:py-16 lg:py-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-16">
+
                         {/* Facility Image */}
                         <div className="relative h-75 w-full overflow-hidden rounded-2xl bg-gray-100 shadow-sm sm:h-100 lg:h-125">
                             {facility.image_url ? (
                                 <Image
                                     src={facility.image_url}
-                                    alt={`${facility.name} - Bashir Memorial Welfare Hospital`}
+                                    alt={`${facility.name} - ${HOSPITAL_NAME}`}
                                     fill
                                     priority
                                     unoptimized
@@ -185,7 +333,7 @@ export default async function FacilityDetailPage({
                             {/* Back Button */}
                             <div className="mt-8">
                                 <Link
-                                    href="/pages/hospital_facilities"
+                                    href="/pages/facilities"
                                     className="inline-flex items-center gap-2 rounded-lg border border-[#911824] px-5 py-3 font-semibold text-[#911824] transition-all hover:bg-[#911824] hover:text-white"
                                 >
                                     <FaArrowLeft className="text-sm" />

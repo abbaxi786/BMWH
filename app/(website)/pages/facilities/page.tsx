@@ -1,7 +1,9 @@
+
 import Image from "next/image";
 import Link from "next/link";
 import Map from "@/app/components/map";
 import ContactUsCard from "@/app/components/contactCard/contactCard";
+import type { Metadata } from "next";
 
 import {
     FaArrowRight,
@@ -11,7 +13,35 @@ import {
 
 import { getActiveHospitalFacilities } from "@/lib/data/hospitalFacilities/hospitalFacilties";
 
-export const revalidate = 86400;// 24 hours in seconds
+export const revalidate = 86400;
+
+const SITE_URL = process.env.BACKEND_URL?.replace(/\/+$/, "") || "";
+
+export const metadata: Metadata = {
+    title: "Hospital Facilities | Bashir Memorial Welfare Hospital",
+    description:
+        "Explore the hospital facilities at Bashir Memorial Welfare Hospital. Learn about our healthcare infrastructure and facilities designed to support quality patient care.",
+
+    alternates: {
+        canonical: `${SITE_URL}/pages/facilities`,
+    },
+
+    openGraph: {
+        title: "Hospital Facilities | Bashir Memorial Welfare Hospital",
+        description:
+            "Explore the facilities and healthcare infrastructure available at Bashir Memorial Welfare Hospital.",
+        url: `${SITE_URL}/pages/facilities`,
+        siteName: "Bashir Memorial Welfare Hospital",
+        type: "website",
+    },
+
+    twitter: {
+        card: "summary",
+        title: "Hospital Facilities | Bashir Memorial Welfare Hospital",
+        description:
+            "Explore the facilities and healthcare infrastructure available at Bashir Memorial Welfare Hospital.",
+    },
+};
 
 interface HospitalFacility {
     id: number;
@@ -25,25 +55,53 @@ interface HospitalFacility {
 }
 
 export default async function HospitalFacilitiesPage() {
-    let facilities: HospitalFacility[] = [];
+    const result = await getActiveHospitalFacilities();
 
-    try {
-        const result = await getActiveHospitalFacilities();
+    const facilities = result as HospitalFacility[];
 
-        facilities = result as HospitalFacility[];
-    } catch (error) {
-        console.error("Error fetching hospital facilities:", error);
-    }
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "Hospital Facilities",
+        description:
+            "Explore the facilities and healthcare infrastructure available at Bashir Memorial Welfare Hospital.",
+        url: `${SITE_URL}/pages/facilities`,
+        isPartOf: {
+            "@type": "WebSite",
+            name: "Bashir Memorial Welfare Hospital",
+            url: SITE_URL || undefined,
+        },
+        mainEntity: {
+            "@type": "ItemList",
+            name: "Hospital Facilities",
+            numberOfItems: facilities.length,
+            itemListElement: facilities.map((facility, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                item: {
+                    "@type": "MedicalClinic",
+                    name: facility.name,
+                    description: facility.description || undefined,
+                    image: facility.image_url || undefined,
+                    url: `${SITE_URL}/pages/facilities/${facility.id}`,
+                },
+            })),
+        },
+    };
 
     return (
         <main className="min-h-screen bg-white">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+                }}
+            />
 
             {/* ================= HERO ================= */}
             <section className="bg-linear-to-r from-white via-[#FBF9F9] to-[#911824]/15">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
                     <div className="py-16 sm:py-20 lg:py-24">
-
                         {/* Breadcrumbs */}
                         <div className="mb-6 flex items-center gap-2 text-sm">
                             <Link
@@ -61,7 +119,6 @@ export default async function HospitalFacilitiesPage() {
                         </div>
 
                         <div className="max-w-3xl">
-
                             <div className="mb-5 flex items-center gap-3">
                                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#911824]/10">
                                     <FaHospital className="text-lg text-[#911824]" />
@@ -82,20 +139,16 @@ export default async function HospitalFacilitiesPage() {
                                 provide patients with safe, accessible, and
                                 comprehensive healthcare.
                             </p>
-
                         </div>
                     </div>
                 </div>
             </section>
 
-
             {/* ================= FACILITIES ================= */}
             <section className="py-16 sm:py-20 lg:py-24">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
                     {/* Section Heading */}
                     <div className="mb-12 max-w-2xl">
-
                         <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-[#911824]">
                             Healthcare Infrastructure
                         </p>
@@ -109,14 +162,11 @@ export default async function HospitalFacilitiesPage() {
                             medical needs while focusing on comfort, quality,
                             and patient-centered care.
                         </p>
-
                     </div>
-
 
                     {/* Error / Empty */}
                     {facilities.length === 0 ? (
                         <div className="py-16 text-center">
-
                             <FaHospital className="mx-auto mb-4 text-4xl text-gray-300" />
 
                             <h3 className="text-xl font-semibold text-gray-800">
@@ -127,22 +177,17 @@ export default async function HospitalFacilitiesPage() {
                                 Hospital facility information will be available
                                 here soon.
                             </p>
-
                         </div>
                     ) : (
-
                         /* Facilities Grid */
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-
                             {facilities.map((facility) => (
                                 <article
                                     key={facility.id}
                                     className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-xl"
                                 >
-
                                     {/* Image */}
                                     <div className="relative h-56 overflow-hidden bg-gray-100 sm:h-60">
-
                                         {facility.image_url ? (
                                             <Image
                                                 src={facility.image_url}
@@ -166,13 +211,10 @@ export default async function HospitalFacilitiesPage() {
                                                 </span>
                                             </div>
                                         )}
-
                                     </div>
-
 
                                     {/* Content */}
                                     <div className="p-6">
-
                                         <h3 className="text-xl font-bold text-gray-900 transition-colors group-hover:text-[#911824]">
                                             {facility.name}
                                         </h3>
@@ -193,26 +235,19 @@ export default async function HospitalFacilitiesPage() {
                                                 <FaArrowRight className="text-xs" />
                                             </Link>
                                         </div>
-
                                     </div>
                                 </article>
                             ))}
-
                         </div>
                     )}
-
                 </div>
             </section>
-
 
             {/* ================= BOTTOM CTA ================= */}
             <section className="bg-[#911824]">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
                     <div className="flex flex-col gap-8 py-14 sm:py-16 lg:py-20 md:flex-row md:items-center md:justify-between">
-
                         <div className="max-w-2xl">
-
                             <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-white/80">
                                 Patient-Centered Healthcare
                             </p>
@@ -226,7 +261,6 @@ export default async function HospitalFacilitiesPage() {
                                 facilities, services, and available healthcare
                                 support.
                             </p>
-
                         </div>
 
                         <Link
@@ -236,16 +270,13 @@ export default async function HospitalFacilitiesPage() {
                             Contact Us
                             <FaArrowRight />
                         </Link>
-
                     </div>
-
                 </div>
             </section>
 
             <ContactUsCard />
 
             <Map />
-
         </main>
     );
 }

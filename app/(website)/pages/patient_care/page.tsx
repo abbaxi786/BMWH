@@ -13,6 +13,58 @@ import {
 
 export const revalidate = 86400;
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Patient Care & Hospital Facilities | BMWH",
+
+    description:
+        "Explore BMWH patient care services and hospital facilities, including outpatient and inpatient departments, operation theaters, pharmacy, and cafeteria services.",
+
+    keywords: [
+        "BMWH Patient Care",
+        "Hospital Facilities",
+        "Outpatient Department",
+        "Inpatient Department",
+        "Operation Theater",
+        "Hospital Pharmacy",
+        "Hospital Cafeteria",
+        "Patient Services",
+        "Healthcare Services",
+    ],
+
+    alternates: {
+        canonical: "/patient-care",
+    },
+
+    openGraph: {
+        type: "website",
+        title: "Patient Care & Hospital Facilities | BMWH",
+        description:
+            "Discover BMWH hospital facilities and patient support services, providing essential care throughout your healthcare journey.",
+        url: "/patient-care",
+        siteName: "BMWH",
+    },
+
+    twitter: {
+        card: "summary_large_image",
+        title: "Patient Care & Hospital Facilities | BMWH",
+        description:
+            "Explore BMWH hospital facilities, patient care departments, and support services.",
+    },
+
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            "max-image-preview": "large",
+        },
+    },
+};
+
+
 const hospitalFacilities = [
     {
         title: "Outpatient Department",
@@ -20,7 +72,7 @@ const hospitalFacilities = [
         description:
             "Our Outpatient Department provides consultation, examination, diagnosis, and treatment services for patients who do not require hospital admission.",
         icon: FaUserMd,
-        href: "/patient-care/opd",
+        href: "/pages/facilities/3",
         meta: "Outpatient Services",
     },
     {
@@ -29,7 +81,7 @@ const hospitalFacilities = [
         description:
             "Our inpatient facilities provide a safe and supportive environment for patients who require admission, observation, treatment, and continued medical care.",
         icon: FaBed,
-        href: "/patient-care/ipd",
+        href: "/pages/facilities/4",
         meta: "Inpatient Services",
     },
     {

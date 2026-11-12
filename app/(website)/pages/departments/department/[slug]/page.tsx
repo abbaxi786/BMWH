@@ -1,8 +1,10 @@
-import React from "react";
+
+import { cache } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
-import DoctorCard from "@/app/components/departmentPageComponents/DoctorCard";
 import Image from "next/image";
-import { getDepartmentDetailsBySlug } from "../../../../../../lib/data/department/all_department";
+import DoctorCard from "@/app/components/departmentPageComponents/DoctorCard";
+import { getDepartmentDetailsBySlug } from "@/lib/data/department/all_department";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -30,8 +32,6 @@ interface Service {
     is_active: boolean;
 }
 
-export const revalidate = 86400;
-
 interface Department {
     department_id: number;
     department_name: string;
@@ -44,13 +44,113 @@ interface Department {
     services: Service[];
 }
 
+export const revalidate = 86400;
+
+// Your public website URL
+const BASE_URL = process.env.BACKEND_URL?.replace(/\/+$/, "") ?? "";
+
+// Convert paths into absolute URLs
+function absoluteUrl(path: string) {
+    if (/^https?:\/\//i.test(path)) {
+        return path;
+    }
+
+    return `${BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+
+// Reuse the same department query for generateMetadata and the page
+const getCachedDepartment = cache(
+    async (slug: string): Promise<Department | null> => {
+        return (await getDepartmentDetailsBySlug(slug)) as Department | null;
+    }
+);
+
+// Dynamic SEO metadata for every department
+export async function generateMetadata({
+    params,
+}: PageProps): Promise<Metadata> {
+    const { slug } = await params;
+
+    let department: Department | null = null;
+
+    try {
+        department = await getCachedDepartment(slug);
+    } catch (error) {
+        console.error("Failed to fetch department metadata:", error);
+    }
+
+    // Don't index missing or inactive departments
+    if (!department || !department.department_active) {
+        return {
+            title: "Department Not Found | Bashir Memorial Welfare Hospital",
+            robots: {
+                index: false,
+                follow: false,
+            },
+        };
+    }
+
+    const title = `${department.department_name} | Bashir Memorial Welfare Hospital`;
+
+    const description =
+        department.department_description ||
+        `Explore ${department.department_name} at Bashir Memorial Welfare Hospital and learn about its medical services and healthcare professionals.`;
+
+    const pageUrl = absoluteUrl(
+        `/pages/departments/department/${department.department_slug}`
+    );
+
+    const imageUrl = department.department_image
+        ? absoluteUrl(department.department_image)
+        : undefined;
+
+    return {
+        title,
+        description,
+
+        alternates: {
+            canonical: pageUrl,
+        },
+
+        openGraph: {
+            title,
+            description,
+            url: pageUrl,
+            siteName: "Bashir Memorial Welfare Hospital",
+            type: "website",
+            ...(imageUrl && {
+                images: [
+                    {
+                        url: imageUrl,
+                        alt: `${department.department_name} - Bashir Memorial Welfare Hospital`,
+                    },
+                ],
+            }),
+        },
+
+        twitter: {
+            card: imageUrl ? "summary_large_image" : "summary",
+            title,
+            description,
+            ...(imageUrl && {
+                images: [imageUrl],
+            }),
+        },
+
+        robots: {
+            index: true,
+            follow: true,
+        },
+    };
+}
+
 async function Department({ params }: PageProps) {
     const { slug } = await params;
 
     let department: Department | null = null;
 
     try {
-        department = (await getDepartmentDetailsBySlug(slug)) as Department | null;
+        department = await getCachedDepartment(slug);
     } catch (error) {
         console.error("Failed to fetch department details:", error);
     }
@@ -59,7 +159,7 @@ async function Department({ params }: PageProps) {
     // DEPARTMENT NOT FOUND
     // =========================================================
 
-    if (!department) {
+    if (!department || !department.department_active) {
         return (
             <main className="min-h-screen bg-white flex items-center justify-center px-6 animate-fade-in-up">
                 <div className="text-center max-w-md">
@@ -84,7 +184,7 @@ async function Department({ params }: PageProps) {
                     </p>
 
                     <Link
-                        href="/departments"
+                        href="/pages/departments"
                         className="inline-block mt-6 px-6 py-3
                                    bg-[#86000D] text-white
                                    rounded-md font-semibold
@@ -99,8 +199,116 @@ async function Department({ params }: PageProps) {
         );
     }
 
+
+    const departmentUrl = absoluteUrl(
+        `/pages/departments/department/${department.department_slug}`
+    );
+
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebPage",
+                "@id": `${departmentUrl}#webpage`,
+                name: department.department_name,
+                description: department.department_description,
+                url: departmentUrl,
+                breadcrumb: {
+                    "@id": `${departmentUrl}#breadcrumb`,
+                },
+                mainEntity: {
+                    "@id": `${departmentUrl}#department`,
+                },
+            },
+            {
+                "@type": "MedicalOrganization",
+                "@id": `${departmentUrl}#department`,
+                name: department.department_name,
+                description: department.department_description,
+                url: departmentUrl,
+
+                ...(department.department_image && {
+                    image: absoluteUrl(department.department_image),
+                }),
+
+                parentOrganization: {
+                    "@type": "Hospital",
+                    name: "Bashir Memorial Welfare Hospital",
+                    url: BASE_URL || undefined,
+                },
+
+                hasOfferCatalog: {
+                    "@type": "OfferCatalog",
+                    name: `${department.department_name} Medical Services`,
+                    itemListElement: department.services
+                        .filter((service) => service.is_active)
+                        .map((service) => ({
+                            "@type": "OfferCatalog",
+                            name: service.name,
+                            itemListElement: [
+                                {
+                                    "@type": "Service",
+                                    name: service.name,
+                                    ...(service.description && {
+                                        description: service.description,
+                                    }),
+                                },
+                            ],
+                        })),
+                },
+
+                employee: department.doctors
+                    .filter((doctor) => doctor.is_active)
+                    .map((doctor) => ({
+                        "@type": "Person",
+                        name: doctor.name,
+                        ...(doctor.designation && {
+                            jobTitle: doctor.designation,
+                        }),
+                        ...(doctor.qualifications && {
+                            hasCredential: doctor.qualifications,
+                        }),
+                        ...(doctor.photo_url && {
+                            image: doctor.photo_url,
+                        }),
+                    })),
+            },
+            {
+                "@type": "BreadcrumbList",
+                "@id": `${departmentUrl}#breadcrumb`,
+                itemListElement: [
+                    {
+                        "@type": "ListItem",
+                        position: 1,
+                        name: "Home",
+                        item: absoluteUrl("/"),
+                    },
+                    {
+                        "@type": "ListItem",
+                        position: 2,
+                        name: "Departments",
+                        item: absoluteUrl("/pages/departments"),
+                    },
+                    {
+                        "@type": "ListItem",
+                        position: 3,
+                        name: department.department_name,
+                        item: departmentUrl,
+                    },
+                ],
+            },
+        ],
+    };
+
+
     return (
         <main className="bg-white animate-fade-in-up">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+                }}
+            />
 
             {/* =====================================================
                 HERO SECTION

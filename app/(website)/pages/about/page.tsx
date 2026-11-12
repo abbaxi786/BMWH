@@ -21,9 +21,49 @@ import MissionVision from "@/app/components/AboutContent/MissionVision";
 import FounderMessage from "@/app/components/AboutContent/FounderMessage";
 import ComplianceCertificates from "@/app/components/AboutContent/complaince";
 import TimelineHistory from "@/app/components/AboutContent/timeline_history";
+import type { Metadata } from "next";
+
+
 
 
 export const revalidate = 86400;
+
+
+export const metadata: Metadata = {
+    title: "About BMWH Hospital | Our Mission, History & Leadership",
+
+    description:
+        "Learn about BMWH Hospital, our mission and vision, hospital history, leadership, patient welfare initiatives, healthcare services, and commitment to compassionate care.",
+
+    alternates: {
+        canonical: "/pages/about",
+    },
+
+    openGraph: {
+        type: "website",
+        url: "/pages/about",
+        title: "About BMWH Hospital | Our Mission, History & Leadership",
+        description:
+            "Discover BMWH Hospital's history, mission, leadership, patient welfare initiatives, and commitment to accessible and compassionate healthcare.",
+        images: [
+            {
+                url: "/logo.png",
+                width: 1200,
+                height: 630,
+                alt: "About BMWH Hospital",
+            },
+        ],
+    },
+
+    twitter: {
+        card: "summary_large_image",
+        title: "About BMWH Hospital | Our Mission & Leadership",
+        description:
+            "Discover BMWH Hospital's mission, history, leadership, and commitment to compassionate patient care.",
+        images: ["/logo.png"],
+    },
+};
+
 
 
 // ============================================================

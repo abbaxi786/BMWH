@@ -9,8 +9,47 @@ import {
     FaExternalLinkAlt,
     FaBuilding,
 } from "react-icons/fa";
+import type { Metadata } from "next";
 
 export const revalidate = 86400;
+
+
+export const metadata: Metadata = {
+    title: "Achievements & Awards | Healthcare Excellence",
+
+    description:
+        "Explore BMWH Hospital's achievements, awards, certifications, and recognitions reflecting our commitment to quality healthcare, patient welfare, medical excellence, and community service.",
+
+    alternates: {
+        canonical: "/pages/achievements",
+    },
+
+    openGraph: {
+        type: "website",
+        url: "/pages/achievements",
+        title: "Achievements & Awards | BMWH Hospital",
+        description:
+            "Discover the awards, achievements, certifications, and recognitions of BMWH Hospital and our commitment to compassionate healthcare and community welfare.",
+        images: [
+            {
+                url: "/logo.png",
+                width: 1200,
+                height: 630,
+                alt: "BMWH Hospital Achievements and Awards",
+            },
+        ],
+    },
+
+    twitter: {
+        card: "summary_large_image",
+        title: "Achievements & Awards | BMWH Hospital",
+        description:
+            "Explore BMWH Hospital's awards, certifications, achievements, and contributions to healthcare and community welfare.",
+        images: ["/logo.png"],
+    },
+};
+
+
 
 interface AchievementAward {
     id: number;

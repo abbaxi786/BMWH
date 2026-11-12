@@ -1,5 +1,8 @@
+
 import Image from "next/image";
 import Link from "next/link";
+import { cache } from "react";
+import type { Metadata } from "next";
 
 import {
     FaArrowLeft,
@@ -16,9 +19,11 @@ import { MdEmail, MdPhone } from "react-icons/md";
 import DoctorSchedule from "@/app/components/doctors/schedule";
 import { getActiveDoctorById } from "@/lib/data/doctors/doctors";
 
-
 export const revalidate = 86400;
 
+const SITE_URL = process.env.BACK_URL?.replace(/\/+$/, "") || "";
+
+const HOSPITAL_NAME = "Bashir Memorial Welfare Hospital";
 
 type Doctor = {
     id: number;
@@ -44,15 +49,92 @@ type PageProps = {
     }>;
 };
 
+const getCachedDoctor = cache(async (id: string) => {
+    return (await getActiveDoctorById(id)) as Doctor | null;
+});
+
+function getDoctorUrl(id: string) {
+    const path = `/pages/doctors/doctor_view/${id}`;
+    return SITE_URL ? `${SITE_URL}${path}` : path;
+}
+
+function getDoctorDescription(doctor: Doctor) {
+    const description =
+        doctor.biography?.trim() ||
+        `${doctor.name} is a ${doctor.designation} in the ${doctor.department_name} department at ${HOSPITAL_NAME}.`;
+
+    return description.replace(/\s+/g, " ").slice(0, 160);
+}
+
+/* =========================
+   SEO METADATA
+========================= */
+
+export async function generateMetadata({
+    params,
+}: PageProps): Promise<Metadata> {
+    const { id } = await params;
+    const doctor = await getCachedDoctor(id);
+
+    if (!doctor) {
+        return {
+            title: "Doctor Not Found",
+            robots: {
+                index: false,
+                follow: false,
+            },
+        };
+    }
+
+    const title = `${doctor.name} | ${doctor.designation}`;
+    const description = getDoctorDescription(doctor);
+    const canonicalUrl = getDoctorUrl(id);
+
+    return {
+        title,
+        description,
+
+        alternates: {
+            canonical: canonicalUrl,
+        },
+
+        openGraph: {
+            type: "profile",
+            title,
+            description,
+            url: canonicalUrl,
+            siteName: HOSPITAL_NAME,
+            images: doctor.photo_url
+                ? [
+                      {
+                          url: doctor.photo_url,
+                          alt: doctor.name,
+                      },
+                  ]
+                : [],
+        },
+
+        twitter: {
+            card: doctor.photo_url ? "summary_large_image" : "summary",
+            title,
+            description,
+            images: doctor.photo_url ? [doctor.photo_url] : [],
+        },
+
+        robots: {
+            index: true,
+            follow: true,
+        },
+    };
+}
+
+/* =========================
+   PAGE
+========================= */
+
 export default async function DoctorViewPage({ params }: PageProps) {
     const { id } = await params;
-    let doctor = null
-
-    try {
-        doctor = await getActiveDoctorById(id);
-    } catch (error) {
-        console.error("Error fetching doctor:", error);
-    }
+    const doctor = await getCachedDoctor(id);
 
     if (!doctor) {
         return (
@@ -86,18 +168,53 @@ export default async function DoctorViewPage({ params }: PageProps) {
     const expertise = doctor.expertise
         ? doctor.expertise
               .split(",")
-              .map((item:any) => item.trim())
+              .map((item) => item.trim())
               .filter(Boolean)
         : [];
 
+    /* =========================
+       PHYSICIAN STRUCTURED DATA
+    ========================== */
+
+    const doctorSchema = {
+        "@context": "https://schema.org",
+        "@type": "Physician",
+        "@id": `${getDoctorUrl(id)}#physician`,
+        name: doctor.name,
+        url: getDoctorUrl(id),
+        image: doctor.photo_url || undefined,
+        description: getDoctorDescription(doctor),
+        jobTitle: doctor.designation,
+        medicalSpecialty: doctor.specialty || undefined,
+        knowsAbout: expertise.length > 0 ? expertise : undefined,
+        worksFor: {
+            "@type": "Hospital",
+            name: HOSPITAL_NAME,
+            url: SITE_URL || undefined,
+        },
+        memberOf: doctor.department_name
+            ? {
+                  "@type": "Organization",
+                  name: doctor.department_name,
+              }
+            : undefined,
+    };
+
     return (
         <main className="bg-gray-50 min-h-screen">
+            {/* PHYSICIAN STRUCTURED DATA */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(doctorSchema).replace(/</g, "\\u003c"),
+                }}
+            />
+
             {/* =========================
                 HERO SECTION
             ========================== */}
             <section className="bg-[#911824] text-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                    {/* Back Button */}
                     <Link
                         href="/pages/doctors"
                         className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-8 transition"
@@ -181,9 +298,7 @@ export default async function DoctorViewPage({ params }: PageProps) {
             ========================== */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* =========================
-                        LEFT CONTENT
-                    ========================== */}
+                    {/* LEFT CONTENT */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* About Doctor */}
                         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
@@ -223,7 +338,7 @@ export default async function DoctorViewPage({ params }: PageProps) {
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {expertise.map((item:any, index:number) => (
+                                    {expertise.map((item, index) => (
                                         <div
                                             key={`${item}-${index}`}
                                             className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 border border-gray-100"
@@ -280,9 +395,7 @@ export default async function DoctorViewPage({ params }: PageProps) {
                         )}
                     </div>
 
-                    {/* =========================
-                        RIGHT SIDEBAR
-                    ========================== */}
+                    {/* RIGHT SIDEBAR */}
                     <aside className="space-y-6">
                         {/* Professional Details */}
                         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -399,9 +512,7 @@ export default async function DoctorViewPage({ params }: PageProps) {
                                     className="flex items-center gap-3 text-gray-700 hover:text-[#911824] transition"
                                 >
                                     <MdEmail className="text-xl text-[#911824]" />
-                                    <span>
-                                        info@bmwhospital.org.pk
-                                    </span>
+                                    <span>info@bmwhospital.org.pk</span>
                                 </a>
                             </div>
                         </section>

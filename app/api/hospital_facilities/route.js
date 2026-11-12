@@ -9,6 +9,7 @@ import {
     getHospitalFacilities,
     getHospitalFacilityById,
 } from "@/lib/data/hospitalFacilities/hospitalFacilties";
+import { revalidatePath } from "next/cache";
 
 // =====================================================
 // GET - Get all facilities OR one facility by ID
@@ -136,8 +137,8 @@ export async function POST(request) {
                 ${name.trim()},
                 ${category.trim()},
                 ${typeof description === "string" && description.trim()
-                    ? description.trim()
-                    : null},
+                ? description.trim()
+                : null},
                 ${imageUrl},
                 ${isActive === "true"}
             )
@@ -151,6 +152,9 @@ export async function POST(request) {
                 created_at,
                 updated_at
         `;
+
+        revalidatePath("/pages/facilities");
+        revalidatePath(`/pages/facilities/${result[0].id}`);
 
         return NextResponse.json(
             {
@@ -284,18 +288,18 @@ export async function PUT(request) {
             UPDATE hospital_facilities
             SET
                 name = ${name === null
-                    ? existingFacility.name
-                    : name.trim()},
+                ? existingFacility.name
+                : name.trim()},
                 category = ${category === null
-                    ? existingFacility.category
-                    : category.trim()},
+                ? existingFacility.category
+                : category.trim()},
                 description = ${description === null
-                    ? existingFacility.description
-                    : (description.trim() || null)},
+                ? existingFacility.description
+                : (description.trim() || null)},
                 image_url = ${imageUrl},
                 is_active = ${isActive === null
-                    ? existingFacility.is_active
-                    : isActive === "true"},
+                ? existingFacility.is_active
+                : isActive === "true"},
                 updated_at = NOW()
             WHERE id = ${Number(facilityId)}
             RETURNING
@@ -327,6 +331,9 @@ export async function PUT(request) {
                 );
             }
         }
+
+        revalidatePath("/pages/facilities");
+        revalidatePath(`/pages/facilities/${facilityId}`);
 
         return NextResponse.json(
             {
@@ -407,6 +414,9 @@ export async function DELETE(request) {
                 );
             }
         }
+
+        revalidatePath("/pages/facilities");
+        revalidatePath(`/pages/facilities/${facilityId}`);
 
         return NextResponse.json(
             {

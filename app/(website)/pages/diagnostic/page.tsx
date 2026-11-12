@@ -1,5 +1,8 @@
+
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
+
 import {
     FaArrowRight,
     FaHeartbeat,
@@ -13,7 +16,60 @@ import {
     getActiveDiagnosticServices,
 } from "@/lib/data/diagnostic/diagnostic";
 
+/* =====================================================
+   SEO METADATA
+===================================================== */
+
+const SITE_URL =
+    process.env.BACKEND_URL?.replace(/\/+$/, "") || "";
+
+const PAGE_URL = `${SITE_URL}/pages/diagnostic`;
+
+export const metadata: Metadata = {
+    title: "Diagnostic Services & Medical Imaging | Bashir Memorial Welfare Hospital",
+
+    description:
+        "Explore diagnostic services, medical imaging, pathology and specialized examinations at Bashir Memorial Welfare Hospital.",
+
+    alternates: {
+        canonical: SITE_URL
+            ? PAGE_URL
+            : "/pages/diagnostic",
+    },
+
+    openGraph: {
+        title: "Diagnostic Services | Bashir Memorial Welfare Hospital",
+
+        description:
+            "Explore reliable diagnostic and imaging services at Bashir Memorial Welfare Hospital.",
+
+        url: SITE_URL
+            ? PAGE_URL
+            : "/pages/diagnostic",
+
+        siteName: "Bashir Memorial Welfare Hospital",
+
+        type: "website",
+    },
+
+    twitter: {
+        card: "summary_large_image",
+        title: "Diagnostic Services | Bashir Memorial Welfare Hospital",
+        description:
+            "Explore diagnostic and imaging services at Bashir Memorial Welfare Hospital.",
+    },
+};
+
+/* =====================================================
+   ISR CACHING
+===================================================== */
+
+// Revalidate this page every 24 hours.
 export const revalidate = 86400;
+
+/* =====================================================
+   TYPES
+===================================================== */
 
 interface DiagnosticService {
     id: number;
@@ -24,13 +80,16 @@ interface DiagnosticService {
     is_active: boolean;
 }
 
+/* =====================================================
+   CATEGORY HELPERS
+===================================================== */
+
 /**
  * Convert category names into URL-safe IDs.
  *
- * Example:
+ * Examples:
  * "Pathology" -> "pathology"
  * "Radiology & Imaging" -> "radiology-and-imaging"
- * "Cardiac" -> "cardiac"
  */
 function createCategoryId(category: string) {
     return category
@@ -64,27 +123,97 @@ function groupDiagnosticsByCategory(
     );
 }
 
-async function Diagnostic() {
-    let diagnostics: DiagnosticService[] = [];
+/* =====================================================
+   PAGE
+===================================================== */
 
-    try {
-        diagnostics =
-            (await getActiveDiagnosticServices()) as DiagnosticService[];
-    } catch (error) {
-        console.error(
-            "Error fetching diagnostic services:",
-            error
-        );
-    }
+async function Diagnostic() {
+    // Fetch active diagnostic services.
+    // Database errors are allowed to reach the error boundary.
+    const diagnostics =
+        (await getActiveDiagnosticServices()) as DiagnosticService[];
 
     const groupedDiagnostics =
         groupDiagnosticsByCategory(diagnostics);
+
+    /* =====================================================
+       STRUCTURED DATA
+    ===================================================== */
+
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+
+        name: "Diagnostic Services & Medical Imaging",
+
+        description:
+            "Explore diagnostic services, medical imaging, pathology and specialized examinations at Bashir Memorial Welfare Hospital.",
+
+        url: PAGE_URL || "/pages/diagnostic",
+
+        isPartOf: {
+            "@type": "WebSite",
+            name: "Bashir Memorial Welfare Hospital",
+            url: SITE_URL || undefined,
+        },
+
+        mainEntity: {
+            "@type": "ItemList",
+
+            name: "Available Diagnostic Services",
+
+            numberOfItems: diagnostics.length,
+
+            itemListElement: diagnostics.map(
+                (service, index) => ({
+                    "@type": "ListItem",
+
+                    position: index + 1,
+
+                    item: {
+                        "@type": "Service",
+
+                        name: service.name,
+
+                        description:
+                            service.description ||
+                            `Diagnostic service available at Bashir Memorial Welfare Hospital.`,
+
+                        serviceType: service.category,
+
+                        url: SITE_URL
+                            ? `${SITE_URL}/pages/diagnostic/${service.id}`
+                            : `/pages/diagnostic/${service.id}`,
+
+                        provider: {
+                            "@type": "Hospital",
+                            name: "Bashir Memorial Welfare Hospital",
+                        },
+                    },
+                })
+            ),
+        },
+    };
 
     return (
         <main
             id="diagnostic-page"
             className="min-h-screen bg-white animate-fade-in-up"
         >
+            {/* =====================================================
+                STRUCTURED DATA
+            ===================================================== */}
+
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(structuredData).replace(
+                        /</g,
+                        "\\u003c"
+                    ),
+                }}
+            />
+
             {/* =====================================================
                 HERO SECTION
             ===================================================== */}
@@ -166,7 +295,6 @@ async function Diagnostic() {
                 className="scroll-mt-28 py-16 md:py-20"
             >
                 <div className="mx-auto max-w-7xl px-6">
-
                     <div className="grid items-center gap-12 lg:grid-cols-2">
 
                         {/* Left */}
@@ -359,12 +487,8 @@ async function Diagnostic() {
 
                                                                     {service.image_url ? (
                                                                         <Image
-                                                                            src={
-                                                                                service.image_url
-                                                                            }
-                                                                            alt={
-                                                                                service.name
-                                                                            }
+                                                                            src={service.image_url}
+                                                                            alt={service.name}
                                                                             fill
                                                                             sizes="(max-width: 768px) 100vw, 50vw"
                                                                             className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -379,9 +503,7 @@ async function Diagnostic() {
 
                                                                     <div className="absolute left-5 top-5">
                                                                         <span className="badge border-none bg-[#86000D] px-4 py-3 text-white">
-                                                                            {
-                                                                                service.category
-                                                                            }
+                                                                            {service.category}
                                                                         </span>
                                                                     </div>
                                                                 </div>
@@ -390,16 +512,12 @@ async function Diagnostic() {
 
                                                                 <div className="p-6">
                                                                     <h3 className="text-2xl font-bold text-gray-900">
-                                                                        {
-                                                                            service.name
-                                                                        }
+                                                                        {service.name}
                                                                     </h3>
 
                                                                     <p className="mt-3 leading-7 text-gray-600">
-                                                                        {
-                                                                            service.description ||
-                                                                            "Diagnostic service available at Bashir Memorial Welfare Hospital."
-                                                                        }
+                                                                        {service.description ||
+                                                                            "Diagnostic service available at Bashir Memorial Welfare Hospital."}
                                                                     </p>
 
                                                                     <div className="mt-6 flex items-center justify-between">

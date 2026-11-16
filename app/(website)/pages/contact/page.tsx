@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -20,30 +21,41 @@ import Map from "@/app/components/map";
 
 export const revalidate = 86400;
 
+const PTCL_NUMBER = "04237124872";
+const PTCL_TEL = "+924237124872";
+
+const WHATSAPP_NUMBER = "03053444111";
+const WHATSAPP_URL = "https://wa.me/923053444111";
+
+const HOSPITAL_ADDRESS = "14/1 Lyton Road, Lahore";
+
 const contactInfo = [
     {
         icon: FaMapMarkerAlt,
         title: "Visit Us",
-        text: "Bashir Memorial Welfare Hospital",
-        description: "Main Hospital Road, Lahore, Pakistan",
+        text: HOSPITAL_ADDRESS,
+        description: "Bashir Memorial Welfare Hospital, Lahore, Pakistan",
     },
     {
         icon: FaPhoneAlt,
         title: "Call Us",
-        text: "+92 42 1234567",
+        text: PTCL_NUMBER,
         description: "For general hospital enquiries",
+        href: `tel:${PTCL_TEL}`,
     },
     {
         icon: FaWhatsapp,
         title: "WhatsApp",
-        text: "+92 300 1234567",
+        text: WHATSAPP_NUMBER,
         description: "Send us your enquiry on WhatsApp",
+        href: WHATSAPP_URL,
     },
     {
         icon: FaEnvelope,
         title: "Email Us",
         text: "info@bmwh.org",
         description: "We will respond to your enquiry",
+        href: "mailto:info@bmwh.org",
     },
 ];
 
@@ -101,14 +113,12 @@ export default function ContactPage() {
     return (
         <main className="bg-[#FBF9F9] text-gray-800 animate-fade-in-up">
             {/* =========================================================
-          HERO
-      ========================================================= */}
+                HERO
+            ========================================================= */}
             <section className="bg-[#FBF9F9]">
                 <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8 lg:py-16">
 
-                    {/* =====================================================
-            BREADCRUMB
-        ===================================================== */}
+                    {/* BREADCRUMB */}
                     <nav
                         aria-label="Breadcrumb"
                         className="mb-12"
@@ -138,23 +148,16 @@ export default function ContactPage() {
                         </ol>
                     </nav>
 
-
-                    {/* =====================================================
-            HERO CONTENT
-        ===================================================== */}
+                    {/* HERO CONTENT */}
                     <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
 
-                        {/* =================================================
-                LEFT CONTENT
-            ================================================= */}
+                        {/* LEFT CONTENT */}
                         <div className="max-w-2xl">
 
-                            {/* Eyebrow */}
                             <span className="inline-flex rounded-full bg-[#911824]/10 px-4 py-2 text-sm font-semibold text-[#911824]">
                                 Get In Touch
                             </span>
 
-                            {/* Heading */}
                             <h1 className="mt-5 text-4xl font-bold leading-[1.15] tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
                                 We’re Here to
                                 <span className="block text-[#911824]">
@@ -162,7 +165,6 @@ export default function ContactPage() {
                                 </span>
                             </h1>
 
-                            {/* Description */}
                             <p className="mt-6 max-w-xl text-base leading-7 text-gray-600 md:text-lg">
                                 Whether you need information about our healthcare
                                 services, want to make an appointment, need directions,
@@ -170,10 +172,10 @@ export default function ContactPage() {
                                 to assist you.
                             </p>
 
-                            {/* Actions */}
+                            {/* ACTIONS */}
                             <div className="mt-8 flex flex-wrap items-center gap-4">
                                 <a
-                                    href="tel:+92421234567"
+                                    href={`tel:${PTCL_TEL}`}
                                     className="btn h-11 min-h-0 border-none bg-[#911824] px-7 text-white hover:bg-[#74131e]"
                                 >
                                     <FaPhoneAlt />
@@ -181,25 +183,22 @@ export default function ContactPage() {
                                 </a>
 
                                 <a
-                                    href="#contact-form"
+                                    href={WHATSAPP_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="btn h-11 min-h-0 border-[#911824] bg-transparent px-7 text-[#911824] hover:border-[#911824] hover:bg-[#911824] hover:text-white"
                                 >
-                                    Send a Message
-                                    <FaArrowRight />
+                                    <FaWhatsapp />
+                                    WhatsApp Us
                                 </a>
                             </div>
-
                         </div>
 
-
-                        {/* =================================================
-                RIGHT CONTACT CARD
-            ================================================= */}
+                        {/* RIGHT CONTACT CARD */}
                         <div className="w-full">
-
                             <div className="rounded-3xl bg-[#911824] p-7 text-white shadow-xl md:p-9 lg:p-10">
 
-                                {/* Card Header */}
+                                {/* CARD HEADER */}
                                 <div className="border-b border-white/10 pb-7">
                                     <span className="text-xs font-semibold uppercase tracking-[0.15em] text-white/60">
                                         Hospital Contact
@@ -215,11 +214,10 @@ export default function ContactPage() {
                                     </p>
                                 </div>
 
-
-                                {/* Contact Details */}
+                                {/* CONTACT DETAILS */}
                                 <div className="mt-7 space-y-6">
 
-                                    {/* Address */}
+                                    {/* ADDRESS */}
                                     <div className="flex gap-4">
                                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10">
                                             <FaMapMarkerAlt />
@@ -231,15 +229,14 @@ export default function ContactPage() {
                                             </p>
 
                                             <p className="mt-1 text-sm leading-6 text-white/70">
-                                                Bashir Memorial Welfare Hospital
+                                                {HOSPITAL_ADDRESS}
                                                 <br />
                                                 Lahore, Punjab, Pakistan
                                             </p>
                                         </div>
                                     </div>
 
-
-                                    {/* Phone */}
+                                    {/* PTCL */}
                                     <div className="flex gap-4">
                                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10">
                                             <FaPhoneAlt />
@@ -247,20 +244,41 @@ export default function ContactPage() {
 
                                         <div>
                                             <p className="font-semibold">
-                                                General Enquiries
+                                                General Enquiries (PTCL)
                                             </p>
 
                                             <a
-                                                href="tel:+92421234567"
+                                                href={`tel:${PTCL_TEL}`}
                                                 className="mt-1 block text-sm text-white/70 transition hover:text-white"
                                             >
-                                                +92 42 1234567
+                                                {PTCL_NUMBER}
                                             </a>
                                         </div>
                                     </div>
 
+                                    {/* WHATSAPP */}
+                                    <div className="flex gap-4">
+                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10">
+                                            <FaWhatsapp />
+                                        </div>
 
-                                    {/* Email */}
+                                        <div>
+                                            <p className="font-semibold">
+                                                WhatsApp Assistance
+                                            </p>
+
+                                            <a
+                                                href={WHATSAPP_URL}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="mt-1 block text-sm text-white/70 transition hover:text-white"
+                                            >
+                                                {WHATSAPP_NUMBER}
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    {/* EMAIL */}
                                     <div className="flex gap-4">
                                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10">
                                             <FaEnvelope />
@@ -280,8 +298,7 @@ export default function ContactPage() {
                                         </div>
                                     </div>
 
-
-                                    {/* Reception Hours */}
+                                    {/* RECEPTION HOURS */}
                                     <div className="flex gap-4">
                                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10">
                                             <FaClock />
@@ -301,13 +318,10 @@ export default function ContactPage() {
                                             </p>
                                         </div>
                                     </div>
-
                                 </div>
 
-
-                                {/* Emergency */}
+                                {/* EMERGENCY */}
                                 <div className="mt-8 rounded-2xl bg-white/10 p-5">
-
                                     <div className="flex items-start gap-3">
                                         <div className="mt-0.5">
                                             <FaAmbulance className="text-xl" />
@@ -326,24 +340,30 @@ export default function ContactPage() {
                                     </div>
 
                                     <a
-                                        href="tel:+923001234567"
+                                        href={`tel:${PTCL_TEL}`}
                                         className="mt-4 block text-lg font-bold transition hover:text-white/80"
                                     >
-                                        +92 300 1234567
+                                        {PTCL_NUMBER}
                                     </a>
 
+                                    <a
+                                        href={WHATSAPP_URL}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-2 inline-block text-sm font-semibold text-white/80 transition hover:text-white"
+                                    >
+                                        WhatsApp: {WHATSAPP_NUMBER}
+                                    </a>
                                 </div>
-
                             </div>
-
                         </div>
-
                     </div>
                 </div>
             </section>
+
             {/* =========================================================
-          CONTACT INFORMATION
-      ========================================================= */}
+                CONTACT INFORMATION
+            ========================================================= */}
             <section id="whatsapp_assistance" className="py-16 md:py-20">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
                     <div className="mx-auto mb-12 max-w-2xl text-center">
@@ -365,11 +385,8 @@ export default function ContactPage() {
                         {contactInfo.map((item, index) => {
                             const Icon = item.icon;
 
-                            return (
-                                <div
-                                    key={index}
-                                    className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
-                                >
+                            const content = (
+                                <>
                                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#911824]/10 text-[#911824]">
                                         <Icon className="text-lg" />
                                     </div>
@@ -385,6 +402,33 @@ export default function ContactPage() {
                                     <p className="mt-2 text-sm leading-6 text-gray-500">
                                         {item.description}
                                     </p>
+                                </>
+                            );
+
+                            return item.href ? (
+                                <a
+                                    key={index}
+                                    href={item.href}
+                                    target={
+                                        item.title === "WhatsApp"
+                                            ? "_blank"
+                                            : undefined
+                                    }
+                                    rel={
+                                        item.title === "WhatsApp"
+                                            ? "noopener noreferrer"
+                                            : undefined
+                                    }
+                                    className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+                                >
+                                    {content}
+                                </a>
+                            ) : (
+                                <div
+                                    key={index}
+                                    className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+                                >
+                                    {content}
                                 </div>
                             );
                         })}
@@ -393,12 +437,13 @@ export default function ContactPage() {
             </section>
 
             {/* =========================================================
-          CONTACT FORM
-      ========================================================= */}
+                CONTACT FORM
+            ========================================================= */}
             <section id="contact-form" className="bg-white py-16 md:py-24">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
                     <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr]">
-                        {/* Left */}
+
+                        {/* LEFT */}
                         <div>
                             <span className="text-sm font-semibold uppercase tracking-wider text-[#911824]">
                                 Send Us a Message
@@ -415,6 +460,8 @@ export default function ContactPage() {
                             </p>
 
                             <div className="mt-8 space-y-5">
+
+                                {/* PTCL */}
                                 <div className="flex gap-4">
                                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#911824]/10 text-[#911824]">
                                         <FaPhoneAlt />
@@ -430,14 +477,15 @@ export default function ContactPage() {
                                         </p>
 
                                         <a
-                                            href="tel:+92421234567"
+                                            href={`tel:${PTCL_TEL}`}
                                             className="mt-1 inline-block font-semibold text-[#911824]"
                                         >
-                                            +92 42 1234567
+                                            {PTCL_NUMBER}
                                         </a>
                                     </div>
                                 </div>
 
+                                {/* EMAIL */}
                                 <div className="flex gap-4">
                                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#911824]/10 text-[#911824]">
                                         <FaEnvelope />
@@ -461,6 +509,7 @@ export default function ContactPage() {
                                     </div>
                                 </div>
 
+                                {/* WHATSAPP */}
                                 <div className="flex gap-4">
                                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#911824]/10 text-[#911824]">
                                         <FaWhatsapp />
@@ -476,27 +525,27 @@ export default function ContactPage() {
                                         </p>
 
                                         <a
-                                            href="https://wa.me/923001234567"
+                                            href={WHATSAPP_URL}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="mt-1 inline-block font-semibold text-[#911824]"
                                         >
-                                            +92 300 1234567
+                                            {WHATSAPP_NUMBER}
                                         </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Form */}
+                        {/* FORM */}
                         {/* <ContactForm /> */}
                     </div>
                 </div>
             </section>
 
             {/* =========================================================
-          DEPARTMENT HELP
-      ========================================================= */}
+                DEPARTMENT HELP
+            ========================================================= */}
             <section className="py-16 md:py-20">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
                     <div className="mx-auto mb-12 max-w-2xl text-center">
@@ -542,15 +591,15 @@ export default function ContactPage() {
             </section>
 
             {/* =========================================================
-          LOCATION / MAP
-      ========================================================= */}
-        <section id="location">
-            <Map />
-        </section>
+                LOCATION / MAP
+            ========================================================= */}
+            <section id="location">
+                <Map />
+            </section>
 
             {/* =========================================================
-          FAQ
-      ========================================================= */}
+                FAQ
+            ========================================================= */}
             <section className="py-16 md:py-24">
                 <div className="mx-auto max-w-4xl px-6 lg:px-8">
                     <div className="mb-12 text-center">
@@ -580,7 +629,9 @@ export default function ContactPage() {
                                 </div>
 
                                 <div className="collapse-content">
-                                    <p className="leading-7 text-gray-600">{faq.answer}</p>
+                                    <p className="leading-7 text-gray-600">
+                                        {faq.answer}
+                                    </p>
                                 </div>
                             </div>
                         ))}
@@ -589,8 +640,8 @@ export default function ContactPage() {
             </section>
 
             {/* =========================================================
-          SOCIAL / SUPPORT
-      ========================================================= */}
+                SOCIAL / SUPPORT
+            ========================================================= */}
             <section className="bg-white py-16">
                 <div className="mx-auto max-w-5xl px-6 text-center lg:px-8">
                     <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#911824]/10 text-2xl text-[#911824]">
@@ -609,6 +660,8 @@ export default function ContactPage() {
                     <div className="mt-7 flex justify-center gap-3">
                         <a
                             href="https://www.facebook.com/profile.php?id=61592074031243"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             aria-label="Facebook"
                             className="flex h-11 w-11 items-center justify-center rounded-full bg-[#911824] text-white transition hover:bg-[#74131e]"
                         >
@@ -617,6 +670,8 @@ export default function ContactPage() {
 
                         <a
                             href="https://www.instagram.com/bashirmemorialbmt"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             aria-label="Instagram"
                             className="flex h-11 w-11 items-center justify-center rounded-full bg-[#911824] text-white transition hover:bg-[#74131e]"
                         >
@@ -624,19 +679,31 @@ export default function ContactPage() {
                         </a>
 
                         <a
-                            href="https://wa.me/923001234567"
-                            aria-label="WhatsApp"
+                            href="https://www.youtube.com/@bmwhospital"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="YouTube"
                             className="flex h-11 w-11 items-center justify-center rounded-full bg-[#911824] text-white transition hover:bg-[#74131e]"
                         >
                             <FaYoutube />
+                        </a>
+
+                        <a
+                            href={WHATSAPP_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="WhatsApp"
+                            className="flex h-11 w-11 items-center justify-center rounded-full bg-[#911824] text-white transition hover:bg-[#74131e]"
+                        >
+                            <FaWhatsapp />
                         </a>
                     </div>
                 </div>
             </section>
 
             {/* =========================================================
-          FINAL CTA
-      ========================================================= */}
+                FINAL CTA
+            ========================================================= */}
             <section className="px-6 py-16 lg:px-8">
                 <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-[#911824] px-8 py-12 text-center text-white md:px-12 md:py-16">
                     <h2 className="text-3xl font-bold md:text-4xl">
@@ -651,15 +718,25 @@ export default function ContactPage() {
 
                     <div className="mt-8 flex flex-wrap justify-center gap-4">
                         <a
-                            href="tel:+92421234567"
+                            href={`tel:${PTCL_TEL}`}
                             className="btn border-none bg-white px-8 text-[#911824] hover:bg-gray-100"
                         >
                             <FaPhoneAlt />
                             Call the Hospital
                         </a>
 
+                        <a
+                            href={WHATSAPP_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn border border-white bg-transparent px-8 text-white hover:bg-white hover:text-[#911824]"
+                        >
+                            <FaWhatsapp />
+                            WhatsApp Us
+                        </a>
+
                         <Link
-                            href="/patient-care"
+                            href="/pages/patient_care"
                             className="btn btn-outline border-white px-8 text-white hover:bg-white hover:text-[#911824]"
                         >
                             Patient Care

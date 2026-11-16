@@ -370,7 +370,7 @@ export default function AboutPage() {
 
                         <div className="mt-7 flex flex-wrap justify-center gap-3 sm:mt-8 sm:gap-4">
                             <Link
-                                href="/contact"
+                                href="/pages/contact"
                                 className="
                                     inline-flex
                                     items-center
@@ -401,7 +401,7 @@ export default function AboutPage() {
                             </Link>
 
                             <Link
-                                href="/donate"
+                                href="/pages/donate"
                                 className="
                                     inline-flex
                                     items-center

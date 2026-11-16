@@ -139,7 +139,7 @@ const patientStories = [
         description:
             "Read stories that highlight the experiences, recovery, and impact of compassionate healthcare at BMWH.",
         action: "View success stories",
-        href: "/patient-welfare/success-stories",
+        href: "/pages/success_stories",
         icon: FaHeart,
     },
 ];
@@ -178,7 +178,7 @@ export default function PatientWelfare() {
 
                     <div className="shrink-0">
                         <Link
-                            href="/contact"
+                            href="/pages/contact"
                             className="btn h-11 min-h-11 rounded bg-[#86000D] px-7 text-sm font-semibold text-white shadow-md hover:bg-[#70000a]"
                         >
                             Get Assistance
@@ -492,7 +492,7 @@ export default function PatientWelfare() {
                         </div>
 
                         <Link
-                            href="/contact"
+                            href="/pages/contact"
                             className="btn h-11 min-h-11 rounded bg-[#86000D] px-7 text-sm font-semibold text-white hover:bg-[#70000a]"
                         >
                             Contact Patient Services

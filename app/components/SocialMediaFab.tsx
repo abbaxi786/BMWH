@@ -72,7 +72,7 @@ export default function SocialMediaFab() {
                 data-tip="WhatsApp"
             >
                 <a
-                    href="https://wa.me/YOUR_WHATSAPP_NUMBER"
+                    href="https://wa.me/923053444111"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="WhatsApp"

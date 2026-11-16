@@ -53,7 +53,7 @@ const utilityLinks = [
   },
   {
     label: "Whatsapp Assistance",
-    href: "/pages/contact#whatsapp_assistance",
+    href: "https://wa.me/923053444111",
     icon: MdOutlineMessage,
   },
   {

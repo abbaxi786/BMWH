@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -6,6 +7,7 @@ import {
     FaYoutube,
     FaMapMarkerAlt,
     FaPhoneAlt,
+    FaWhatsapp,
     FaEnvelope,
     FaClock,
     FaArrowRight,
@@ -337,25 +339,76 @@ function ContactInformation() {
                                 text-white
                             "
                         >
-                            Bashir Memorial Welfare Hospital
+                            14/1 Lyton Road, Lahore
+                        </p>
+                    </div>
+                </div>
+
+                {/* WhatsApp */}
+                <a
+                    href="https://wa.me/923053444111"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="WhatsApp Bashir Memorial Welfare Hospital"
+                    className="
+                        group
+                        flex
+                        items-start
+                        gap-3
+                    "
+                >
+                    <div
+                        className="
+                            flex
+                            h-9
+                            w-9
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-lg
+                            bg-[#911824]/20
+                            text-[#E11D2E]
+                            transition-all
+                            duration-200
+                            group-hover:bg-[#E11D2E]
+                            group-hover:text-white
+                        "
+                    >
+                        <FaWhatsapp size={15} />
+                    </div>
+
+                    <div className="min-w-0">
+                        <p
+                            className="
+                                text-xs
+                                font-medium
+                                uppercase
+                                tracking-wide
+                                text-zinc-500
+                            "
+                        >
+                            WhatsApp
                         </p>
 
                         <p
                             className="
                                 mt-1
                                 text-sm
-                                leading-5
-                                text-zinc-300
+                                font-semibold
+                                text-white
+                                transition-colors
+                                duration-200
+                                group-hover:text-[#E11D2E]
                             "
                         >
-                            Lahore, Punjab, Pakistan
+                            03053444111
                         </p>
                     </div>
-                </div>
+                </a>
 
-                {/* Phone */}
+                {/* PTCL */}
                 <a
-                    href="tel:+924211234567"
+                    href="tel:+924237124872"
                     aria-label="Call Bashir Memorial Welfare Hospital"
                     className="
                         group
@@ -394,7 +447,7 @@ function ContactInformation() {
                                 text-zinc-500
                             "
                         >
-                            Phone
+                            PTCL
                         </p>
 
                         <p
@@ -408,7 +461,7 @@ function ContactInformation() {
                                 group-hover:text-[#E11D2E]
                             "
                         >
-                            +92 42 112 345 67
+                            04237124872
                         </p>
                     </div>
                 </a>
@@ -528,7 +581,7 @@ function ContactInformation() {
                     </div>
                 </div>
 
-                {/* Get Directions */}
+                {/* Get Directions - Original Link Kept Unchanged */}
                 <a
                     href="https://www.google.com/maps/dir/?api=1&destination=31.558139,74.3089297"
                     target="_blank"
@@ -583,7 +636,7 @@ function FooterBottom() {
                     ${footerContainerClass}
 
                     flex
-                    min-h-[49px]
+                    min-h-12.25
                     flex-col
                     items-center
                     justify-between
@@ -713,9 +766,7 @@ export default function Footer() {
                 text-white
             "
         >
-            {/* =====================================================
-                MAIN FOOTER
-            ===================================================== */}
+            {/* MAIN FOOTER */}
 
             <div className="w-full py-10 sm:py-12 lg:py-14">
                 <div
@@ -752,10 +803,7 @@ export default function Footer() {
                 </div>
             </div>
 
-            {/* =====================================================
-                FOOTER BOTTOM
-            ===================================================== */}
-
+            {/* FOOTER BOTTOM */}
             <FooterBottom />
         </footer>
     );

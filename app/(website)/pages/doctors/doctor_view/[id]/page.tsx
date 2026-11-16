@@ -282,7 +282,7 @@ export default async function DoctorViewPage({ params }: PageProps) {
                             )}
 
                             <Link
-                                href="#appointment"
+                                href="https://wa.me/923053444111"
                                 className="inline-flex items-center gap-2 bg-white text-[#911824] px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
                             >
                                 <FaCalendarCheck />
@@ -479,7 +479,7 @@ export default async function DoctorViewPage({ params }: PageProps) {
                             </p>
 
                             <Link
-                                href="/pages/appointments"
+                                href="https://wa.me/923053444111"
                                 className="w-full inline-flex justify-center items-center gap-2 bg-white text-[#911824] px-5 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
                             >
                                 <FaCalendarCheck />

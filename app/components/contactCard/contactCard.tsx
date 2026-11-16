@@ -5,49 +5,39 @@ import {
   FaMapMarkerAlt,
   FaClock,
   FaArrowRight,
+  FaWhatsapp,
 } from "react-icons/fa";
+
+const PTCL_NUMBER = "04237124872";
+const PTCL_TEL = "+924237124872";
+
+const WHATSAPP_NUMBER = "03053444111";
+const WHATSAPP_URL = "https://wa.me/923053444111";
+
+const HOSPITAL_ADDRESS = "14/1 Lyton Road, Lahore";
 
 function ContactUsCard() {
   return (
     <section
       id="contact-us"
       className="
-        w-full
-        overflow-x-clip
-        bg-[#FBF9F9]
-        px-5
-        py-10
-        sm:px-8
-        sm:py-12
-        lg:px-10
-        lg:py-16
-        xl:px-12
-        2xl:px-16
-        2xl:py-20
+        w-full overflow-x-clip bg-[#FBF9F9]
+        px-5 py-10 sm:px-8 sm:py-12
+        lg:px-10 lg:py-16 xl:px-12
+        2xl:px-16 2xl:py-20
       "
     >
-      {/* Same container width and alignment as the navbar */}
       <div
         className="
-          mx-auto
-          w-full
-          min-w-0
-          max-w-7xl
+          mx-auto w-full min-w-0 max-w-7xl
           2xl:max-w-[1440px]
         "
       >
-        {/* MAIN CONTACT CARD */}
         <div
           className="
-            relative
-            w-full
-            min-w-0
-            overflow-hidden
-            rounded-2xl
-            border
-            border-[#E8D7D5]
-            bg-white
-            shadow-[0_10px_35px_rgba(27,28,28,0.06)]
+            relative w-full min-w-0 overflow-hidden
+            rounded-2xl border border-[#E8D7D5]
+            bg-white shadow-[0_10px_35px_rgba(27,28,28,0.06)]
             lg:rounded-3xl
           "
         >
@@ -55,32 +45,17 @@ function ContactUsCard() {
           <div
             aria-hidden="true"
             className="
-              pointer-events-none
-              absolute
-              -right-24
-              -top-24
-              h-64
-              w-64
-              rounded-full
-              bg-[#86000D]/[0.04]
-              blur-3xl
-              2xl:h-80
-              2xl:w-80
+              pointer-events-none absolute -right-24 -top-24
+              h-64 w-64 rounded-full bg-[#86000D]/[0.04]
+              blur-3xl 2xl:h-80 2xl:w-80
             "
           />
 
           <div
             aria-hidden="true"
             className="
-              pointer-events-none
-              absolute
-              -bottom-24
-              -left-24
-              h-64
-              w-64
-              rounded-full
-              bg-[#E4BEBA]/30
-              blur-3xl
+              pointer-events-none absolute -bottom-24 -left-24
+              h-64 w-64 rounded-full bg-[#E4BEBA]/30 blur-3xl
             "
           />
 
@@ -88,16 +63,9 @@ function ContactUsCard() {
             {/* LEFT: INTRODUCTION */}
             <div
               className="
-                flex
-                min-w-0
-                flex-col
-                justify-center
-                p-6
-                sm:p-8
-                md:p-10
-                lg:p-10
-                xl:p-12
-                2xl:p-14
+                flex min-w-0 flex-col justify-center
+                p-6 sm:p-8 md:p-10 lg:p-10
+                xl:p-12 2xl:p-14
               "
             >
               <div className="flex items-center gap-2.5">
@@ -113,19 +81,10 @@ function ContactUsCard() {
 
               <h2
                 className="
-                  mt-3
-                  max-w-lg
-                  text-[28px]
-                  font-bold
-                  leading-9
-                  tracking-[-0.3px]
-                  text-[#1B1C1C]
-                  sm:text-3xl
-                  sm:leading-10
-                  lg:text-[36px]
-                  lg:leading-[1.2]
-                  xl:text-[40px]
-                  2xl:text-[44px]
+                  mt-3 max-w-lg text-[28px] font-bold
+                  leading-9 tracking-[-0.3px] text-[#1B1C1C]
+                  sm:text-3xl sm:leading-10 lg:text-[36px]
+                  lg:leading-[1.2] xl:text-[40px] 2xl:text-[44px]
                 "
               >
                 We’re Here to Help
@@ -142,26 +101,12 @@ function ContactUsCard() {
                   href="/pages/contact"
                   aria-label="Contact Bashir Memorial Welfare Hospital"
                   className="
-                    group
-                    inline-flex
-                    items-center
-                    justify-center
-                    gap-2
-                    rounded-lg
-                    bg-[#86000D]
-                    px-5
-                    py-3
-                    text-sm
-                    font-semibold
-                    text-white
-                    shadow-sm
-                    transition-all
-                    duration-300
-                    hover:bg-[#6f000a]
-                    hover:shadow-md
-                    focus:outline-none
-                    focus-visible:ring-2
-                    focus-visible:ring-[#86000D]
+                    group inline-flex items-center justify-center gap-2
+                    rounded-lg bg-[#86000D] px-5 py-3
+                    text-sm font-semibold text-white shadow-sm
+                    transition-all duration-300 hover:bg-[#6f000a]
+                    hover:shadow-md focus:outline-none
+                    focus-visible:ring-2 focus-visible:ring-[#86000D]
                     focus-visible:ring-offset-2
                   "
                 >
@@ -179,18 +124,10 @@ function ContactUsCard() {
             {/* RIGHT: CONTACT INFORMATION */}
             <div
               className="
-                min-w-0
-                border-t
-                border-[#E8D7D5]
-                bg-[#FBF9F9]
-                p-6
-                sm:p-8
-                md:p-10
-                lg:border-l
-                lg:border-t-0
-                lg:p-8
-                xl:p-10
-                2xl:p-12
+                min-w-0 border-t border-[#E8D7D5]
+                bg-[#FBF9F9] p-6 sm:p-8 md:p-10
+                lg:border-l lg:border-t-0 lg:p-8
+                xl:p-10 2xl:p-12
               "
             >
               <div className="mb-5">
@@ -205,30 +142,19 @@ function ContactUsCard() {
 
               {/* CONTACT GRID */}
               <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:gap-5">
-                {/* PHONE */}
+
+                {/* PTCL PHONE */}
                 <a
-                  href="tel:+924211234567"
-                  aria-label="Call Bashir Memorial Welfare Hospital at +92 42 112 345 67"
+                  href={`tel:${PTCL_TEL}`}
+                  aria-label={`Call Bashir Memorial Welfare Hospital at ${PTCL_NUMBER}`}
                   className="
-                    group
-                    flex
-                    min-w-0
-                    items-start
-                    gap-3
-                    rounded-xl
-                    border
-                    border-[#E8D7D5]
-                    bg-white
-                    p-4
-                    transition-all
-                    duration-300
-                    hover:-translate-y-0.5
-                    hover:border-[#E4BEBA]
+                    group flex min-w-0 items-start gap-3
+                    rounded-xl border border-[#E8D7D5]
+                    bg-white p-4 transition-all duration-300
+                    hover:-translate-y-0.5 hover:border-[#E4BEBA]
                     hover:shadow-[0_8px_20px_rgba(134,0,13,0.07)]
-                    focus:outline-none
-                    focus-visible:ring-2
-                    focus-visible:ring-[#86000D]
-                    focus-visible:ring-offset-2
+                    focus:outline-none focus-visible:ring-2
+                    focus-visible:ring-[#86000D] focus-visible:ring-offset-2
                   "
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#86000D]/10 text-[#86000D] transition-colors duration-300 group-hover:bg-[#86000D] group-hover:text-white">
@@ -237,15 +163,50 @@ function ContactUsCard() {
 
                   <div className="min-w-0">
                     <p className="text-xs font-medium uppercase tracking-wide text-[#7A6663]">
-                      Phone
+                      PTCL Phone
                     </p>
 
                     <p className="mt-1 break-words text-sm font-semibold text-[#1B1C1C] group-hover:text-[#86000D] sm:text-[15px]">
-                      +92 42 112 345 67
+                      {PTCL_NUMBER}
                     </p>
 
                     <p className="mt-0.5 text-xs text-[#7A6663]">
                       Main hospital line
+                    </p>
+                  </div>
+                </a>
+
+                {/* WHATSAPP */}
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Contact Bashir Memorial Welfare Hospital on WhatsApp at ${WHATSAPP_NUMBER}`}
+                  className="
+                    group flex min-w-0 items-start gap-3
+                    rounded-xl border border-[#E8D7D5]
+                    bg-white p-4 transition-all duration-300
+                    hover:-translate-y-0.5 hover:border-[#E4BEBA]
+                    hover:shadow-[0_8px_20px_rgba(134,0,13,0.07)]
+                    focus:outline-none focus-visible:ring-2
+                    focus-visible:ring-[#86000D] focus-visible:ring-offset-2
+                  "
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#86000D]/10 text-[#86000D] transition-colors duration-300 group-hover:bg-[#86000D] group-hover:text-white">
+                    <FaWhatsapp aria-hidden="true" size={17} />
+                  </div>
+
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium uppercase tracking-wide text-[#7A6663]">
+                      WhatsApp
+                    </p>
+
+                    <p className="mt-1 break-words text-sm font-semibold text-[#1B1C1C] group-hover:text-[#86000D] sm:text-[15px]">
+                      {WHATSAPP_NUMBER}
+                    </p>
+
+                    <p className="mt-0.5 text-xs text-[#7A6663]">
+                      Chat with our hospital
                     </p>
                   </div>
                 </a>
@@ -255,25 +216,13 @@ function ContactUsCard() {
                   href="mailto:info@bmwh.org"
                   aria-label="Email Bashir Memorial Welfare Hospital at info@bmwh.org"
                   className="
-                    group
-                    flex
-                    min-w-0
-                    items-start
-                    gap-3
-                    rounded-xl
-                    border
-                    border-[#E8D7D5]
-                    bg-white
-                    p-4
-                    transition-all
-                    duration-300
-                    hover:-translate-y-0.5
-                    hover:border-[#E4BEBA]
+                    group flex min-w-0 items-start gap-3
+                    rounded-xl border border-[#E8D7D5]
+                    bg-white p-4 transition-all duration-300
+                    hover:-translate-y-0.5 hover:border-[#E4BEBA]
                     hover:shadow-[0_8px_20px_rgba(134,0,13,0.07)]
-                    focus:outline-none
-                    focus-visible:ring-2
-                    focus-visible:ring-[#86000D]
-                    focus-visible:ring-offset-2
+                    focus:outline-none focus-visible:ring-2
+                    focus-visible:ring-[#86000D] focus-visible:ring-offset-2
                   "
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#86000D]/10 text-[#86000D] transition-colors duration-300 group-hover:bg-[#86000D] group-hover:text-white">
@@ -307,7 +256,7 @@ function ContactUsCard() {
                     </p>
 
                     <p className="mt-1 break-words text-sm font-semibold leading-5 text-[#1B1C1C]">
-                      Bashir Memorial Welfare Hospital
+                      {HOSPITAL_ADDRESS}
                     </p>
 
                     <p className="mt-0.5 text-xs leading-5 text-[#7A6663]">
@@ -336,6 +285,7 @@ function ContactUsCard() {
                     </p>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>

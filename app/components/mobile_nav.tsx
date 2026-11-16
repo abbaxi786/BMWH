@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -14,7 +15,6 @@ import {
 } from "react-icons/fa";
 
 import { HiMenuAlt3 } from "react-icons/hi";
-import { IoPersonOutline } from "react-icons/io5";
 import { MdOutlineMessage } from "react-icons/md";
 import { RiContactsLine } from "react-icons/ri";
 import { CiHeart } from "react-icons/ci";
@@ -193,6 +193,11 @@ export default function MobileMenu() {
     };
   }, [isOpen]);
 
+  const closeMenu = () => {
+    setIsOpen(false);
+    setOpenSection(null);
+  };
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -207,11 +212,6 @@ export default function MobileMenu() {
     };
   }, [isOpen]);
 
-  const closeMenu = () => {
-    setIsOpen(false);
-    setOpenSection(null);
-  };
-
   const toggleSection = (label: string) => {
     setOpenSection((current) => (current === label ? null : label));
   };
@@ -219,21 +219,7 @@ export default function MobileMenu() {
   return (
     <>
       {/* Mobile Controls */}
-      <div className="flex shrink-0 items-center gap-1.5 min-[380px]:gap-2">
-        <Link
-          href="/profile"
-          aria-label="Profile"
-          className="
-            flex h-8 w-8 shrink-0 items-center justify-center
-            rounded-lg bg-[#86000D] text-white shadow-sm
-            transition-opacity hover:opacity-90
-            min-[380px]:h-9 min-[380px]:w-9
-            sm:h-10 sm:w-10
-          "
-        >
-          <IoPersonOutline size={14} />
-        </Link>
-
+      <div className="flex shrink-0 items-center">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
@@ -284,59 +270,46 @@ export default function MobileMenu() {
             px-3 min-[380px]:px-4 sm:px-5
           "
         >
-          {/* Logo */}
+          <Link
+            href="/"
+            onClick={closeMenu}
+            className="flex min-w-0 items-center gap-3"
+          >
+            <Image
+              src="/logo.png"
+              alt="Bashir Memorial Welfare Hospital Logo"
+              width={48}
+              height={48}
+              priority
+              className="h-9 w-9 shrink-0 object-contain sm:h-12 sm:w-12"
+            />
 
-<Link
-  href="/"
-  onClick={closeMenu}
-  className="flex min-w-0 items-center gap-3"
->
-  <Image
-    src="/logo.png"
-    alt="Bashir Memorial Welfare Hospital Logo"
-    width={48}
-    height={48}
-    priority
-    className="h-9 w-9 shrink-0 object-contain sm:h-12 sm:w-12"
-  />
+            <div className="min-w-0">
+              <h1
+                className="
+                  whitespace-nowrap text-[12px] font-bold
+                  leading-3.5 text-[#86000D]
+                  min-[321px]:text-sm min-[321px]:leading-4
+                  sm:text-base sm:leading-5
+                "
+              >
+                Bashir Memorial
+              </h1>
 
-  <div className="min-w-0">
-    <h1
-      className="
-        whitespace-nowrap
-        text-[12px]
-        font-bold
-        leading-3.5
-        text-[#86000D]
-        min-[321px]:text-sm
-        min-[321px]:leading-4
-        sm:text-base
-        sm:leading-5
-      "
-    >
-      Bashir Memorial
-    </h1>
-
-    <h2
-      className="
-        mt-0.5
-        whitespace-nowrap
-        text-[8px]
-        font-medium
-        uppercase
-        leading-3
-        tracking-[0.7px]
-        text-[#5F5E5E]
-        min-[321px]:text-[9px]
-        min-[321px]:tracking-[1px]
-        sm:text-xs
-        sm:tracking-[1.2px]
-      "
-    >
-      Welfare Hospital
-    </h2>
-  </div>
-</Link> 
+              <h2
+                className="
+                  mt-0.5 whitespace-nowrap text-[8px]
+                  font-medium uppercase leading-3
+                  tracking-[0.7px] text-[#5F5E5E]
+                  min-[321px]:text-[9px]
+                  min-[321px]:tracking-[1px]
+                  sm:text-xs sm:tracking-[1.2px]
+                "
+              >
+                Welfare Hospital
+              </h2>
+            </div>
+          </Link>
 
           <button
             type="button"
@@ -464,10 +437,12 @@ export default function MobileMenu() {
                       active:bg-[#86000D]/10
                     "
                   >
-                    <span className="
-                      flex h-8 w-8 shrink-0 items-center justify-center
-                      rounded-lg bg-[#86000D]/5 text-[#86000D]
-                    ">
+                    <span
+                      className="
+                        flex h-8 w-8 shrink-0 items-center justify-center
+                        rounded-lg bg-[#86000D]/5 text-[#86000D]
+                      "
+                    >
                       <Icon size={15} />
                     </span>
 
@@ -494,20 +469,6 @@ export default function MobileMenu() {
             >
               <CiHeart size={19} />
               <span>Donate Now</span>
-            </Link>
-
-            <Link
-              href="/profile"
-              onClick={closeMenu}
-              className="
-                mt-3 flex min-h-[46px] w-full items-center justify-center
-                gap-2 rounded-xl border border-[#86000D]/20
-                px-5 py-3 text-sm font-medium text-[#86000D]
-                transition-colors hover:bg-[#86000D]/5
-              "
-            >
-              <IoPersonOutline size={17} />
-              <span>My Profile</span>
             </Link>
           </div>
         </div>

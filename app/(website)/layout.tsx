@@ -41,7 +41,7 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "BMWH Hospital",
+        alt: "Bashir Memorial Welfare Hospital",
       },
     ],
   },
@@ -64,16 +64,55 @@ export const metadata: Metadata = {
   },
 };
 
+// Hospital structured data
 const hospitalSchema = {
   "@context": "https://schema.org",
   "@type": "Hospital",
-  name: "BMWH Hospital",
-  url: "https://bmwhospital.org.pk",
+
+  name: "Bashir Memorial Welfare Hospital",
+
+  alternateName: [
+    "BMWH",
+    "Bashir Memorial Eye Trust Hospital",
+  ],
+
+  url: "https://bmwhospital.org.pk/",
+
   logo: "https://bmwhospital.org.pk/logo.png",
+
+  image: "https://bmwhospital.org.pk/og-image.jpg",
+
+  telephone: "+924237124872",
+
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "14/1 Lyton Road",
+    addressLocality: "Lahore",
+    addressRegion: "Punjab",
+    addressCountry: "PK",
+  },
+
   sameAs: [
     "https://www.youtube.com/@bmwhospital",
     "https://www.instagram.com/bashirmemorialbmt",
+    "https://www.facebook.com/people/Bashir-Memorial-Welfare-Hospital/61592074031243/",
   ],
+};
+
+// Website structured data
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+
+  name: "BMWH Hospital",
+
+   "alternateName": [
+    "BMWH",
+    "Bashir Memorial Welfare Hospital",
+    "Bashir Memorial Eye Trust Hospital"
+  ],
+
+  url: "https://bmwhospital.org.pk/",
 };
 
 export default function WebsiteLayout({
@@ -91,11 +130,19 @@ export default function WebsiteLayout({
       <SocialMediaFab />
       <BackToTop />
 
-      {/* Hospital Structured Data for SEO */}
+      {/* Hospital Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(hospitalSchema).replace(/</g, "\\u003c"),
+        }}
+      />
+
+      {/* Website Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(websiteSchema).replace(/</g, "\\u003c"),
         }}
       />
     </div>
